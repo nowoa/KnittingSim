@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f660e61e029a1de45a5a338ad78f0fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 2
-  height: 1
+  width: 0.5
+  height: 0.5
   leftPos: {x: 0, y: 0, z: 0}
   rightPos: {x: 0, y: 0, z: 0}
   centerPos: {x: 0, y: 0, z: 0}
@@ -57,7 +57,7 @@ MonoBehaviour:
   _isKnit: 0
   stitchLeft: {fileID: 0}
   stitchBelow: {fileID: 0}
-  depth: 0
+  _lineRenderer: {fileID: 0}
 --- !u!1 &2319446821817775475
 GameObject:
   m_ObjectHideFlags: 0

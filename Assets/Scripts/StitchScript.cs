@@ -18,23 +18,34 @@ public class StitchScript : MonoBehaviour
     public StitchScript stitchBelow;
 
 
-    public float depth;
+
     
     // Start is called before the first frame update
     void Start()
     {
-        leftPos = transform.position - new Vector3(0.5f*width, 0, 0);
-        
-        rightPos = transform.position + new Vector3(0.5f*width, 0, 0);
-
-        centerPos = transform.position;
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_isKnit) depth = 1;
-        else depth = 0;
+      
+    }
+
+    
+    public void Init()
+    {
+        leftPos.x = transform.position.x - 0.5f * width;
+        leftPos.y = transform.position.y;
+
+        rightPos.x = transform.position.x + 0.5f * width;
+        rightPos.y = transform.position.y;
+
+        centerPos = transform.position;  
+    }
+    public float GetDepth()
+    {
+        return _isKnit ? 1 : 0;
     }
 
     private void OnDrawGizmos()
@@ -51,6 +62,10 @@ public class StitchScript : MonoBehaviour
         
         Gizmos.color = rightColor;
         Gizmos.DrawSphere(rightPos,0.05f);
+        
+        Gizmos.DrawLine(leftPos,centerPos);
+        Gizmos.DrawLine(centerPos,rightPos);
     }
+    
     
 }

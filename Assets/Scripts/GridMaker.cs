@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
@@ -10,6 +11,7 @@ public class GridMaker : MonoBehaviour
 
     [SerializeField] private int width;
     [SerializeField] private int height;
+    [SerializeField] private float _displacementFactor;
 
     [SerializeField] private StitchScript stitchPrefab;
     [SerializeField] private GameObject _parentObject;
@@ -34,7 +36,7 @@ public class GridMaker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i=0; i<_stitches.Count;i++)
+        /*for (int i=0; i<_stitches.Count;i++)
         {
             
             if (stitchPrefab.stitchLeft == null)
@@ -44,9 +46,9 @@ public class GridMaker : MonoBehaviour
             else
             {
                 _stitches[i].leftPos = new Vector3(_stitches[i].leftPos.x, _stitches[i].leftPos.y,
-                    _stitches[i].depth + _stitches[i].stitchLeft.depth / 2);
+                    _stitches[i].GetDepth() + _stitches[i].stitchLeft.GetDepth() / 2);
             }
-        }
+        }*/
     }
     
     public void MakeGrid() //makes a grid of stitch gameobjects based on the width and height in the inspector
@@ -67,6 +69,7 @@ public class GridMaker : MonoBehaviour
             {
                 Vector3 widthPos = _startingPosition + new Vector3(u * stitchPrefab.width, heightPos.y, 0);
                 StitchScript newStitch = Instantiate(stitchPrefab, widthPos, Quaternion.identity);
+                newStitch.Init();
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -84,7 +87,6 @@ public class GridMaker : MonoBehaviour
         {
             if (i % width ==0)
             {
-                Debug.Log("no left stitch" + i);
                 
             }
             else
@@ -106,18 +108,19 @@ public class GridMaker : MonoBehaviour
     
     public void Coordinate()
     {
-        int xCoordinate;
-        int yCoordinate;
         for (int i=0; i <_stitches.Count;i++)
         {
 
-            yCoordinate = i / width;
-            xCoordinate = i % height;
-            _stitches[i].xCoordinate = xCoordinate;
-            _stitches[i].yCoordinate = yCoordinate;
-            Debug.Log(xCoordinate.ToString());
+            var coordinate = GetCoordinate(i, width);
+            _stitches[i].xCoordinate = coordinate.x ;
+            _stitches[i].yCoordinate = coordinate.y;
 
         }
+    }
+
+    public Vector2Int GetCoordinate (int index, int width)
+    {
+        return new Vector2Int(index % width, index / width);
     }
     
     public void UsePattern()
@@ -129,21 +132,29 @@ public class GridMaker : MonoBehaviour
         ConnectStitches();
         Coordinate();
         foreach (StitchScript i in _stitches)
+        {
             if (_pattern.GetStitch(i.xCoordinate, i.yCoordinate))
             {
                 i._isKnit = true;
             }
             else i._isKnit = false;
+        }
+
         ApplyDisplacement();
-        
+    }
+    
+    IEnumerator CallApplyDisplacement()
+    {
+        yield return null; // Wait for the next frame
+        ApplyDisplacement();
     }
     public void ApplyDisplacement() //applies displacement based on whether the stitch is a knit (1) or purl (0) 
     {
         foreach (StitchScript i in _stitches)
         {
-            Debug.Log(i.depth);
-            i.leftPos.z = i.centerPos.z = i.rightPos.z = i.depth;
-            
+           
+            i.leftPos.z = i.centerPos.z = i.rightPos.z = i.GetDepth() *_displacementFactor;
+            Debug.Log(i.leftPos.z, i);
         }
         foreach (StitchScript i in _stitches)
         {
