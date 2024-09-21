@@ -9,12 +9,15 @@ public class StitchScript : MonoBehaviour
 
     [FormerlySerializedAs("_rightPos")] public Vector3 rightPos;
     public Vector3 centerPos;
+
+    public int xCoordinate;
+    public  int yCoordinate;
     
-    [SerializeField] private bool _isKnit;
+    public bool _isKnit;
     public StitchScript stitchLeft;
     public StitchScript stitchBelow;
 
-    [HideInInspector]
+
     public float depth;
     
     // Start is called before the first frame update
@@ -49,4 +52,5 @@ public class StitchScript : MonoBehaviour
         Gizmos.color = rightColor;
         Gizmos.DrawSphere(rightPos,0.05f);
     }
+    
 }
