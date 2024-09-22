@@ -11,7 +11,7 @@ public class GridMaker : MonoBehaviour
 
     [SerializeField] private int width;
     [SerializeField] private int height;
-    [SerializeField] private float _displacementFactor;
+    [FormerlySerializedAs("_displacementFactor")] public float displacementFactor;
 
     [SerializeField] private StitchScript stitchPrefab;
     [SerializeField] private GameObject _parentObject;
@@ -80,7 +80,7 @@ public class GridMaker : MonoBehaviour
             {
                 Vector3 widthPos = _startingPosition + new Vector3(u * stitchPrefab.width, heightPos.y, 0);
                 StitchScript newStitch = Instantiate(stitchPrefab, widthPos, Quaternion.identity);
-                newStitch.Init();
+                newStitch.Init(this);
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -104,10 +104,10 @@ public class GridMaker : MonoBehaviour
             for (int u = 0; u < width; u++)
             {
                 
-                Vector3 newPos = new Vector3(Mathf.Cos(angle*u), row * stitchPrefab.height, Mathf.Sin(angle*u));
+                Vector3 newPos = new Vector3(Mathf.Cos(angle*u)*radius, row * stitchPrefab.height, Mathf.Sin(angle*u)*radius);
                 Debug.Log(newPos);
                 StitchScript newStitch = Instantiate(stitchPrefab,newPos,Quaternion.identity);
-                newStitch.Init();
+                newStitch.Init(this);
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -123,23 +123,34 @@ public class GridMaker : MonoBehaviour
     {
         for (int i = 0; i < _stitches.Count; i++)
         {
-            if (i % width ==0)
+            if (i % width ==0)//horizontal stitch connections
             {
                 
             }
             else
             {
                 _stitches[i].stitchLeft = _stitches[i - 1];
+                _stitches[i - 1].stitchRight = _stitches[i];
             }
 
-            if (i < width)
+            if (i < width)//bottom stitch
             {
                 
             }
             else
             {
                 _stitches[i].stitchBelow = _stitches[i - width];
+                _stitches[i - width].stitchAbove = _stitches[i];
             }
+            if (_isCircular)
+            {
+                if (i%width==width-1)
+                {
+                    _stitches[i].stitchRight = _stitches[i + 1];
+                    _stitches[i + 1].stitchLeft = _stitches[i];
+                }
+            }
+            
         }
     }
     
@@ -178,27 +189,9 @@ public class GridMaker : MonoBehaviour
             else i._isKnit = false;
         }
 
-        ApplyDisplacement();
+       
+    
+    
     }
     
-    public void ApplyDisplacement() //applies displacement based on whether the stitch is a knit (1) or purl (0) 
-    {
-        foreach (StitchScript i in _stitches)
-        {
-           
-            i.leftPos.z = i.centerPos.z = i.rightPos.z = i.GetDepth() *_displacementFactor;
-            Debug.Log(i.leftPos.z, i);
-        }
-        foreach (StitchScript i in _stitches)
-        {
-
-            if (i.stitchLeft != null)
-            {
-                float depth = (i.leftPos.z + i.stitchLeft.rightPos.z) / 2;
-                /*Debug.Log(i.leftPos.z.ToString() + i.stitchLeft.rightPos.z.ToString());*/
-                i.leftPos.z = i.stitchLeft.rightPos.z = depth;
-            }
-            
-        }
-    }
 }

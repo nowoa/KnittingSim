@@ -5,10 +5,7 @@ public class StitchScript : MonoBehaviour
 {
     [FormerlySerializedAs("_width")] public float width = 2;
     [FormerlySerializedAs("_height")] public float height = 2;
-    [FormerlySerializedAs("_leftPos")] public Vector3 leftPos;
 
-    [FormerlySerializedAs("_rightPos")] public Vector3 rightPos;
-    public Vector3 centerPos;
 
     public int xCoordinate;
     public  int yCoordinate;
@@ -16,6 +13,9 @@ public class StitchScript : MonoBehaviour
     public bool _isKnit;
     public StitchScript stitchLeft;
     public StitchScript stitchBelow;
+    public StitchScript stitchRight;
+    public StitchScript stitchAbove;
+    public GridMaker gridMaker;
 
 
 
@@ -33,39 +33,79 @@ public class StitchScript : MonoBehaviour
     }
 
     
-    public void Init()
+    public void Init(GridMaker gridMaker)
     {
-        leftPos.x = transform.position.x - 0.5f * width;
-        leftPos.y = transform.position.y;
+        this.gridMaker = gridMaker;
 
-        rightPos.x = transform.position.x + 0.5f * width;
-        rightPos.y = transform.position.y;
 
-        centerPos = transform.position;  
+
+       
+
+       
     }
     public float GetDepth()
     {
-        return _isKnit ? 1 : 0;
+        return _isKnit ? 1 : -1;
     }
 
     private void OnDrawGizmos()
     {
+        Vector3 leftPos;
+        Vector3 rightPos;
         Color leftColor = new Color(1,0,0,0.5f);
         Color rightColor = new Color(0, 0, 1, 0.5f);
+        if (stitchLeft != null)
+        {
+            leftPos=GetAverage(this.GetDisplacement(), stitchLeft.GetDisplacement());
+            Gizmos.color = leftColor;
+            Gizmos.DrawSphere(leftPos,0.05f);
+            
+            Gizmos.DrawLine(leftPos,GetDisplacement());
+        }
+
+        if (stitchRight != null)
+        {
+            rightPos = GetAverage(this.GetDisplacement(), stitchRight.GetDisplacement());
+            Gizmos.color = rightColor;
+            Gizmos.DrawSphere(rightPos,0.05f);
+            
+            Gizmos.DrawLine(GetDisplacement(),rightPos);
+        }
+        ;
         //stitch center
         Gizmos.color = Color.white; 
-        Gizmos.DrawSphere(centerPos,0.1f);
-     
-        //stitch leftpos
-        Gizmos.color = leftColor;
-        Gizmos.DrawSphere(leftPos,0.05f);
+        Gizmos.DrawSphere(GetDisplacement(),0.1f);
         
-        Gizmos.color = rightColor;
-        Gizmos.DrawSphere(rightPos,0.05f);
-        
-        Gizmos.DrawLine(leftPos,centerPos);
-        Gizmos.DrawLine(centerPos,rightPos);
+        //normal vectors
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(GetDisplacement(), GetDisplacement()+GetNormal());
     }
     
+    public static Vector3 GetNormal(Vector3 leftPos, Vector3 rightPos, Vector3 bottomPos, Vector3 topPos)
+    {
+        Vector3 horizontal = leftPos - rightPos;
+        Vector3 vertical = topPos - bottomPos;
+        return Vector3.Cross(horizontal, vertical).normalized;
+    }
     
+    public Vector3 GetNormal()
+    {
+        var leftPos1 = stitchLeft == null ? transform.position : stitchLeft.transform.position;
+        var rightPos1 = stitchRight == null ? transform.position : stitchRight.transform.position;
+        var topPos1 = stitchAbove == null ? transform.position : stitchAbove.transform.position;
+        var bottomPos1 = stitchBelow == null ? transform.position : stitchBelow.transform.position;
+        return GetNormal(leftPos1, rightPos1, bottomPos1,
+                topPos1);
+    }
+    
+    public Vector3 GetDisplacement()
+    {
+        return transform.position + GetNormal() * GetDepth() * gridMaker.displacementFactor;
+    }
+    
+    public static Vector3 GetAverage(Vector3 stitch, Vector3 otherStitch)
+    {
+        return (stitch + otherStitch) / 2;
+    }
 }
+
