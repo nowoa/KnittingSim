@@ -19,6 +19,14 @@ public class GridMaker : MonoBehaviour
 
     [SerializeField]private List<StitchScript> _stitches;
 
+    [SerializeField] private bool isRibbed;
+    [SerializeField] private int purlAmnt;
+    [SerializeField] private int knitAmnt;
+    
+    
+    
+    
+
     [SerializeField] private Pattern _pattern;
 
     [SerializeField] private bool _isCircular;
@@ -68,6 +76,8 @@ public class GridMaker : MonoBehaviour
         if(_isCircular) MakeCircularGrid();
         
         else MakeSquareGrid();
+        if(isRibbed) CreateRibbing();
+        
     }
     
     public void MakeSquareGrid() //makes a grid of stitch gameobjects based on the width and height in the inspector
@@ -90,7 +100,7 @@ public class GridMaker : MonoBehaviour
                 }
             }
         }
-
+        
         
     }
     
@@ -98,13 +108,14 @@ public class GridMaker : MonoBehaviour
     {
         float angle = (Mathf.PI * 2) / width;
         
-        int row = 0;
+        float row = 0;
+        float diagonalIncrement = (float)stitchPrefab.height /(float) width;
         for (int i = 0; i < height; i++)
         {
             for (int u = 0; u < width; u++)
             {
                 
-                Vector3 newPos = new Vector3(Mathf.Cos(angle*u)*radius, row * stitchPrefab.height, Mathf.Sin(angle*u)*radius);
+                Vector3 newPos = new Vector3(Mathf.Cos(angle*u)*radius, row+(float)diagonalIncrement * u, Mathf.Sin(angle*u)*radius);
             
                 StitchScript newStitch = Instantiate(stitchPrefab,newPos,Quaternion.identity);
                 newStitch.Init(this, u, i);
@@ -115,7 +126,7 @@ public class GridMaker : MonoBehaviour
                 }
             }
 
-            row++;
+            row+=stitchPrefab.height;
         }
     }
     
@@ -162,9 +173,13 @@ public class GridMaker : MonoBehaviour
     
     public void GetStitchValue()
     {
-        Debug.Log("function called");
+        
+        
+        
+        
         foreach (StitchScript i in _stitches)
         {
+            
             Debug.Log("is run");
             if (_pattern.GetStitch(i.xCoordinate, i.yCoordinate))
             {
@@ -174,7 +189,18 @@ public class GridMaker : MonoBehaviour
         }
     }
    
+void CreateRibbing()
+{
+    foreach (StitchScript i in _stitches)
+    {
+        if (!isRibbed)
+        {
+            continue;
+        }
 
+        i._isKnit = i.xCoordinate % (purlAmnt + knitAmnt) > purlAmnt - 1;
+    }
+}
    
     
     public void UsePattern()

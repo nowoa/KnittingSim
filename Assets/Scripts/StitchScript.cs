@@ -16,7 +16,7 @@ public class StitchScript : MonoBehaviour
     public StitchScript stitchRight;
     public StitchScript stitchAbove;
     public GridMaker gridMaker;
-
+    public bool drawNormals;
 
 
     
@@ -73,8 +73,12 @@ public class StitchScript : MonoBehaviour
         Gizmos.DrawSphere(GetDisplacement(),0.1f);
         
         //normal vectors
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(GetDisplacement(), GetDisplacement()+GetNormal());
+        if(drawNormals)
+        {
+            
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(GetDisplacement(), GetDisplacement()+GetNormal());
+        }
     }
     
     public static Vector3 GetNormal(Vector3 leftPos, Vector3 rightPos, Vector3 bottomPos, Vector3 topPos)
