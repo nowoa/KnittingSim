@@ -698,3 +698,5 @@ MonoBehaviour:
       Data: 
   width: 20
   height: 10
+  isCircular: 0
+  radius: 0

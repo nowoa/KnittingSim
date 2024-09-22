@@ -9,7 +9,7 @@ using UnityEngine.Serialization;
 public class GridMaker : MonoBehaviour
 { 
 
-    [SerializeField] private int width;
+    public int width;
     [SerializeField] private int height;
     [FormerlySerializedAs("_displacementFactor")] public float displacementFactor;
 
@@ -64,7 +64,9 @@ public class GridMaker : MonoBehaviour
         }
         //clear list to allow a new list to be made
         _stitches.Clear();
+        
         if(_isCircular) MakeCircularGrid();
+        
         else MakeSquareGrid();
     }
     
@@ -80,7 +82,7 @@ public class GridMaker : MonoBehaviour
             {
                 Vector3 widthPos = _startingPosition + new Vector3(u * stitchPrefab.width, heightPos.y, 0);
                 StitchScript newStitch = Instantiate(stitchPrefab, widthPos, Quaternion.identity);
-                newStitch.Init(this);
+                newStitch.Init(this, u, i);
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -94,10 +96,8 @@ public class GridMaker : MonoBehaviour
     
     public void MakeCircularGrid()
     {
-        Debug.Log("radius:"+ radius);
         float angle = (Mathf.PI * 2) / width;
         
-        Debug.Log("angle: " + angle*Mathf.PI);
         int row = 0;
         for (int i = 0; i < height; i++)
         {
@@ -105,9 +105,9 @@ public class GridMaker : MonoBehaviour
             {
                 
                 Vector3 newPos = new Vector3(Mathf.Cos(angle*u)*radius, row * stitchPrefab.height, Mathf.Sin(angle*u)*radius);
-                Debug.Log(newPos);
+            
                 StitchScript newStitch = Instantiate(stitchPrefab,newPos,Quaternion.identity);
-                newStitch.Init(this);
+                newStitch.Init(this, u, i);
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -144,53 +144,53 @@ public class GridMaker : MonoBehaviour
             }
             if (_isCircular)
             {
-                if (i%width==width-1)
-                {
-                    _stitches[i].stitchRight = _stitches[i + 1];
-                    _stitches[i + 1].stitchLeft = _stitches[i];
-                }
+                    if(i<_stitches.Count-1)
+                    {
+                        Debug.Log(i);
+                        Debug.Log(_stitches.Count);
+                        if (i%width==width-1)
+                        {
+                            _stitches[i].stitchRight = _stitches[i + 1];
+                            _stitches[i + 1].stitchLeft = _stitches[i];
+                        }
+                    }
+                
             }
-            
-        }
-    }
-    
-    
-    public void Coordinate()
-    {
-        for (int i=0; i <_stitches.Count;i++)
-        {
-
-            var coordinate = GetCoordinate(i, width);
-            _stitches[i].xCoordinate = coordinate.x ;
-            _stitches[i].yCoordinate = coordinate.y;
 
         }
     }
-
-    public Vector2Int GetCoordinate (int index, int width)
-    {
-        return new Vector2Int(index % width, index / width);
-    }
     
-    public void UsePattern()
+    public void GetStitchValue()
     {
-
-        width = _pattern.width;
-        height = _pattern.height;
-        MakeGrid();
-        ConnectStitches();
-        Coordinate();
+        Debug.Log("function called");
         foreach (StitchScript i in _stitches)
         {
+            Debug.Log("is run");
             if (_pattern.GetStitch(i.xCoordinate, i.yCoordinate))
             {
                 i._isKnit = true;
             }
             else i._isKnit = false;
         }
+    }
+   
 
-       
+   
     
+    public void UsePattern()
+    {
+
+        width = _pattern.width;
+        height = _pattern.height;
+        _isCircular = _pattern.isCircular;
+        radius = _pattern.radius;
+        
+        MakeGrid();
+        Debug.Log("makegridfinished");
+        ConnectStitches();
+        Debug.Log("connectstitchesfinished");
+        GetStitchValue();  
+        
     
     }
     

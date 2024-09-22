@@ -10,6 +10,9 @@ public class Pattern : SerializedScriptableObject
 
     public int width;
     public int height;
+    public bool isCircular;
+    [EnableIf("isCircular")]
+    public float radius;
 
 
 
@@ -25,7 +28,6 @@ public class Pattern : SerializedScriptableObject
 
     public bool GetStitch(int x, int y)
     {
-        /*return patternGrid[x, y];*/
         return patternGrid[x, height - 1 - y];
     }
     

@@ -33,15 +33,11 @@ public class StitchScript : MonoBehaviour
     }
 
     
-    public void Init(GridMaker gridMaker)
+    public void Init(GridMaker gridMaker, int xCoordinate, int yCoordinate)
     {
         this.gridMaker = gridMaker;
-
-
-
-       
-
-       
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
     }
     public float GetDepth()
     {
@@ -107,5 +103,7 @@ public class StitchScript : MonoBehaviour
     {
         return (stitch + otherStitch) / 2;
     }
+    
+   
 }
 
