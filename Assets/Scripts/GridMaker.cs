@@ -20,10 +20,14 @@ public class GridMaker : MonoBehaviour
     [SerializeField]private List<StitchScript> _stitches;
 
     [SerializeField] private Pattern _pattern;
+
+    [SerializeField] private bool _isCircular;
+
+    public float radius;
     // Start is called before the first frame update
     void Start()
     {
-
+        
         _stitches = new List<StitchScript>();
         _startingPosition = new Vector3(0, 0, 0);
     }
@@ -51,7 +55,7 @@ public class GridMaker : MonoBehaviour
         }*/
     }
     
-    public void MakeGrid() //makes a grid of stitch gameobjects based on the width and height in the inspector
+    public void MakeGrid()
     {
         //destroy all previous stitch gameobjects
         foreach (StitchScript i in _stitches)
@@ -60,6 +64,13 @@ public class GridMaker : MonoBehaviour
         }
         //clear list to allow a new list to be made
         _stitches.Clear();
+        if(_isCircular) MakeCircularGrid();
+        else MakeSquareGrid();
+    }
+    
+    public void MakeSquareGrid() //makes a grid of stitch gameobjects based on the width and height in the inspector
+    {
+        
         
         //cycle through height and width to create stitches in a grid
         for (int i = 0; i < height; i++)
@@ -75,10 +86,37 @@ public class GridMaker : MonoBehaviour
                 {
                     newStitch.transform.parent = _parentObject.transform;
                 }
-                }
+            }
         }
 
         
+    }
+    
+    public void MakeCircularGrid()
+    {
+        Debug.Log("radius:"+ radius);
+        float angle = (Mathf.PI * 2) / width;
+        
+        Debug.Log("angle: " + angle*Mathf.PI);
+        int row = 0;
+        for (int i = 0; i < height; i++)
+        {
+            for (int u = 0; u < width; u++)
+            {
+                
+                Vector3 newPos = new Vector3(Mathf.Cos(angle*u), row * stitchPrefab.height, Mathf.Sin(angle*u));
+                Debug.Log(newPos);
+                StitchScript newStitch = Instantiate(stitchPrefab,newPos,Quaternion.identity);
+                newStitch.Init();
+                _stitches.Add(newStitch);
+                if(_parentObject != null)
+                {
+                    newStitch.transform.parent = _parentObject.transform;
+                }
+            }
+
+            row++;
+        }
     }
     
     public void ConnectStitches() //connects the stitches to its left and below neighbors to create references between the stitches
@@ -143,11 +181,6 @@ public class GridMaker : MonoBehaviour
         ApplyDisplacement();
     }
     
-    IEnumerator CallApplyDisplacement()
-    {
-        yield return null; // Wait for the next frame
-        ApplyDisplacement();
-    }
     public void ApplyDisplacement() //applies displacement based on whether the stitch is a knit (1) or purl (0) 
     {
         foreach (StitchScript i in _stitches)
