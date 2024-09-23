@@ -9,11 +9,12 @@ namespace Verlet
 {
     public class ExampleSimulation : MonoBehaviour
     {
+        private VerletNode[] nodes;
         private VerletSimulator _sim;
         private Vector3 _startingPosition;
         private void OnEnable()
         {
-            VerletNode[] nodes = new VerletNode[100];
+             nodes = new VerletNode[100];
             float distance = 1f;
             int columns = 10;
             int rows = nodes.Length/columns;
@@ -21,7 +22,7 @@ namespace Verlet
             {
                 
                 nodes[i] = new VerletNode(transform.position + new Vector3(i%columns*distance, Mathf.Floor(i/columns)*distance,0));
-                
+                nodes[i].initPos = nodes[i].position;
                 
 
                 if (i-columns >= 0)
@@ -55,15 +56,40 @@ namespace Verlet
                 
             }
             _sim = new VerletSimulator(nodes.ToList());
+
+            AnchorNodes();
+        }
+
+        void AnchorNodes()
+        {
+           
         }
 
         private void FixedUpdate()
         {
+            
+            for (int i = 0;i<10;i++)
+            {
+                _sim.Nodes[i].position = _sim.Nodes[i].initPos;
+            }
+
+            for (int i = nodes.Length - 10; i < nodes.Length; i++)
+            {
+                _sim.Nodes[i].position = _sim.Nodes[i].initPos;
+            }
+            
+            _sim.Nodes[45].position = transform.position;
             _sim.Simulate(10, Time.fixedDeltaTime);
-            _sim.Nodes[0].position = transform.position;
+            for (int i = 0;i<10;i++)
+            {
+                _sim.Nodes[i].position = _sim.Nodes[i].initPos;
+            }
 
-
-
+            for (int i = nodes.Length - 10; i < nodes.Length; i++)
+            {
+                _sim.Nodes[i].position = _sim.Nodes[i].initPos;
+            }
+            _sim.Simulate(10, Time.fixedDeltaTime);
         }
 
         private void OnDrawGizmos()
