@@ -58,9 +58,9 @@ namespace Verlet
         {
             for(int i =0, n = particles.Count; i<n;i++)
             {
-                var p = particles[i];
+                var p = particles[i];/*
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawSphere(p.position,0.2f);
+                Gizmos.DrawSphere(p.position,0.2f);*/
                 
                 Gizmos.color=Color.white;
                 p.Connection.ForEach(e =>
