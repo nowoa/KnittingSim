@@ -50,9 +50,10 @@ public class StitchScript : MonoBehaviour
         Vector3 rightPos;
         Color leftColor = new Color(1,0,0,0.5f);
         Color rightColor = new Color(0, 0, 1, 0.5f);
+        Vector3 displacedPosition = GetDisplacement();
         if (stitchLeft != null)
         {
-            leftPos=GetAverage(this.GetDisplacement(), stitchLeft.GetDisplacement());
+            leftPos=GetAverage(displacedPosition, stitchLeft.GetDisplacement());
             Gizmos.color = leftColor;
             Gizmos.DrawSphere(leftPos,0.05f);
             
@@ -61,23 +62,23 @@ public class StitchScript : MonoBehaviour
 
         if (stitchRight != null)
         {
-            rightPos = GetAverage(this.GetDisplacement(), stitchRight.GetDisplacement());
+            rightPos = GetAverage(displacedPosition, stitchRight.GetDisplacement());
             Gizmos.color = rightColor;
             Gizmos.DrawSphere(rightPos,0.05f);
             
-            Gizmos.DrawLine(GetDisplacement(),rightPos);
+            Gizmos.DrawLine(displacedPosition,rightPos);
         }
         ;
         //stitch center
         Gizmos.color = Color.white; 
-        Gizmos.DrawSphere(GetDisplacement(),0.1f);
+        Gizmos.DrawSphere(displacedPosition,0.1f);
         
         //normal vectors
         if(drawNormals)
         {
             
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(GetDisplacement(), GetDisplacement()+GetNormal());
+            Gizmos.DrawLine(displacedPosition, displacedPosition+GetNormal());
         }
     }
     

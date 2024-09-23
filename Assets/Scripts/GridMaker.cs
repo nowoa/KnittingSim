@@ -193,11 +193,6 @@ void CreateRibbing()
 {
     foreach (StitchScript i in _stitches)
     {
-        if (!isRibbed)
-        {
-            continue;
-        }
-
         i._isKnit = i.xCoordinate % (purlAmnt + knitAmnt) > purlAmnt - 1;
     }
 }
