@@ -25,34 +25,32 @@ namespace Verlet
                 nodes[i].initPos = nodes[i].position;
                 
 
-                if (i-columns >= 0)
+                if (i-columns >= 0) // connect node above
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-columns]);
                 }
-
-                /*if (i + rows <= nodes.Length)
-                {
-                    VerletEdge.ConnectNodes(nodes[i],nodes[i+rows]);
-                }
-
-                if ((i + 1) % columns != 0 && (i+1)<=nodes.Length)
-                {
-                    VerletEdge.ConnectNodes(nodes[i],nodes[i+1]);
-                }*/
-
-                if (i % columns != 0 && (i-1)>=0)
+                if (i % columns != 0 && (i-1)>=0) // connect node to the left
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-1]);
                 }
-                if(i-columns-1>=0 && i % columns != 0)
+                if(i-columns-1>=0 && i % columns != 0) // connect node diagonal left
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-columns-1]);
-                }
-                if(i-columns+1>=0 && (i+1)%columns!=0)
+                }                   
+                    if(i-columns+1>=0 && (i+1)%columns!=0)
                 {
-                    
+                    /*connect node diagonal right*/
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-columns+1]);
                 }
+                
+                if(i-2 >=0 && i % columns != 0) // connect node 2 to the left
+                {
+                    VerletEdge.ConnectNodes(nodes[i], nodes[i-2]);
+                }
+                if(i-columns*2 >=0) // connect node 2 up
+                    {
+                       VerletEdge.ConnectNodes(nodes[i], nodes[i-columns*2]);
+                    }
                 
             }
             _sim = new VerletSimulator(nodes.ToList());
@@ -68,7 +66,7 @@ namespace Verlet
         private void FixedUpdate()
         {
             
-            for (int i = 0;i<10;i++)
+            /*for (int i = 0;i<10;i++)
             {
                 _sim.Nodes[i].position = _sim.Nodes[i].initPos;
             }
@@ -76,11 +74,11 @@ namespace Verlet
             for (int i = nodes.Length - 10; i < nodes.Length; i++)
             {
                 _sim.Nodes[i].position = _sim.Nodes[i].initPos;
-            }
+            }*/
             
             _sim.Nodes[45].position = transform.position;
             _sim.Simulate(10, Time.fixedDeltaTime);
-            for (int i = 0;i<10;i++)
+            /*for (int i = 0;i<10;i++)
             {
                 _sim.Nodes[i].position = _sim.Nodes[i].initPos;
             }
@@ -89,7 +87,7 @@ namespace Verlet
             {
                 _sim.Nodes[i].position = _sim.Nodes[i].initPos;
             }
-            _sim.Simulate(10, Time.fixedDeltaTime);
+            _sim.Simulate(10, Time.fixedDeltaTime);*/
         }
 
         private void OnDrawGizmos()
