@@ -20,16 +20,11 @@ public class GridMaker : MonoBehaviour
     [SerializeField]private List<StitchScript> _stitches;
 
     [SerializeField] private bool isRibbed;
-    [SerializeField] private int purlAmnt;
-    [SerializeField] private int knitAmnt;
-    
-    
-    
-    
-
+    [FormerlySerializedAs("purlAmnt")] [SerializeField] private int ribPurlAmount;
+    [FormerlySerializedAs("knitAmnt")] [SerializeField] private int ribKnitAmount;
     [SerializeField] private Pattern _pattern;
-
     [SerializeField] private bool _isCircular;
+    private Dictionary<string, List<StitchScript>> panelStitchLists = new();
 
     public float radius;
     // Start is called before the first frame update
@@ -63,6 +58,12 @@ public class GridMaker : MonoBehaviour
         }*/
     }
     
+
+    
+    /// <summary>
+    /// creating basic grid/cylinder & ribbing
+    /// </summary>
+    
     public void MakeGrid()
     {
         //destroy all previous stitch gameobjects
@@ -79,7 +80,6 @@ public class GridMaker : MonoBehaviour
         if(isRibbed) CreateRibbing();
         
     }
-    
     public void MakeSquareGrid() //makes a grid of stitch gameobjects based on the width and height in the inspector
     {
         
@@ -92,7 +92,7 @@ public class GridMaker : MonoBehaviour
             {
                 Vector3 widthPos = _startingPosition + new Vector3(u * stitchPrefab.width, heightPos.y, 0);
                 StitchScript newStitch = Instantiate(stitchPrefab, widthPos, Quaternion.identity);
-                newStitch.Init(this, u, i);
+                newStitch.Init(this, u, i); //creates a stitch and assigns its coordinate values
                 _stitches.Add(newStitch);
                 if(_parentObject != null)
                 {
@@ -171,6 +171,30 @@ public class GridMaker : MonoBehaviour
         }
     }
     
+    void CreateRibbing()
+    {
+        foreach (StitchScript i in _stitches) i._isKnit = i.xCoordinate % (ribPurlAmount + ribKnitAmount) > ribPurlAmount - 1;
+    }
+    
+    /// <summary>
+    /// get pattern values & generate from pattern
+    /// </summary>
+    public void UsePattern()
+    {
+
+        width = _pattern.width;
+        height = _pattern.height;
+        _isCircular = _pattern.isCircular;
+        radius = _pattern.radius;
+        
+        MakeGrid();
+        Debug.Log("makegridfinished");
+        ConnectStitches();
+        Debug.Log("connectstitchesfinished");
+        GetStitchValue();  
+        
+    
+    }
     public void GetStitchValue()
     {
         
@@ -188,31 +212,96 @@ public class GridMaker : MonoBehaviour
             else i._isKnit = false;
         }
     }
-   
-void CreateRibbing()
-{
-    foreach (StitchScript i in _stitches)
-    {
-        i._isKnit = i.xCoordinate % (purlAmnt + knitAmnt) > purlAmnt - 1;
-    }
-}
-   
-    
-    public void UsePattern()
-    {
 
-        width = _pattern.width;
-        height = _pattern.height;
-        _isCircular = _pattern.isCircular;
-        radius = _pattern.radius;
-        
-        MakeGrid();
-        Debug.Log("makegridfinished");
-        ConnectStitches();
-        Debug.Log("connectstitchesfinished");
-        GetStitchValue();  
-        
+
+    /// <summary>
+    /// make parameterised panels via code that are stored in separate lists and can be connected with seams
+    /// </summary>
     
+
+    void MakePanelWithParameters(string panelName, int width, int height, bool isCircular)
+    {
+        List<StitchScript> stitchList = new List<StitchScript>();
+        Debug.Log(panelName);
+        GameObject parentObject = new GameObject(panelName);
+        
+        if (isCircular)
+        {
+            float angle = (Mathf.PI * 2) / width;
+            radius = (width * stitchPrefab.width)/(2*Mathf.PI);
+            float row = 0;
+            float diagonalIncrement = (float)stitchPrefab.height /(float) width;
+            for (int i = 0; i < height; i++)
+            {
+                for (int u = 0; u < width; u++)
+                {
+                
+                    Vector3 newPos = new Vector3(Mathf.Cos(angle*u)*radius, row+(float)diagonalIncrement * u, Mathf.Sin(angle*u)*radius);
+                    StitchScript newStitch = Instantiate(stitchPrefab,newPos,Quaternion.identity);
+                    newStitch.Init(this, u, i);
+                    stitchList.Add(newStitch);
+                    if(_parentObject != null)
+                    {
+                        newStitch.transform.parent = parentObject.transform;
+                    }
+                }
+                row+=stitchPrefab.height;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < height; i++)
+            {
+                Vector3 heightPos = _startingPosition + new Vector3(0, i*stitchPrefab.height, 0);
+                for (int u = 0; u < width; u++)
+                {
+                    Vector3 widthPos = _startingPosition + new Vector3(u * stitchPrefab.width, heightPos.y, 0);
+                    StitchScript newStitch = Instantiate(stitchPrefab, widthPos, Quaternion.identity);
+                    newStitch.Init(this, u, i); //creates a stitch and assigns its coordinate values
+                    stitchList.Add(newStitch);
+                    if(_parentObject != null)
+                    {
+                        newStitch.transform.parent = parentObject.transform;
+                    }
+                }
+            }
+        }
+        
+        panelStitchLists[panelName] = stitchList;
+        
+    }
+
+    [ContextMenu("Make sweater mesh")]public void MakeSweaterMesh()
+    {   
+        foreach (Transform child in _parentObject.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        //front panel:
+        MakePanelWithParameters("frontPanel",10, 10, false);
+        List<StitchScript> frontPanel = panelStitchLists["frontPanel"];
+        frontPanel[GetIndexFromCoordinate(3,9, 10)].gameObject.SetActive(false);//takes a specific stitch from the list and sets it inactive (trying out to make neck shaping this way)
+        frontPanel[GetIndexFromCoordinate(4,9, 10)].gameObject.SetActive(false);
+        frontPanel[GetIndexFromCoordinate(5,9, 10)].gameObject.SetActive(false);
+        frontPanel[GetIndexFromCoordinate(6,9, 10)].gameObject.SetActive(false);
+        frontPanel[GetIndexFromCoordinate(4,8, 10)].gameObject.SetActive(false);
+        frontPanel[GetIndexFromCoordinate(5,8, 10)].gameObject.SetActive(false);
+        
+        //back panel:
+        MakePanelWithParameters("backPanel",10,10,false);
+        List<StitchScript> backPanel = panelStitchLists["backPanel"];
+        // sleeves:
+        MakePanelWithParameters("leftSleeve",8,10,true);
+        List<StitchScript> leftSleeve = panelStitchLists["leftSleeve"];
+        MakePanelWithParameters("rightSleeve",8,10,true);
+        List<StitchScript> rightSleeve = panelStitchLists["rightSleeve"];
+        
+    }
+    
+    
+    public int GetIndexFromCoordinate(int xCoordinate, int yCoordinate, int width)
+    {
+        return yCoordinate * width + xCoordinate;
     }
     
 }
