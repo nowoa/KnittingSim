@@ -9,7 +9,7 @@ public class FabricManager : MonoBehaviour
     [FormerlySerializedAs("Pattern")] public Pattern pattern;
     /*public float displacementFactor; // TO DO
     [SerializeField] private bool isRibbed; // TO DO*/
-    private Dictionary<string, PanelInfo> _panelDictionary;
+    private Dictionary<string, PanelInfo> _panelDictionary = new();
     private List<StitchInfo> _stitchInfos;
 
     public string panelName;
@@ -49,6 +49,11 @@ public class FabricManager : MonoBehaviour
             _height = height;
             _isCircular = isCircular;
         }
+
+        public StitchScript GetStitchAt(int x, int y)
+        {
+            return _stitches[Calculation.GetIndexFromCoordinate(x, y, _width)];
+        }
     }
     
     [ContextMenu("Make panel")]
@@ -87,7 +92,8 @@ public class FabricManager : MonoBehaviour
         var leftSleeve = _panelDictionary["leftSleeve"];
         var rightSleeve = _panelDictionary["rightSleeve"];*/
         //takes a specific stitch from the list and sets it inactive (trying out to make neck shaping this way)
-        frontPanel.Stitches[Calculation.GetIndexFromCoordinate(5, 5, frontPanel.Width)].gameObject.SetActive(false);
+        frontPanel.GetStitchAt(5,5).gameObject.SetActive(false);
+        
     }
 
     [ContextMenu("Make pattern mesh")]
@@ -98,6 +104,7 @@ public class FabricManager : MonoBehaviour
         // TO DO: connect stitches
         GetStitchValue();
     }
+    
     List<StitchScript> InitFabric(string myPanelName, List<StitchInfo> incomingStitchInfos)
     {
         var parentObject = new GameObject(myPanelName);

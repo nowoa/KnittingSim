@@ -16,19 +16,19 @@ public class Pattern : SerializedScriptableObject
 
 
 
-    [SerializeField] private bool[,] patternGrid;
+    [SerializeField] private bool[,] _patternGrid;
     
     [Button("initialise grid")]
     public void InitialiseGrid()
     {
         
-       patternGrid= new bool[width, height];
+       _patternGrid= new bool[width, height];
        
     }
 
     public bool GetStitch(int x, int y)
     {
-        return patternGrid[x, height - 1 - y];
+        return _patternGrid[x, height - 1 - y];
     }
     
 
