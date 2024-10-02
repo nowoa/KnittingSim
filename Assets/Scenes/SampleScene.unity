@@ -622,11 +622,11 @@ MonoBehaviour:
   _parentObject: {fileID: 1162908738}
   _stitches: []
   isRibbed: 0
-  purlAmnt: 0
-  knitAmnt: 0
+  ribPurlAmount: 0
+  ribKnitAmount: 0
   _pattern: {fileID: 11400000, guid: 2fd56faf649314649898863ce6131a70, type: 2}
   _isCircular: 1
-  radius: 1
+  radius: 0.63661975
 --- !u!4 &731330116
 Transform:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ namespace Verlet
         private Vector3 _startingPosition;
         private void OnEnable()
         {
-             nodes = new VerletNode[600];
+            nodes = new VerletNode[600];
             float distance = 1f;
             int columns = 20;
             int rows = nodes.Length/columns;
