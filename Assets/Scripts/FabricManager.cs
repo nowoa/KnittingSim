@@ -186,72 +186,78 @@ public class FabricManager : MonoBehaviour
         MakePanel(fp,10,10,false);
         //create seams:
         //left neck seam 
-        AddNodeToSeamFromCoordinate(fp, fpnL, new Vector2Int(0,9) );
-        AddNodeToSeamFromCoordinate(fp, fpnL, new Vector2Int(1,9) );
-        AddNodeToSeamFromCoordinate(fp, fpnL, new Vector2Int(2,9) );
+        CreateSeam(fp,fpnL,new Vector2Int(0,9),new Vector2Int(2,9),3);
         //right neck seam 
-        AddNodeToSeamFromCoordinate(fp, fpnR, new Vector2Int(7,9) );
+        /*AddNodeToSeamFromCoordinate(fp, fpnR, new Vector2Int(7,9) );
         AddNodeToSeamFromCoordinate(fp, fpnR, new Vector2Int(8,9) );
-        AddNodeToSeamFromCoordinate(fp, fpnR, new Vector2Int(9,9) );
+        AddNodeToSeamFromCoordinate(fp, fpnR, new Vector2Int(9,9) );*/
+        CreateSeam(fp,fpnR,new Vector2Int(7,9),new Vector2Int(9,9),3);
         //left body seam 
-        AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,0) );
+        /*AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,0) );
         AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,1) );
         AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,2) );
         AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,3) );
         AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,4) );
-        AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,5) );
+        AddNodeToSeamFromCoordinate(fp, fpbL, new Vector2Int(0,5) );*/
+        CreateSeam(fp,fpbL,new Vector2Int(0,0),new Vector2Int(0,5),6);
         //right body seam
-        AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,0) );
+        /*AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,0) );
         AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,1) );
         AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,2) );
         AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,3) );
         AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,4) );
-        AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,5) );
-        
+        AddNodeToSeamFromCoordinate(fp, fpbR, new Vector2Int(9,5) );*/
+        CreateSeam(fp,fpbR,new Vector2Int(9,0),new Vector2Int(9,5),6);
         //left sleeve seam (upwards)
-        AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,6) );
+        /*AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,6) );
         AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,7) );
         AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,8) );
-        AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,9) );
+        AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,9) );*/
+        CreateSeam(fp,b2sL,new Vector2Int(0,6),new Vector2Int(0,9),4);
         //right sleeve seam
-        AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,6) );
+        /*AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,6) );
         AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,7) );
         AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,8) );
-        AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,9) );
-        
+        AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,9) );*/
+        CreateSeam(fp,b2sR,new Vector2Int(9,6),new Vector2Int(9,9),4);
         //back panel:
         MakePanel(bp,10,10,false);
         
-        AddNodeToSeamFromCoordinate(bp, bpnL, new Vector2Int(0,9) );
+        /*AddNodeToSeamFromCoordinate(bp, bpnL, new Vector2Int(0,9) );
         AddNodeToSeamFromCoordinate(bp, bpnL, new Vector2Int(1,9) );
-        AddNodeToSeamFromCoordinate(bp, bpnL, new Vector2Int(2,9) );
-        
-        AddNodeToSeamFromCoordinate(bp, bpnR, new Vector2Int(7,9) );
+        AddNodeToSeamFromCoordinate(bp, bpnL, new Vector2Int(2,9) );*/
+        CreateSeam(bp,bpnL,new Vector2Int(0,9),new Vector2Int(2,9),3);
+        /*AddNodeToSeamFromCoordinate(bp, bpnR, new Vector2Int(7,9) );
         AddNodeToSeamFromCoordinate(bp, bpnR, new Vector2Int(8,9) );
-        AddNodeToSeamFromCoordinate(bp, bpnR, new Vector2Int(9,9) );
+        AddNodeToSeamFromCoordinate(bp, bpnR, new Vector2Int(9,9) );*/
+        CreateSeam(bp,bpnR,new Vector2Int(7,9),new Vector2Int(9,9),3);
         //left body seam 
-        AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,0) );
+        /*AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,0) );
         AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,1) );
         AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,2) );
         AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,3) );
         AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,4) );
-        AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,5) );
+        AddNodeToSeamFromCoordinate(bp, bpbL, new Vector2Int(0,5) );*/
+        CreateSeam(bp,bpbL,new Vector2Int(0,0),new Vector2Int(0,5),6);
         //right body seam
-        AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,0) );
+        /*AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,0) );
         AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,1) );
         AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,2) );
         AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,3) );
         AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,4) );
-        AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,5) );
+        AddNodeToSeamFromCoordinate(bp, bpbR, new Vector2Int(9,5) );*/
+        CreateSeam(bp,bpbR,new Vector2Int(9,0),new Vector2Int(9,5),6);
         
         //left sleeve seam (downwards)
-        AddNodeToSeamFromCoordinate(bp, b2sL, new Vector2Int(0,8) );
+        /*AddNodeToSeamFromCoordinate(bp, b2sL, new Vector2Int(0,8) );
         AddNodeToSeamFromCoordinate(bp, b2sL, new Vector2Int(0,7) );
-        AddNodeToSeamFromCoordinate(bp, b2sL, new Vector2Int(0,6) );
+        AddNodeToSeamFromCoordinate(bp, b2sL, new Vector2Int(0,6) );*/
+        CreateSeamReverse(bp,b2sL,new Vector2Int(0,8),new Vector2Int(0,6),3);
         //right sleeve seam
-        AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,8) );
+        /*AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,8) );
         AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,7) );
-        AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,6) );
+        AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,6) );*/
+        CreateSeamReverse(bp,b2sR,new Vector2Int(9,8),new Vector2Int(9,6),3);
         
         //left sleeve:
         MakePanel(sL,7,10,true);
@@ -259,13 +265,14 @@ public class FabricManager : MonoBehaviour
         MakePanel(sR,7,10,true);
         
         //seam to body
-        AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(0,0));
+        /*AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(0,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(1,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(2,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(3,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(4,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(5,0));
-        AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(6,0));
+        AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(6,0));*/
+        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(6,0),7);
         
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(0,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(1,0));
@@ -356,7 +363,41 @@ public class FabricManager : MonoBehaviour
         _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(myCoordinate.x,myCoordinate.y));
     }
 
-    
+    void CreateSeam(string myPanelName, string mySeamKey,Vector2Int myStartingPoint, Vector2Int myEndPoint, int myLength)
+    {
+        if (!_seamDictionary.ContainsKey(mySeamKey))
+        {
+            _seamDictionary[mySeamKey] = new List<VerletNode>();
+        }
+        float lerpStep = 1 / (float)myLength;
+        for (int i = 1; i <= myLength; i++)
+        {
+            int x = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep*i));
+            int y = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
+            
+            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
+            Debug.Log(mySeamKey + i + ": "+x + " " + y);
+            Debug.Log(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
+        }
+        
+    }
+    void CreateSeamReverse(string myPanelName, string mySeamKey,Vector2Int myStartingPoint, Vector2Int myEndPoint, int myLength)
+    {
+        if (!_seamDictionary.ContainsKey(mySeamKey))
+        {
+            _seamDictionary[mySeamKey] = new List<VerletNode>();
+        }
+        float lerpStep = 1 / (float)myLength;
+        for (int i = 1; i <= myLength; i++)
+        {
+            int x = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep*i));
+            int y = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
+            
+            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
+            Debug.Log(mySeamKey + i + ": "+x + " " + y);
+        }
+        
+    }
 
     private void AnchorNodeCoordinate(string myPanelName,Vector2Int myCoordinate)
     {
