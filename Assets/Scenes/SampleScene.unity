@@ -225,6 +225,67 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &140870169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 140870171}
+  - component: {fileID: 140870170}
+  - component: {fileID: 140870172}
+  m_Layer: 0
+  m_Name: FabricManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &140870170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140870169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c298eb78e8fdb7a42bf82c4c3b48ca39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stitchPrefab: {fileID: 551623248201066721, guid: 6994466ddd20db44783ce561e458d5c1, type: 3}
+  pattern: {fileID: 0}
+  nodeSimulator: {fileID: 568664875}
+  HeldStitchIndex: 0
+--- !u!4 &140870171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140870169}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &140870172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140870169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c415284d6dc21e43bcaf6a4bfd9b011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &488769422
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,6 +420,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488769422}
   m_CullTransparentMesh: 1
+--- !u!1 &568664874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 568664876}
+  - component: {fileID: 568664875}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &568664875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568664874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c415284d6dc21e43bcaf6a4bfd9b011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &568664876
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568664874}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.163906, y: -7.9200726, z: 8.147947}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &672317255
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,7 +547,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 731330115}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GridMaker, Assembly-CSharp
         m_MethodName: UsePattern
         m_Mode: 1
@@ -586,62 +691,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &731330114
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 731330116}
-  - component: {fileID: 731330115}
-  m_Layer: 0
-  m_Name: GridMaker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &731330115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 731330114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c74a38a8af3a1842a2dc515475ffdc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  width: 1000
-  height: 4
-  displacementFactor: 0.2
-  stitchPrefab: {fileID: 551623248201066721, guid: 6994466ddd20db44783ce561e458d5c1, type: 3}
-  _parentObject: {fileID: 1162908738}
-  _stitches: []
-  isRibbed: 0
-  ribPurlAmount: 0
-  ribKnitAmount: 0
-  _pattern: {fileID: 11400000, guid: 2fd56faf649314649898863ce6131a70, type: 2}
-  _isCircular: 1
-  radius: 0.63661975
---- !u!4 &731330116
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 731330114}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &868218654
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,7 +774,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 731330115}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GridMaker, Assembly-CSharp
         m_MethodName: Coordinate
         m_Mode: 1
@@ -1280,7 +1329,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 731330115}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GridMaker, Assembly-CSharp
         m_MethodName: ConnectStitches
         m_Mode: 1
@@ -1681,7 +1730,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 731330115}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GridMaker, Assembly-CSharp
         m_MethodName: ApplyDisplacement
         m_Mode: 1
@@ -1814,7 +1863,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 731330115}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GridMaker, Assembly-CSharp
         m_MethodName: MakeGrid
         m_Mode: 1
@@ -2020,8 +2069,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 963194228}
   - {fileID: 705507995}
-  - {fileID: 731330116}
   - {fileID: 1162908739}
   - {fileID: 28361096}
   - {fileID: 1970244778}
   - {fileID: 1015895506}
+  - {fileID: 140870171}
+  - {fileID: 568664876}

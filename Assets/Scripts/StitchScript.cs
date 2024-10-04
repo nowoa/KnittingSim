@@ -13,8 +13,7 @@ public class StitchScript : MonoBehaviour
     public StitchScript stitchRight;
     public StitchScript stitchAbove;
     public bool drawNormals;
-    public FabricManager FabricManager;
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Vector3 leftPos;
         Vector3 rightPos;
@@ -52,7 +51,7 @@ public class StitchScript : MonoBehaviour
             var position = transform.position;
             Gizmos.DrawLine(position, position+GetNormal());
         }
-    }
+    }*/
     
     public static Vector3 GetNormal(Vector3 leftPos, Vector3 rightPos, Vector3 bottomPos, Vector3 topPos)
     {
