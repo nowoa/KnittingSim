@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
@@ -16,14 +14,20 @@ public class FabricManager : MonoBehaviour
     private Dictionary<string, PanelInfo> _panelDictionary = new();
     private List<StitchInfo> _stitchInfos;
     private VerletSimulator _sim;
+    private VerletSimulator _simConnected;
     private List<VerletNode> _nodesToSimulate;
     private List<VerletNode> _connectedNodesToSimulate;
     private string _panelName;
     private readonly int _width = 10;
     private readonly int _height = 10;
     private bool _isCircular;
+    
+    public string panelName;
+    public  int width = 10;
+    public  int height = 10;
+    public bool isCircular;
 
-    public int HeldStitchIndex;
+    [FormerlySerializedAs("HeldStitchIndex")] public int heldStitchIndex;
     
     
     
@@ -41,7 +45,8 @@ public class FabricManager : MonoBehaviour
             YCoordinate = y;
         }
     }
-    public class PanelInfo
+
+    private class PanelInfo
     {
         private List<StitchScript> _stitches;
         public List<StitchScript> Stitches => _stitches;
@@ -74,30 +79,43 @@ public class FabricManager : MonoBehaviour
 
     private void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
     {
+        //remove already created panels with the same name
         if (_panelDictionary.Keys.Contains(mpName))
         {
             Destroy(_panelDictionary[mpName].ParentObject.gameObject);
             _panelDictionary.Remove(mpName);
         }
+        
+        // get stitchInfos for panel (position, coordinates, etc.)
         _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(new Vector2Int(mpPanelWidth, mpPanelHeight),
             new Vector2(stitchPrefab.width, stitchPrefab.height), mpIsCircular));
+        
+        // create stitchScripts at positions
         var initFabric = InitFabric(mpName, _stitchInfos);
         List<StitchScript> stitches = initFabric.Item1;
         GameObject parentObject = initFabric.Item2;
+        
+        // create verletnodes at positions
         List<VerletNode> nodes = InitNodes( _stitchInfos);
+        
+        
+        //create panelInfo for panel
         var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth,mpPanelHeight,mpIsCircular, parentObject.transform);
+        
+        //add panelInfo to dictionary (to keep track of the panels we have, and be able to iterate through all of them)
         _panelDictionary[mpName] = thisPanelInfo;
+        
+        //connect stitches and nodes to the correct neighbors
         Connect(mpName);
-        _nodesToSimulate = new List<VerletNode>(SimulateNodes());
-        Debug.Log("nodestosimulate:" + _nodesToSimulate.Count);
-        _connectedNodesToSimulate = new List<VerletNode>(SimulateConnectedNodes());
-        Debug.Log("connectednodes:" + _connectedNodesToSimulate.Count);
-        _sim = new VerletSimulator(_connectedNodesToSimulate);
+        
+        //pass all nodes to the verletsimulator
+        _sim = new VerletSimulator(GetAllNodes());
     }
     
+    [ContextMenu("Make panel")]
     public void MakePanel()
     {
-        MakePanel(_panelName,_width,_height,_isCircular);
+        MakePanel(panelName,width,height,isCircular);
     }
     
     [ContextMenu("Make sweater mesh")]
@@ -162,14 +180,14 @@ public class FabricManager : MonoBehaviour
         return nodes;
     }
     
-    
-     private void Connect(string myPanelName)
+    private void Connect(string myPanelName)
      {
          var panel = _panelDictionary[myPanelName];
         
         StitchConnector.ConnectStitches(panel.Stitches,panel.Width,panel.IsCircular);
         StitchConnector.ConnectNodes(panel.Nodes,panel.Width,panel.IsCircular);
      }
+    
     private void GetStitchValue()
     {
         foreach (var i in _panelDictionary["patternPanel"].Stitches)
@@ -178,10 +196,8 @@ public class FabricManager : MonoBehaviour
         }
     }
     
-    
-    
-    //simulate
-    private List<VerletNode> SimulateNodes()
+    //get all nodes
+    private List<VerletNode> GetAllNodes()
     {
         List<VerletNode> nodesToSimulate = new List<VerletNode>();
         foreach (PanelInfo myPanelInfo in _panelDictionary.Values)
@@ -189,36 +205,71 @@ public class FabricManager : MonoBehaviour
             nodesToSimulate.AddRange(myPanelInfo.Nodes);
         }
         return nodesToSimulate;
-
-
     }
 
-    private List<VerletNode> SimulateConnectedNodes()
+    [ContextMenu("update connected node")]
+    private void GetConnectedNodes()
     {
-        var centralNode = SimulateNodes()[HeldStitchIndex];
-        List<VerletNode> connectedNodesToSimulate = new List<VerletNode>();
+        var centralNode = GetAllNodes()[heldStitchIndex];
+        List<VerletNode> connectedNodesLayer1 = new List<VerletNode>();
+        List<VerletNode> connectedNodesLayer2 = new List<VerletNode>();
+        List<VerletNode> connectedNodesLayer3 = new List<VerletNode>();
         foreach (var edge in centralNode.Connection)
         {
-            connectedNodesToSimulate.Add(edge.Other(centralNode));
+            if (!connectedNodesLayer1.Contains(edge.Other(centralNode)))
+            {
+                connectedNodesLayer1.Add(edge.Other(centralNode));
+            }
+                
         }
-        Debug.Log(connectedNodesToSimulate.Count);
-        return connectedNodesToSimulate;
+        connectedNodesLayer2.AddRange(connectedNodesLayer1);
+        foreach (var node in connectedNodesLayer1)
+        {
+            foreach (var edge in node.Connection)
+            {
+                if (!connectedNodesLayer2.Contains(edge.Other(node)))
+                {
+                    connectedNodesLayer2.Add(edge.Other(node));
+                }
+            }
+        }
+        foreach (var node in connectedNodesLayer2)
+        {
+            foreach (var edge in node.Connection)
+            {
+                if (!connectedNodesLayer3.Contains(edge.Other(node)))
+                {
+                    connectedNodesLayer3.Add(edge.Other(node));
+                }
+            }
+        }
+
+            
+        Debug.Log(connectedNodesLayer3.Count);
+        _simConnected = new VerletSimulator(connectedNodesLayer3);
+
     }
 
     private void FixedUpdate()
     {
-        
-
         if (_sim != null)
         {
-            _sim.Simulate(10, Time.fixedDeltaTime);
+            _sim.Simulate(2, Time.fixedDeltaTime);
         }
-        if (_nodesToSimulate != null)
+
+        if (_simConnected != null)
         {
-            foreach (var node in _nodesToSimulate)
-            {
-                node.position = node.initPos;
-            }
+            _simConnected.Nodes[_simConnected.Nodes.Count / 2].position = transform.position;
+            _simConnected.Simulate(5, Time.fixedDeltaTime);
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        if (_sim != null)
+        {
+            _sim.DrawGizmos();
+        }
+    }
+    
 }

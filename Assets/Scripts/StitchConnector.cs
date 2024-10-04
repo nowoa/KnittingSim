@@ -47,6 +47,8 @@ public static class StitchConnector
     {
         for (int i = 0; i < nodes.Count; i++)
         {
+            
+            //structural edges
             if (i-myWidth >= 0) // connect node above
             {
                 VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth]);
@@ -55,6 +57,8 @@ public static class StitchConnector
             {
                 VerletEdge.ConnectNodes(nodes[i],nodes[i-1]);
             }
+            
+            //shear edges
             if(i-myWidth-1>=0 && i % myWidth != 0) // connect node diagonal left
             {
                 VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth-1]);
@@ -65,6 +69,7 @@ public static class StitchConnector
                 VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth+1]);
             }
                 
+            //bend edges
             if(i-2 >=0 && i % myWidth != 0 && (i-1)%myWidth!=0) // connect node 2 to the left
             {
                 VerletEdge.ConnectNodes(nodes[i], nodes[i-2]);
@@ -86,6 +91,15 @@ public static class StitchConnector
                     continue;
                 }
                 VerletEdge.ConnectNodes(nodes[i],nodes[i+1]);
+                if (i-myWidth+1>=0)
+                {
+                    VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth+1]);
+                }
+
+                if (i + myWidth + 1 <= nodes.Count-1)
+                {
+                    VerletEdge.ConnectNodes(nodes[i],nodes[i+myWidth+1]);
+                }
             }
             else
             {
