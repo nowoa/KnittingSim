@@ -91,6 +91,10 @@ public static class StitchConnector
                     continue;
                 }
                 VerletEdge.ConnectNodes(nodes[i],nodes[i+1]);
+                if (i + 2 <= nodes.Count - 1)
+                {
+                    VerletEdge.ConnectNodes(nodes[i],nodes[i+2]);
+                }
                 if (i-myWidth+1>=0)
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth+1]);
@@ -99,6 +103,11 @@ public static class StitchConnector
                 if (i + myWidth + 1 <= nodes.Count-1)
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i+myWidth+1]);
+                }
+
+                if (i -myWidth* 2 >=0)
+                {
+                    VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth*2]);
                 }
             }
             else

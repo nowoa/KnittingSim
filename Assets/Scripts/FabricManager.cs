@@ -123,11 +123,11 @@ public class FabricManager : MonoBehaviour
     {   
         //front panel:
         MakePanel("frontPanel",10,10,false);
-        /*//back panel:
+        //back panel:
         MakePanel("backPanel",10,10,false);
         //left sleeve:
         MakePanel("leftSleeve",8,10,true);
-        MakePanel("rightSleeve",8,10,true);*/
+        MakePanel("rightSleeve",8,10,true);
         
         var frontPanel = _panelDictionary["frontPanel"];
         /*var backPanel = _panelDictionary["backPanel"];
