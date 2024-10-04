@@ -30,6 +30,7 @@ public class FabricManager : MonoBehaviour
     public  int width = 10;
     public  int height = 10;
     public bool isCircular;
+    public bool anchored;
 
     [FormerlySerializedAs("HeldStitchIndex")] public int heldStitchIndex;
     
@@ -150,6 +151,13 @@ public class FabricManager : MonoBehaviour
     public void MakePanel()
     {
         MakePanel(panelName,width,height,isCircular);
+        if (anchored)
+        {
+            for (int i = 0; i < width; i++)
+            {
+                AnchorNodeIndex(panelName,i);
+            }
+        }
     }
     
     [ContextMenu("Make sweater mesh")]
@@ -193,16 +201,16 @@ public class FabricManager : MonoBehaviour
         
         
         //add anchored nodes
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(0,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(1,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(2,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(3,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(4,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(5,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(6,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(7,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(8,0));
-        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(9,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(0,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(1,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(2,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(3,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(4,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(5,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(6,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(7,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(8,0));
+        AnchorNodeCoordinate("frontPanel", new Vector2Int(9,0));
     }
 
     [ContextMenu("Make pattern mesh")]
@@ -268,10 +276,15 @@ public class FabricManager : MonoBehaviour
         Debug.Log(_seamDictionary[mySeamKey].Count);
     }
 
-    private void AddNodeToAnchoredNodes(string myPanelName,Vector2Int myCoordinate)
+    private void AnchorNodeCoordinate(string myPanelName,Vector2Int myCoordinate)
     {
        _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).isAnchored = true;
        Debug.Log("anchorednodes:");
+    }
+
+    private void AnchorNodeIndex(string myPanelName, int index)
+    {
+        _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
     }
     
     
