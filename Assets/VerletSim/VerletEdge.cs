@@ -48,5 +48,11 @@ namespace Verlet
             b.AddEdge(edge);
         }
 
+        public static void ConnectNodes(VerletNode a, VerletNode b, float length)
+        {
+            VerletEdge edge = new VerletEdge(a, b, length);
+            a.AddEdge(edge);
+            b.AddEdge(edge);
+        }
     }
 }

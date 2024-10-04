@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
@@ -12,11 +14,13 @@ public class FabricManager : MonoBehaviour
     /*public float displacementFactor; // TO DO
     [SerializeField] private bool isRibbed; // TO DO*/
     private Dictionary<string, PanelInfo> _panelDictionary = new();
+    private Dictionary<string, List<VerletNode>> _seamDictionary = new();
     private List<StitchInfo> _stitchInfos;
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
     private List<VerletNode> _nodesToSimulate;
     private List<VerletNode> _connectedNodesToSimulate;
+    private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
     private readonly int _width = 10;
     private readonly int _height = 10;
@@ -75,16 +79,22 @@ public class FabricManager : MonoBehaviour
         {
             return _stitches[Calculation.GetIndexFromCoordinate(x, y, _width)];
         }
+
+        public VerletNode GetNodeAt(int x, int y)
+        {
+            return _nodes[Calculation.GetIndexFromCoordinate(x, y, _width)];
+        }
+    }
+
+    private void Start()
+    {
     }
 
     private void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
     {
-        //remove already created panels with the same name
-        if (_panelDictionary.Keys.Contains(mpName))
-        {
-            Destroy(_panelDictionary[mpName].ParentObject.gameObject);
-            _panelDictionary.Remove(mpName);
-        }
+        //remove previous data
+        RemovePreviousData(mpName);
+        
         
         // get stitchInfos for panel (position, coordinates, etc.)
         _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(new Vector2Int(mpPanelWidth, mpPanelHeight),
@@ -111,6 +121,30 @@ public class FabricManager : MonoBehaviour
         //pass all nodes to the verletsimulator
         _sim = new VerletSimulator(GetAllNodes());
     }
+
+    void RemovePreviousData(string myPanelName)
+    {
+        if (_panelDictionary.Keys.Contains(myPanelName))
+        {
+            Destroy(_panelDictionary[myPanelName].ParentObject.gameObject);
+            _panelDictionary.Remove(myPanelName);
+        }
+
+        if (_anchoredNodes != null)
+        {
+            _anchoredNodes.Clear();
+        }
+
+        if (_nodesToSimulate != null)
+        {
+            _nodesToSimulate.Clear();
+        }
+
+        if (_connectedNodesToSimulate != null)
+        {
+            _connectedNodesToSimulate.Clear();
+        }
+    }
     
     [ContextMenu("Make panel")]
     public void MakePanel()
@@ -123,8 +157,27 @@ public class FabricManager : MonoBehaviour
     {   
         //front panel:
         MakePanel("frontPanel",10,10,false);
+        
+        //create seams:
+        AddNodeToSeamFromCoordinate("frontPanel", "leftSeamFront", new Vector2Int(0,9) );
+        AddNodeToSeamFromCoordinate("frontPanel", "leftSeamFront", new Vector2Int(1,9) );
+        AddNodeToSeamFromCoordinate("frontPanel", "leftSeamFront", new Vector2Int(2,9) );
+        
+        AddNodeToSeamFromCoordinate("frontPanel", "rightSeamFront", new Vector2Int(7,9) );
+        AddNodeToSeamFromCoordinate("frontPanel", "rightSeamFront", new Vector2Int(8,9) );
+        AddNodeToSeamFromCoordinate("frontPanel", "rightSeamFront", new Vector2Int(9,9) );
+        
         //back panel:
         MakePanel("backPanel",10,10,false);
+        
+        AddNodeToSeamFromCoordinate("backPanel", "leftSeamBack", new Vector2Int(0,9) );
+        AddNodeToSeamFromCoordinate("backPanel", "leftSeamBack", new Vector2Int(1,9) );
+        AddNodeToSeamFromCoordinate("backPanel", "leftSeamBack", new Vector2Int(2,9) );
+        
+        AddNodeToSeamFromCoordinate("backPanel", "rightSeamBack", new Vector2Int(7,9) );
+        AddNodeToSeamFromCoordinate("backPanel", "rightSeamBack", new Vector2Int(8,9) );
+        AddNodeToSeamFromCoordinate("backPanel", "rightSeamBack", new Vector2Int(9,9) );
+        
         //left sleeve:
         MakePanel("leftSleeve",8,10,true);
         MakePanel("rightSleeve",8,10,true);
@@ -135,7 +188,21 @@ public class FabricManager : MonoBehaviour
         var rightSleeve = _panelDictionary["rightSleeve"];*/
         //takes a specific stitch from the list and sets it inactive (trying out to make neck shaping this way)
         frontPanel.GetStitchAt(5,5).gameObject.SetActive(false);
+        StitchConnector.ConnectSeams(_seamDictionary["leftSeamFront"],_seamDictionary["leftSeamBack"]);
+        StitchConnector.ConnectSeams(_seamDictionary["rightSeamFront"],_seamDictionary["rightSeamBack"]);
         
+        
+        //add anchored nodes
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(0,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(1,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(2,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(3,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(4,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(5,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(6,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(7,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(8,0));
+        AddNodeToAnchoredNodes("frontPanel", new Vector2Int(9,0));
     }
 
     [ContextMenu("Make pattern mesh")]
@@ -158,6 +225,8 @@ public class FabricManager : MonoBehaviour
         foreach (var stitch in incomingStitchInfos)
         {
             var newStitch = Instantiate(stitchPrefab, stitch.Position, Quaternion.identity);
+            newStitch.xCoordinate = stitch.XCoordinate;
+            newStitch.yCoordinate = stitch.YCoordinate;
             // TO DO: create verlet nodes at stitch positions
             if(parentObject != null)
             {
@@ -174,6 +243,7 @@ public class FabricManager : MonoBehaviour
         foreach (var stitch in incomingStitchInfos)
         {
             var newNode = new VerletNode(stitch.Position);
+            newNode.initPos = stitch.Position;
             // TO DO: create verlet nodes at stitch positions
             nodes.Add(newNode);
         }
@@ -187,6 +257,23 @@ public class FabricManager : MonoBehaviour
         StitchConnector.ConnectStitches(panel.Stitches,panel.Width,panel.IsCircular);
         StitchConnector.ConnectNodes(panel.Nodes,panel.Width,panel.IsCircular);
      }
+
+    private void AddNodeToSeamFromCoordinate(string myPanelName,string mySeamKey,  Vector2Int myCoordinate)
+    {
+        if (!_seamDictionary.ContainsKey(mySeamKey))
+        {
+            _seamDictionary[mySeamKey] = new List<VerletNode>();
+        }
+        _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(myCoordinate.x,myCoordinate.y));
+        Debug.Log(_seamDictionary[mySeamKey].Count);
+    }
+
+    private void AddNodeToAnchoredNodes(string myPanelName,Vector2Int myCoordinate)
+    {
+       _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).isAnchored = true;
+       Debug.Log("anchorednodes:");
+    }
+    
     
     private void GetStitchValue()
     {
@@ -252,16 +339,25 @@ public class FabricManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_sim != null)
-        {
-            _sim.Simulate(2, Time.fixedDeltaTime);
-        }
-
         if (_simConnected != null)
         {
             _simConnected.Nodes[_simConnected.Nodes.Count / 2].position = transform.position;
             _simConnected.Simulate(5, Time.fixedDeltaTime);
         }
+        if (_sim != null)
+        {
+            _sim.Simulate(2, Time.fixedDeltaTime);
+            foreach (var node in _sim.Nodes)
+            {
+                if (node.isAnchored)
+                {
+                    node.position = node.initPos;
+                }
+            }
+        }
+
+        
+       
     }
 
     private void OnDrawGizmos()

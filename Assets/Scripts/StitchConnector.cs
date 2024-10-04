@@ -116,4 +116,17 @@ public static class StitchConnector
             }
         }
     }
+
+    public static void ConnectSeams(List<VerletNode> seam1, List<VerletNode> seam2)
+    {
+        if (seam1.Count != seam2.Count)
+        {
+            Debug.Log("seams are not the same length!");
+            return;
+        }
+        /*for (int i = 0; i < seam1.Count; i++)
+        {
+            VerletEdge.ConnectNodes(seam1[i],seam2[i],0.1f);
+        }*/
+    }
 }
