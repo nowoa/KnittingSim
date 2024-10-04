@@ -48,15 +48,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   width: 0.5
-  height: 0.3
+  height: 1
   xCoordinate: 0
   yCoordinate: 0
-  _isKnit: 0
+  isKnit: 0
   stitchLeft: {fileID: 0}
   stitchBelow: {fileID: 0}
   stitchRight: {fileID: 0}
   stitchAbove: {fileID: 0}
-  gridMaker: {fileID: 0}
+  drawNormals: 0
 --- !u!1 &2319446821817775475
 GameObject:
   m_ObjectHideFlags: 0

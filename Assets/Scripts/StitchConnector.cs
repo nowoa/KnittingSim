@@ -70,14 +70,15 @@ public static class StitchConnector
             }
                 
             //bend edges
-            if(i-2 >=0 && i % myWidth != 0 && (i-1)%myWidth!=0) // connect node 2 to the left
-            {
-                VerletEdge.ConnectNodes(nodes[i], nodes[i-2]);
-            }
-            if(i-myWidth*2 >=0) // connect node 2 up
-            {
-                VerletEdge.ConnectNodes(nodes[i], nodes[i-myWidth*2]);
-            }
+             if(i-2 >=0 && i % myWidth != 0 && (i-1)%myWidth!=0) // connect node 2 to the left
+             {
+                 VerletEdge.ConnectNodes(nodes[i], nodes[i-2]);
+             }
+             if(i-myWidth*2 >=0) // connect node 2 up
+             {
+                 VerletEdge.ConnectNodes(nodes[i], nodes[i-myWidth*2]);
+             }
+            
 
             if (isCircular)
             {
@@ -121,12 +122,14 @@ public static class StitchConnector
     {
         if (seam1.Count != seam2.Count)
         {
-            Debug.Log("seams are not the same length!");
+            Debug.Log("seams are not the same length!" + seam1.Count + seam2.Count);
             return;
         }
-        /*for (int i = 0; i < seam1.Count; i++)
+        
+        for (int i = 0; i < seam1.Count; i++)
         {
-            VerletEdge.ConnectNodes(seam1[i],seam2[i],0.1f);
-        }*/
+            seam1[i].position += new Vector3(0, 0.5f, 0);
+            VerletEdge.ConnectNodes(seam1[i],seam2[i],0.01f);
+        }
     }
 }
