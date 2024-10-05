@@ -257,10 +257,10 @@ MonoBehaviour:
   stitchPrefab: {fileID: 551623248201066721, guid: 6994466ddd20db44783ce561e458d5c1, type: 3}
   pattern: {fileID: 0}
   panelName: hello
-  width: 100
+  width: 10
   height: 10
-  isCircular: 1
-  anchored: 1
+  isCircular: 0
+  anchored: 0
   heldStitchIndex: 0
 --- !u!4 &140870171
 Transform:

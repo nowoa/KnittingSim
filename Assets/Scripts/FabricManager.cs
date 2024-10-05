@@ -164,6 +164,145 @@ public class FabricManager : MonoBehaviour
         AnchorNodeCoordinate(fp, new Vector2Int(9,0));
     }
 
+    [ContextMenu("make large sweater")]
+    public void MakeLargeSweaterMesh()
+    {
+        var fp = "frontPanel";
+        var fpnL = "frontPanelNeckLeft";
+        var fpnR = "frontPanelNeckRight";
+        var fpbL = "frontPanelBodyLeft";
+        var fpbR = "frontPanelBodyRight";
+        var b2c = "bodyToCollar";
+        
+        var bp = "backPanel";
+        var bpnL = "backPanelNeckLeft";
+        var bpnR = "backPanelNeckRight";
+        var bpbL = "backPanelBodyLeft";
+        var bpbR = "backPanelBodyRight";
+        
+        var sL = "sleeveLeft";
+        var s2bL = "sleeveToBodyLeft";
+        var sR = "sleeveRight";
+        var s2bR = "sleeveToBodyRight";
+
+        var b2sL = "bodyToSleeveLeft";
+        var b2sR = "bodyToSleeveRight";
+        
+        var cp = "collarPanel";
+        var c2b = "collarPanelToBody";
+
+
+        int bodyWidth = 20;
+        int bodyHeight = 40;
+        int sleeveWidth = 8;
+        int sleeveHeight = 50;
+        int collarWidth = 10;
+        int collarHeight = 2;
+        
+        
+        //front panel:
+        MakePanel(fp,bodyWidth,bodyHeight,false);
+        MakePanel(bp,bodyWidth,bodyHeight,false);
+        //create seams:
+        CreateSeam(fp,fpnL,new Vector2Int(0,bodyHeight-1),new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),(bodyWidth-collarWidth)/2+1);
+        CreateSeam(bp,bpnL,new Vector2Int(0,bodyHeight-1),new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),(bodyWidth-collarWidth)/2+1);
+        // x:0 y:height-1
+        // x: ((width - collarwidth)/2), y: height-1
+        // length=(width-collarwidth)/2
+        CreateSeam(fp,fpnR,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(bodyWidth-1,bodyHeight-1),
+            (bodyWidth-collarWidth)/2+1);
+        CreateSeam(bp,bpnR,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(bodyWidth-1,bodyHeight-1),
+            (bodyWidth-collarWidth)/2+1);
+        //x:(width-((width-collarwidth)/2)) y: height-1
+        //x:width-1 y:height-1
+        //length=(width-collarwidth)/2
+        CreateSeam(fp,fpbL,new Vector2Int(0,0),new Vector2Int(0,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
+        CreateSeam(bp,bpbL,new Vector2Int(0,0),new Vector2Int(0,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
+        //x:0,y:0
+        //x:0,y:(height-sleevewidth)-1
+        //length=height-sleevewidth
+        CreateSeam(fp,fpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
+        CreateSeam(bp,bpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
+        //x:width-1,y:0
+        //x:width-1.y:height-(sleevewidth)-1
+        //length=height-sleevewidth
+        CreateSeam(fp,b2sL,new Vector2Int(0,bodyHeight-sleeveWidth),new Vector2Int(0,bodyHeight-1),sleeveWidth);
+        CreateSeamReverse(bp,b2sL,new Vector2Int(0,bodyHeight-2),new Vector2Int(0,bodyHeight-sleeveWidth-1),sleeveWidth);
+        //x:0,y:height-sleevewidth
+        //x:0,y:height-1
+        //length:sleevewidth
+        CreateSeam(fp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth),new Vector2Int(bodyWidth-1,bodyHeight-1),sleeveWidth);
+        CreateSeamReverse(bp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-2),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),sleeveWidth);
+        //x:width-1,y:height-sleevewidth
+        //x:width-1,y:height-1
+        //length:sleevewidth
+        CreateSeam(fp,b2c,new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-2,bodyHeight-1),collarWidth-1);
+        CreateSeamReverse(bp,b2c,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(((bodyWidth-collarWidth)/2)+1,bodyHeight-1),collarWidth-1);
+        //x:(width - collarwidth)/2,y:height-1
+        //x:width-((width-collarwidth)/2)-1,y:height-1 
+        //length:collarwidth
+        
+        //back panel:
+        
+       
+        // x:0 y:height-1
+        // x: ((width - collarwidth)/2)-1, y: height-1
+        // length=(width-collarwidth)/2
+       
+        //x:(width-((width-collarwidth)/2)) y: height-1
+        //x:width-1 y:height-1
+        //length=(width-collarwidth)/2
+       
+        //x:0,y:0
+        //x:0,y:(height-sleevewidth)-1
+        //length=height-sleevewidth
+        
+        //x:width-1,y:0
+        //x:width-1.y:height-(sleevewidth)-1
+        //length=height-sleevewidth
+       
+        //x:0,y:height-1
+        //x:0,y:height-sleevewidth
+        //length: sleevewidth
+       
+        //x:width-1,y:height-1
+        //x:width-1,y:height-sleevewidth
+        //length: sleevewidth
+        
+        //x:width-((width-collarwidth)/2)-1,y:height-1
+        //x:(width-collarwidth)/2,y:height-1
+        //length: collarwidth
+        
+        //left sleeve:
+        MakePanel(sL,sleeveWidth*2,sleeveHeight,true);
+        //width: sleevewidth*2-2
+        MakePanel(sR,sleeveWidth*2,sleeveHeight,true);
+        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
+        //x:0,y:0
+        //x:sleevewidth*2-3,y:0
+        //length:sleevewidth*2-2
+        CreateSeam(sR,s2bR,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
+        //x:0,y:0
+        //x:sleevewidth*2-3,y:0
+        //length:sleevewidth*2-2
+        //make collar:
+        MakePanel(cp,collarWidth*2-2,collarHeight,true);
+        //width:collarwidth*2-2
+        CreateSeam(cp,c2b,new Vector2Int(0,0),new Vector2Int(collarWidth*2-3,0),collarWidth*2-2);
+        //x:0,y:0
+        //x:collarwidth*2-3,y:0
+        //length:collarwidth*2-2
+        StitchConnector.ConnectSeams(_seamDictionary[fpnL],_seamDictionary[bpnL]);
+        StitchConnector.ConnectSeams(_seamDictionary[fpnR],_seamDictionary[bpnR]);
+        StitchConnector.ConnectSeams(_seamDictionary[fpbL],_seamDictionary[bpbL]);
+        StitchConnector.ConnectSeams(_seamDictionary[fpbR],_seamDictionary[bpbR]);
+        StitchConnector.ConnectSeams(_seamDictionary[s2bL],_seamDictionary[b2sL]);
+        StitchConnector.ConnectSeams(_seamDictionary[s2bR],_seamDictionary[b2sR]);
+        StitchConnector.ConnectSeams(_seamDictionary[c2b],_seamDictionary[b2c]);
+        
+    }
+    
+    
     [ContextMenu("Make pattern mesh")]
     public void MakePanelFromPattern()
     {
@@ -252,8 +391,6 @@ public class FabricManager : MonoBehaviour
             int y = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
             
             _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
-            Debug.Log(mySeamKey + i + ": "+x + " " + y);
-            Debug.Log(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
         }
     }
     
@@ -270,7 +407,6 @@ public class FabricManager : MonoBehaviour
             int y = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
             
             _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
-            Debug.Log(mySeamKey + i + ": "+x + " " + y);
         }
     }
 
