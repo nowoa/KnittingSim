@@ -5,11 +5,13 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
+using Vector2Int = UnityEngine.Vector2Int;
 
 public class FabricManager : MonoBehaviour
 {
     
     [FormerlySerializedAs("StitchPrefab")] public StitchScript stitchPrefab;
+    public Panel Panel;
     [FormerlySerializedAs("Pattern")] public Pattern pattern;
     /*public float displacementFactor; // TO DO
     [SerializeField] private bool isRibbed; // TO DO*/
@@ -65,8 +67,10 @@ public class FabricManager : MonoBehaviour
         public bool IsCircular => _isCircular;
         private Transform _parentObject;
         public Transform ParentObject => _parentObject;
+        private int _heldStitchIndex;
+        public int HeldStitchIndex => _heldStitchIndex;
 
-        public PanelInfo(List<StitchScript> stitches,List<VerletNode> nodes, int width, int height, bool isCircular, Transform parentObject)
+        public PanelInfo(List<StitchScript> stitches,List<VerletNode> nodes, int width, int height, bool isCircular, Transform parentObject, int heldStitchIndex)
         {
             _stitches = stitches;
             _nodes = nodes;
@@ -74,6 +78,7 @@ public class FabricManager : MonoBehaviour
             _height = height;
             _isCircular = isCircular;
             _parentObject = parentObject;
+            _heldStitchIndex = heldStitchIndex;
         }
 
         public StitchScript GetStitchAt(int x, int y)
@@ -111,7 +116,7 @@ public class FabricManager : MonoBehaviour
         
         
         //create panelInfo for panel
-        var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth,mpPanelHeight,mpIsCircular, parentObject.transform);
+        var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth,mpPanelHeight,mpIsCircular, parentObject.transform, parentObject.GetComponent<Panel>().heldStitchIndex);
         
         //add panelInfo to dictionary (to keep track of the panels we have, and be able to iterate through all of them)
         _panelDictionary[mpName] = thisPanelInfo;
@@ -168,6 +173,7 @@ public class FabricManager : MonoBehaviour
         var fpnR = "frontPanelNeckRight";
         var fpbL = "frontPanelBodyLeft";
         var fpbR = "frontPanelBodyRight";
+        var b2c = "bodyToCollar";
         
         var bp = "backPanel";
         var bpnL = "backPanelNeckLeft";
@@ -213,13 +219,14 @@ public class FabricManager : MonoBehaviour
         AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,7) );
         AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,8) );
         AddNodeToSeamFromCoordinate(fp, b2sL, new Vector2Int(0,9) );*/
-        CreateSeam(fp,b2sL,new Vector2Int(0,6),new Vector2Int(0,9),4);
+        CreateSeam(fp,b2sL,new Vector2Int(0,7),new Vector2Int(0,9),3);
         //right sleeve seam
         /*AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,6) );
         AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,7) );
         AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,8) );
         AddNodeToSeamFromCoordinate(fp, b2sR, new Vector2Int(9,9) );*/
-        CreateSeam(fp,b2sR,new Vector2Int(9,6),new Vector2Int(9,9),4);
+        CreateSeam(fp,b2sR,new Vector2Int(9,7),new Vector2Int(9,9),3);
+        CreateSeam(fp,b2c,new Vector2Int(3,9),new Vector2Int(5,9),3);
         //back panel:
         MakePanel(bp,10,10,false);
         
@@ -258,11 +265,12 @@ public class FabricManager : MonoBehaviour
         AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,7) );
         AddNodeToSeamFromCoordinate(bp, b2sR, new Vector2Int(9,6) );*/
         CreateSeamReverse(bp,b2sR,new Vector2Int(9,8),new Vector2Int(9,6),3);
+        CreateSeamReverse(bp,b2c,new Vector2Int(6,9),new Vector2Int(4,9),3);
         
         //left sleeve:
-        MakePanel(sL,7,10,true);
+        MakePanel(sL,6,10,true);
         
-        MakePanel(sR,7,10,true);
+        MakePanel(sR,6,10,true);
         
         //seam to body
         /*AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(0,0));
@@ -272,15 +280,23 @@ public class FabricManager : MonoBehaviour
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(4,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(5,0));
         AddNodeToSeamFromCoordinate(sL,s2bL, new Vector2Int(6,0));*/
-        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(6,0),7);
+        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(5,0),6);
         
-        AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(0,0));
+        /*AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(0,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(1,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(2,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(3,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(4,0));
         AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(5,0));
-        AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(6,0));
+        AddNodeToSeamFromCoordinate(sR,s2bR, new Vector2Int(6,0));*/
+        CreateSeam(sR,s2bR,new Vector2Int(0,0),new Vector2Int(5,0),6);
+
+        var cp = "collarPanel";
+        var c2b = "collarPanelToBody";
+        //make collar:
+        MakePanel(cp,6,2,true);
+        CreateSeam(cp,c2b,new Vector2Int(0,0),new Vector2Int(5,0),6);
+        
         
         
         var frontPanelInfo = _panelDictionary[fp];
@@ -293,6 +309,7 @@ public class FabricManager : MonoBehaviour
         StitchConnector.ConnectSeams(_seamDictionary[fpbR],_seamDictionary[bpbR]);
         StitchConnector.ConnectSeams(_seamDictionary[s2bL],_seamDictionary[b2sL]);
         StitchConnector.ConnectSeams(_seamDictionary[s2bR],_seamDictionary[b2sR]);
+        StitchConnector.ConnectSeams(_seamDictionary[c2b],_seamDictionary[b2c]);
         
         //add anchored nodes
         AnchorNodeCoordinate(fp, new Vector2Int(0,0));
@@ -313,6 +330,7 @@ public class FabricManager : MonoBehaviour
     (List<StitchScript>, GameObject) InitFabric(string myPanelName, List<StitchInfo> incomingStitchInfos)
     {
         var parentObject = new GameObject(myPanelName);
+        parentObject.AddComponent<Panel>();
         var stitches = new List<StitchScript>();
         foreach (Transform child in parentObject.transform)
         {
@@ -473,7 +491,7 @@ public class FabricManager : MonoBehaviour
     {
         foreach (var panelInfo in _panelDictionary.Values)
         {
-            panelInfo.Nodes[65].position = panelInfo.ParentObject.position;
+            panelInfo.Nodes[panelInfo.ParentObject.GetComponent<Panel>().heldStitchIndex].position = panelInfo.ParentObject.position;
         }
         if (_simConnected != null)
         {

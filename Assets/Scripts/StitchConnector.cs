@@ -110,6 +110,11 @@ public static class StitchConnector
                 {
                     VerletEdge.ConnectNodes(nodes[i],nodes[i-myWidth*2]);
                 }
+
+                if (i == nodes.Count - 1)
+                {
+                    VerletEdge.ConnectNodes(nodes[i], nodes[i-myWidth+1]);
+                }
             }
             else
             {
