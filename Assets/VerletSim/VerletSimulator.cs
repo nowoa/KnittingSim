@@ -9,6 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
+        private Vector3 _gravity = new Vector3(0, -1f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -17,21 +18,27 @@ namespace Verlet
         
         public void Simulate(int iterations, float dt)
         {
-            Step();
-            Solve(iterations, dt);
-        }
-        
-        void Step()
-        {
-            particles.ForEach(p=>{p.Step();});
-        }
-        
-        void Solve(int iterations, float dt)
-        {
+            var time = dt / iterations;
             for (int iter = 0; iter < iterations; iter++ )
             {
-                particles.ForEach(p => Solve(p));
+                Step(time);
+                Solve();
             }
+        }
+        
+        void Step(float deltaTime)
+        {
+            
+            particles.ForEach(p =>
+            {
+                p.position += _gravity*deltaTime;
+                p.Step();
+            });
+        }
+        
+        void Solve()
+        {
+            particles.ForEach(p => Solve(p));
         }
         
         void Solve(VerletNode particle)

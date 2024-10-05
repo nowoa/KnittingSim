@@ -259,7 +259,8 @@ MonoBehaviour:
   panelName: hello
   width: 100
   height: 10
-  isCircular: 0
+  isCircular: 1
+  anchored: 1
   heldStitchIndex: 0
 --- !u!4 &140870171
 Transform:

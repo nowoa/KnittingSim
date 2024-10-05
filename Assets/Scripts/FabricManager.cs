@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
@@ -10,13 +8,12 @@ using Vector2Int = UnityEngine.Vector2Int;
 public class FabricManager : MonoBehaviour
 {
     
-    [FormerlySerializedAs("StitchPrefab")] public StitchScript stitchPrefab;
-    public Panel Panel;
-    [FormerlySerializedAs("Pattern")] public Pattern pattern;
+    public StitchScript stitchPrefab;
+    public Pattern pattern;
     /*public float displacementFactor; // TO DO
     [SerializeField] private bool isRibbed; // TO DO*/
-    private Dictionary<string, PanelInfo> _panelDictionary = new();
-    private Dictionary<string, List<VerletNode>> _seamDictionary = new();
+    private readonly Dictionary<string, PanelInfo> _panelDictionary = new();
+    private readonly Dictionary<string, List<VerletNode>> _seamDictionary = new();
     private List<StitchInfo> _stitchInfos;
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
@@ -24,8 +21,6 @@ public class FabricManager : MonoBehaviour
     private List<VerletNode> _connectedNodesToSimulate;
     private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
-    private readonly int _width = 10;
-    private readonly int _height = 10;
     private bool _isCircular;
     
     public string panelName;
@@ -33,64 +28,8 @@ public class FabricManager : MonoBehaviour
     public  int height = 10;
     public bool isCircular;
     public bool anchored;
-
-    [FormerlySerializedAs("HeldStitchIndex")] public int heldStitchIndex;
+    public int heldStitchIndex;
     
-    
-    
-    public struct StitchInfo
-    {
-        public Vector3 Position { get; }
-        public int XCoordinate { get; }
-        public int YCoordinate { get; }
-
-        // Constructor to initialize the position
-        public StitchInfo(Vector3 position, int x, int y)
-        {
-            Position = position;
-            XCoordinate = x;
-            YCoordinate = y;
-        }
-    }
-
-    private class PanelInfo
-    {
-        private List<StitchScript> _stitches;
-        public List<StitchScript> Stitches => _stitches;
-        private List<VerletNode> _nodes;
-        public List<VerletNode> Nodes => _nodes;
-        private int _width;
-        public int Width => _width;
-        private int _height;
-        public int Height => _height;
-        private bool _isCircular;
-        public bool IsCircular => _isCircular;
-        private Transform _parentObject;
-        public Transform ParentObject => _parentObject;
-        private int _heldStitchIndex;
-        public int HeldStitchIndex => _heldStitchIndex;
-
-        public PanelInfo(List<StitchScript> stitches,List<VerletNode> nodes, int width, int height, bool isCircular, Transform parentObject, int heldStitchIndex)
-        {
-            _stitches = stitches;
-            _nodes = nodes;
-            _width = width;
-            _height = height;
-            _isCircular = isCircular;
-            _parentObject = parentObject;
-            _heldStitchIndex = heldStitchIndex;
-        }
-
-        public StitchScript GetStitchAt(int x, int y)
-        {
-            return _stitches[Calculation.GetIndexFromCoordinate(x, y, _width)];
-        }
-
-        public VerletNode GetNodeAt(int x, int y)
-        {
-            return _nodes[Calculation.GetIndexFromCoordinate(x, y, _width)];
-        }
-    }
 
     private void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
     {
@@ -232,6 +171,18 @@ public class FabricManager : MonoBehaviour
         /*var patternPanel = _panelDictionary["patternPanel"];*/
         // TO DO: connect stitches
         GetStitchValue();
+    }
+
+    [ContextMenu("make ruffle")]
+    public void MakeRuffle()
+    {
+        MakePanel("shortPanel",10,5,false);
+        MakePanel("longPanel",30,5,false);
+        CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(9,0),20);
+        CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(19,0),20);
+        StitchConnector.ConnectSeams(_seamDictionary["shortPanelSeam"], _seamDictionary["longPanelSeam"]);
+        AnchorNodeIndex("shortPanel", 0);
+        AnchorNodeIndex("shortPanel", 9);
     }
 
     (List<StitchScript>, GameObject) InitFabric(string myPanelName, List<StitchInfo> incomingStitchInfos)
