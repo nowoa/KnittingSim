@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -5,11 +6,17 @@ using UnityEngine.Serialization;
 using Verlet;
 using Vector2Int = UnityEngine.Vector2Int;
 
-public class FabricManager : MonoBehaviour
+public class FabricManager
 {
-    
-    public StitchScript stitchPrefab;
-    public Pattern pattern;
+
+    private GarmentGenerator _parent;
+
+    public FabricManager(GarmentGenerator parent)
+    {
+        _parent = parent;
+    }
+
+
     /*public float displacementFactor; // TO DO
     [SerializeField] private bool isRibbed; // TO DO*/
     private readonly Dictionary<string, PanelInfo> _panelDictionary = new();
@@ -18,310 +25,66 @@ public class FabricManager : MonoBehaviour
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
     private List<VerletNode> _nodesToSimulate;
+    public static int nodeCount;
     private List<VerletNode> _connectedNodesToSimulate;
     private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
     private bool _isCircular;
-    
-    public string panelName;
-    public  int width = 10;
-    public  int height = 10;
-    public bool isCircular;
-    public bool anchored;
-    public int heldStitchIndex;
-    
 
-    private void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
+
+    public void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
     {
-        //remove previous data
-        RemovePreviousData(mpName);
-        
         // get stitchInfos for panel (position, coordinates, etc.)
-        _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(new Vector2Int(mpPanelWidth, mpPanelHeight),
-            new Vector2(stitchPrefab.width, stitchPrefab.height), mpIsCircular));
-        
+        _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(
+            new Vector2Int(mpPanelWidth, mpPanelHeight),
+            new Vector2(_parent.stitchPrefab.width, _parent.stitchPrefab.height), mpIsCircular));
+
         // create stitchScripts at positions
         var initFabric = InitFabric(mpName, _stitchInfos);
         List<StitchScript> stitches = initFabric.Item1;
         GameObject parentObject = initFabric.Item2;
-        
+
         // create verletnodes at positions
-        List<VerletNode> nodes = InitNodes( _stitchInfos);
-        
+        List<VerletNode> nodes = InitNodes(_stitchInfos);
+
         //create panelInfo for panel
-        var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth,mpPanelHeight,mpIsCircular, parentObject.transform, parentObject.GetComponent<Panel>().heldStitchIndex);
-        
+        var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth, mpPanelHeight, mpIsCircular,
+            parentObject.transform, parentObject.GetComponent<Panel>().heldStitchIndex);
+
         //add panelInfo to dictionary (to keep track of the panels we have, and be able to iterate through all of them)
         _panelDictionary[mpName] = thisPanelInfo;
-        
+
         //connect stitches and nodes to the correct neighbors
         Connect(mpName);
-        
+
         //pass all nodes to the verletsimulator
         _sim = new VerletSimulator(GetAllNodes());
     }
 
-    void RemovePreviousData(string myPanelName)
+    public void RemovePreviousData()
     {
-        if (_panelDictionary.Keys.Contains(myPanelName))
+
+        foreach (var panelInfo in _panelDictionary.Values)
         {
-            Destroy(_panelDictionary[myPanelName].ParentObject.gameObject);
-            _panelDictionary.Remove(myPanelName);
+            GameObject.Destroy(panelInfo.ParentObject.gameObject);
         }
 
-        if (_anchoredNodes != null)
-        {
-            _anchoredNodes.Clear();
-        }
-
-        if (_nodesToSimulate != null)
-        {
-            _nodesToSimulate.Clear();
-        }
-
-        if (_connectedNodesToSimulate != null)
-        {
-            _connectedNodesToSimulate.Clear();
-        }
-    }
-    
-    [ContextMenu("Make panel")]
-    public void MakePanel()
-    {
-        MakePanel(panelName,width,height,isCircular);
-        if (anchored)
-        {
-            for (int i = 0; i < width; i++)
-            {
-                AnchorNodeIndex(panelName,i);
-            }
-        }
-    }
-    
-    [ContextMenu("Make sweater mesh")]
-    public void MakeSweaterMesh()
-    {
-        var fp = "frontPanel";
-        var fpnL = "frontPanelNeckLeft";
-        var fpnR = "frontPanelNeckRight";
-        var fpbL = "frontPanelBodyLeft";
-        var fpbR = "frontPanelBodyRight";
-        var b2c = "bodyToCollar";
-        
-        var bp = "backPanel";
-        var bpnL = "backPanelNeckLeft";
-        var bpnR = "backPanelNeckRight";
-        var bpbL = "backPanelBodyLeft";
-        var bpbR = "backPanelBodyRight";
-        
-        var sL = "sleeveLeft";
-        var s2bL = "sleeveToBodyLeft";
-        var sR = "sleeveRight";
-        var s2bR = "sleeveToBodyRight";
-
-        var b2sL = "bodyToSleeveLeft";
-        var b2sR = "bodyToSleeveRight";
-        //front panel:
-        MakePanel(fp,10,10,false);
-        //create seams:
-        CreateSeam(fp,fpnL,new Vector2Int(0,9),new Vector2Int(2,9),3);
-        CreateSeam(fp,fpnR,new Vector2Int(7,9),new Vector2Int(9,9),3);
-        CreateSeam(fp,fpbL,new Vector2Int(0,0),new Vector2Int(0,5),6);
-        CreateSeam(fp,fpbR,new Vector2Int(9,0),new Vector2Int(9,5),6);
-        CreateSeam(fp,b2sL,new Vector2Int(0,7),new Vector2Int(0,9),3);
-        CreateSeam(fp,b2sR,new Vector2Int(9,7),new Vector2Int(9,9),3);
-        CreateSeam(fp,b2c,new Vector2Int(3,9),new Vector2Int(5,9),3);
-        //back panel:
-        MakePanel(bp,10,10,false);
-        CreateSeam(bp,bpnL,new Vector2Int(0,9),new Vector2Int(2,9),3);
-        CreateSeam(bp,bpnR,new Vector2Int(7,9),new Vector2Int(9,9),3);
-        CreateSeam(bp,bpbL,new Vector2Int(0,0),new Vector2Int(0,5),6);
-        CreateSeam(bp,bpbR,new Vector2Int(9,0),new Vector2Int(9,5),6);
-        CreateSeamReverse(bp,b2sL,new Vector2Int(0,8),new Vector2Int(0,6),3);
-        CreateSeamReverse(bp,b2sR,new Vector2Int(9,8),new Vector2Int(9,6),3);
-        CreateSeamReverse(bp,b2c,new Vector2Int(6,9),new Vector2Int(4,9),3);
-        //left sleeve:
-        MakePanel(sL,6,10,true);
-        MakePanel(sR,6,10,true);
-        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(5,0),6);
-        CreateSeam(sR,s2bR,new Vector2Int(0,0),new Vector2Int(5,0),6);
-        
-        var cp = "collarPanel";
-        var c2b = "collarPanelToBody";
-        //make collar:
-        MakePanel(cp,6,2,true);
-        CreateSeam(cp,c2b,new Vector2Int(0,0),new Vector2Int(5,0),6);
-        StitchConnector.ConnectSeams(_seamDictionary[fpnL],_seamDictionary[bpnL]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpnR],_seamDictionary[bpnR]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpbL],_seamDictionary[bpbL]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpbR],_seamDictionary[bpbR]);
-        StitchConnector.ConnectSeams(_seamDictionary[s2bL],_seamDictionary[b2sL]);
-        StitchConnector.ConnectSeams(_seamDictionary[s2bR],_seamDictionary[b2sR]);
-        StitchConnector.ConnectSeams(_seamDictionary[c2b],_seamDictionary[b2c]);
-        
-        //add anchored nodes
-        AnchorNodeCoordinate(fp, new Vector2Int(0,0));
-        AnchorNodeCoordinate(fp, new Vector2Int(9,0));
+        Debug.Log("remove data");
     }
 
-    [ContextMenu("make large sweater")]
-    public void MakeLargeSweaterMesh()
+    public PanelInfo GetPanelInfo(string key)
     {
-        var fp = "frontPanel";
-        var fpnL = "frontPanelNeckLeft";
-        var fpnR = "frontPanelNeckRight";
-        var fpbL = "frontPanelBodyLeft";
-        var fpbR = "frontPanelBodyRight";
-        var b2c = "bodyToCollar";
-        
-        var bp = "backPanel";
-        var bpnL = "backPanelNeckLeft";
-        var bpnR = "backPanelNeckRight";
-        var bpbL = "backPanelBodyLeft";
-        var bpbR = "backPanelBodyRight";
-        
-        var sL = "sleeveLeft";
-        var s2bL = "sleeveToBodyLeft";
-        var sR = "sleeveRight";
-        var s2bR = "sleeveToBodyRight";
-
-        var b2sL = "bodyToSleeveLeft";
-        var b2sR = "bodyToSleeveRight";
-        
-        var cp = "collarPanel";
-        var c2b = "collarPanelToBody";
-
-
-        int bodyWidth = 20;
-        int bodyHeight = 40;
-        int sleeveWidth = 8;
-        int sleeveHeight = 50;
-        int collarWidth = 10;
-        int collarHeight = 2;
-        
-        
-        //front panel:
-        MakePanel(fp,bodyWidth,bodyHeight,false);
-        MakePanel(bp,bodyWidth,bodyHeight,false);
-        //create seams:
-        CreateSeam(fp,fpnL,new Vector2Int(0,bodyHeight-1),new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),(bodyWidth-collarWidth)/2+1);
-        CreateSeam(bp,bpnL,new Vector2Int(0,bodyHeight-1),new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),(bodyWidth-collarWidth)/2+1);
-        // x:0 y:height-1
-        // x: ((width - collarwidth)/2), y: height-1
-        // length=(width-collarwidth)/2
-        CreateSeam(fp,fpnR,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(bodyWidth-1,bodyHeight-1),
-            (bodyWidth-collarWidth)/2+1);
-        CreateSeam(bp,bpnR,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(bodyWidth-1,bodyHeight-1),
-            (bodyWidth-collarWidth)/2+1);
-        //x:(width-((width-collarwidth)/2)) y: height-1
-        //x:width-1 y:height-1
-        //length=(width-collarwidth)/2
-        CreateSeam(fp,fpbL,new Vector2Int(0,0),new Vector2Int(0,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
-        CreateSeam(bp,bpbL,new Vector2Int(0,0),new Vector2Int(0,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
-        //x:0,y:0
-        //x:0,y:(height-sleevewidth)-1
-        //length=height-sleevewidth
-        CreateSeam(fp,fpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
-        CreateSeam(bp,bpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
-        //x:width-1,y:0
-        //x:width-1.y:height-(sleevewidth)-1
-        //length=height-sleevewidth
-        CreateSeam(fp,b2sL,new Vector2Int(0,bodyHeight-sleeveWidth),new Vector2Int(0,bodyHeight-1),sleeveWidth);
-        CreateSeamReverse(bp,b2sL,new Vector2Int(0,bodyHeight-2),new Vector2Int(0,bodyHeight-sleeveWidth-1),sleeveWidth);
-        //x:0,y:height-sleevewidth
-        //x:0,y:height-1
-        //length:sleevewidth
-        CreateSeam(fp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth),new Vector2Int(bodyWidth-1,bodyHeight-1),sleeveWidth);
-        CreateSeamReverse(bp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-2),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),sleeveWidth);
-        //x:width-1,y:height-sleevewidth
-        //x:width-1,y:height-1
-        //length:sleevewidth
-        CreateSeam(fp,b2c,new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-2,bodyHeight-1),collarWidth-1);
-        CreateSeamReverse(bp,b2c,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(((bodyWidth-collarWidth)/2)+1,bodyHeight-1),collarWidth-1);
-        //x:(width - collarwidth)/2,y:height-1
-        //x:width-((width-collarwidth)/2)-1,y:height-1 
-        //length:collarwidth
-        
-        //back panel:
-        
-       
-        // x:0 y:height-1
-        // x: ((width - collarwidth)/2)-1, y: height-1
-        // length=(width-collarwidth)/2
-       
-        //x:(width-((width-collarwidth)/2)) y: height-1
-        //x:width-1 y:height-1
-        //length=(width-collarwidth)/2
-       
-        //x:0,y:0
-        //x:0,y:(height-sleevewidth)-1
-        //length=height-sleevewidth
-        
-        //x:width-1,y:0
-        //x:width-1.y:height-(sleevewidth)-1
-        //length=height-sleevewidth
-       
-        //x:0,y:height-1
-        //x:0,y:height-sleevewidth
-        //length: sleevewidth
-       
-        //x:width-1,y:height-1
-        //x:width-1,y:height-sleevewidth
-        //length: sleevewidth
-        
-        //x:width-((width-collarwidth)/2)-1,y:height-1
-        //x:(width-collarwidth)/2,y:height-1
-        //length: collarwidth
-        
-        //left sleeve:
-        MakePanel(sL,sleeveWidth*2,sleeveHeight,true);
-        //width: sleevewidth*2-2
-        MakePanel(sR,sleeveWidth*2,sleeveHeight,true);
-        CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
-        //x:0,y:0
-        //x:sleevewidth*2-3,y:0
-        //length:sleevewidth*2-2
-        CreateSeam(sR,s2bR,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
-        //x:0,y:0
-        //x:sleevewidth*2-3,y:0
-        //length:sleevewidth*2-2
-        //make collar:
-        MakePanel(cp,collarWidth*2-2,collarHeight,true);
-        //width:collarwidth*2-2
-        CreateSeam(cp,c2b,new Vector2Int(0,0),new Vector2Int(collarWidth*2-3,0),collarWidth*2-2);
-        //x:0,y:0
-        //x:collarwidth*2-3,y:0
-        //length:collarwidth*2-2
-        StitchConnector.ConnectSeams(_seamDictionary[fpnL],_seamDictionary[bpnL]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpnR],_seamDictionary[bpnR]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpbL],_seamDictionary[bpbL]);
-        StitchConnector.ConnectSeams(_seamDictionary[fpbR],_seamDictionary[bpbR]);
-        StitchConnector.ConnectSeams(_seamDictionary[s2bL],_seamDictionary[b2sL]);
-        StitchConnector.ConnectSeams(_seamDictionary[s2bR],_seamDictionary[b2sR]);
-        StitchConnector.ConnectSeams(_seamDictionary[c2b],_seamDictionary[b2c]);
-        
-    }
-    
-    
-    [ContextMenu("Make pattern mesh")]
-    public void MakePanelFromPattern()
-    {
-        MakePanel("patternPanel", pattern.width,pattern.height,pattern.isCircular);
-        /*var patternPanel = _panelDictionary["patternPanel"];*/
-        // TO DO: connect stitches
-        GetStitchValue();
+        return _panelDictionary[key];
     }
 
-    [ContextMenu("make ruffle")]
-    public void MakeRuffle()
+    public List<VerletNode> GetSeams(string key)
     {
-        MakePanel("shortPanel",10,5,false);
-        MakePanel("longPanel",30,5,false);
-        CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(9,0),20);
-        CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(19,0),20);
-        StitchConnector.ConnectSeams(_seamDictionary["shortPanelSeam"], _seamDictionary["longPanelSeam"]);
-        AnchorNodeIndex("shortPanel", 0);
-        AnchorNodeIndex("shortPanel", 9);
+        return _seamDictionary[key];
+    }
+
+    public void ConnectSeams(string key1, string key2)
+    {
+        StitchConnector.ConnectSeams(_seamDictionary[key1], _seamDictionary[key2]);
     }
 
     (List<StitchScript>, GameObject) InitFabric(string myPanelName, List<StitchInfo> incomingStitchInfos)
@@ -331,24 +94,27 @@ public class FabricManager : MonoBehaviour
         var stitches = new List<StitchScript>();
         foreach (Transform child in parentObject.transform)
         {
-            Destroy(child.gameObject);
+            GameObject.Destroy(child.gameObject);
         }
+
         foreach (var stitch in incomingStitchInfos)
         {
-            var newStitch = Instantiate(stitchPrefab, stitch.Position, Quaternion.identity);
+            var newStitch = GameObject.Instantiate(_parent.stitchPrefab, stitch.Position, Quaternion.identity);
             newStitch.xCoordinate = stitch.XCoordinate;
             newStitch.yCoordinate = stitch.YCoordinate;
             // TO DO: create verlet nodes at stitch positions
-            if(parentObject != null)
+            if (parentObject != null)
             {
                 newStitch.transform.parent = parentObject.transform;
             }
+
             stitches.Add(newStitch);
         }
-        return (stitches,parentObject) ;
+
+        return (stitches, parentObject);
     }
-    
-    List<VerletNode> InitNodes( List<StitchInfo> incomingStitchInfos)
+
+    List<VerletNode> InitNodes(List<StitchInfo> incomingStitchInfos)
     {
         var nodes = new List<VerletNode>();
         foreach (var stitch in incomingStitchInfos)
@@ -358,76 +124,82 @@ public class FabricManager : MonoBehaviour
             // TO DO: create verlet nodes at stitch positions
             nodes.Add(newNode);
         }
+
         return nodes;
     }
-    
+
     private void Connect(string myPanelName)
-     {
-         var panel = _panelDictionary[myPanelName];
-        
-        StitchConnector.ConnectStitches(panel.Stitches,panel.Width,panel.IsCircular);
-        StitchConnector.ConnectNodes(panel.Nodes,panel.Width,panel.IsCircular);
-     }
-
-    private void AddNodeToSeamFromCoordinate(string myPanelName,string mySeamKey,  Vector2Int myCoordinate)
     {
-        if (!_seamDictionary.ContainsKey(mySeamKey))
-        {
-            _seamDictionary[mySeamKey] = new List<VerletNode>();
-        }
-        _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(myCoordinate.x,myCoordinate.y));
+        var panel = _panelDictionary[myPanelName];
+
+        StitchConnector.ConnectStitches(panel.Stitches, panel.Width, panel.IsCircular);
+        StitchConnector.ConnectNodes(panel.Nodes, panel.Width, panel.IsCircular);
     }
 
-    void CreateSeam(string myPanelName, string mySeamKey,Vector2Int myStartingPoint, Vector2Int myEndPoint, int myLength)
+    private void AddNodeToSeamFromCoordinate(string myPanelName, string mySeamKey, Vector2Int myCoordinate)
     {
         if (!_seamDictionary.ContainsKey(mySeamKey))
         {
             _seamDictionary[mySeamKey] = new List<VerletNode>();
         }
+
+        _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y));
+    }
+
+    public void CreateSeam(string myPanelName, string mySeamKey, Vector2Int myStartingPoint, Vector2Int myEndPoint,
+        int myLength)
+    {
+        if (!_seamDictionary.ContainsKey(mySeamKey))
+        {
+            _seamDictionary[mySeamKey] = new List<VerletNode>();
+        }
+
         float lerpStep = 1 / (float)myLength;
         for (int i = 1; i <= myLength; i++)
         {
-            int x = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep*i));
-            int y = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
-            
-            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
+            int x = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep * i));
+            int y = (int)Mathf.Floor(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep * i));
+
+            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x, y));
         }
     }
-    
-    void CreateSeamReverse(string myPanelName, string mySeamKey,Vector2Int myStartingPoint, Vector2Int myEndPoint, int myLength)
+
+    public void CreateSeamReverse(string myPanelName, string mySeamKey, Vector2Int myStartingPoint,
+        Vector2Int myEndPoint, int myLength)
     {
         if (!_seamDictionary.ContainsKey(mySeamKey))
         {
             _seamDictionary[mySeamKey] = new List<VerletNode>();
         }
+
         float lerpStep = 1 / (float)myLength;
         for (int i = 1; i <= myLength; i++)
         {
-            int x = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep*i));
-            int y = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep*i));
-            
-            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x,y));
+            int x = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.x, myEndPoint.x, lerpStep * i));
+            int y = (int)Mathf.Ceil(Mathf.Lerp(myStartingPoint.y, myEndPoint.y, lerpStep * i));
+
+            _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(x, y));
         }
     }
 
-    private void AnchorNodeCoordinate(string myPanelName,Vector2Int myCoordinate)
+    public void AnchorNodeCoordinate(string myPanelName, Vector2Int myCoordinate)
     {
-       _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).isAnchored = true;
+        _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).isAnchored = true;
     }
 
-    private void AnchorNodeIndex(string myPanelName, int index)
+    public void AnchorNodeIndex(string myPanelName, int index)
     {
         _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
     }
-    
-    private void GetStitchValue()
+
+    public void GetStitchValue()
     {
         foreach (var i in _panelDictionary["patternPanel"].Stitches)
         {
-            i.isKnit = pattern.GetStitch(i.xCoordinate, i.yCoordinate);
+            i.isKnit = _parent.pattern.GetStitch(i.xCoordinate, i.yCoordinate);
         }
     }
-    
+
     //get all nodes
     private List<VerletNode> GetAllNodes()
     {
@@ -436,13 +208,23 @@ public class FabricManager : MonoBehaviour
         {
             nodesToSimulate.AddRange(myPanelInfo.Nodes);
         }
+
+        nodeCount = nodesToSimulate.Count;
         return nodesToSimulate;
+    }
+
+    public IEnumerable<VerletNode> IterateAllNodes()
+    {
+        foreach (PanelInfo info in _panelDictionary.Values)
+        {
+            foreach (var n in info.Nodes) yield return n;
+        }
     }
 
     [ContextMenu("update connected node")]
     private void GetConnectedNodes()
     {
-        var centralNode = GetAllNodes()[heldStitchIndex];
+        var centralNode = GetAllNodes()[_parent.heldStitchIndex];
         List<VerletNode> connectedNodesLayer1 = new List<VerletNode>();
         List<VerletNode> connectedNodesLayer2 = new List<VerletNode>();
         List<VerletNode> connectedNodesLayer3 = new List<VerletNode>();
@@ -453,6 +235,7 @@ public class FabricManager : MonoBehaviour
                 connectedNodesLayer1.Add(edge.Other(centralNode));
             }
         }
+
         connectedNodesLayer2.AddRange(connectedNodesLayer1);
         foreach (var node in connectedNodesLayer1)
         {
@@ -464,6 +247,7 @@ public class FabricManager : MonoBehaviour
                 }
             }
         }
+
         foreach (var node in connectedNodesLayer2)
         {
             foreach (var edge in node.Connection)
@@ -474,39 +258,68 @@ public class FabricManager : MonoBehaviour
                 }
             }
         }
+
         _simConnected = new VerletSimulator(connectedNodesLayer3);
     }
 
-    private void FixedUpdate()
+    public void AnchorNode(VerletNode node, Vector3 myPosition)
     {
-        foreach (var panelInfo in _panelDictionary.Values)
-        {
-            panelInfo.Nodes[panelInfo.ParentObject.GetComponent<Panel>().heldStitchIndex].position = panelInfo.ParentObject.position;
-        }
+        node.isAnchored = true;
+        node.anchoredPos = myPosition;
+    }
+
+    public void FixedUpdate()
+    {
+        //hardcoded anchoring
+        _panelDictionary["sleeveLeft"].Nodes[_panelDictionary["sleeveLeft"].Width / 2].position.x = 0;
+        _panelDictionary["sleeveRight"].Nodes[_panelDictionary["sleeveRight"].Width / 2].position.x =
+            _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width;
+        _panelDictionary["sleeveLeft"].Nodes[^(_panelDictionary["sleeveLeft"].Width / 2)].position.x =
+            0 - _panelDictionary["sleeveLeft"].Height * _parent.stitchPrefab.height;
+        _panelDictionary["sleeveRight"].Nodes[^(_panelDictionary["sleeveRight"].Width / 2)].position.x =
+            _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
+            _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;
+        //
+
         if (_simConnected != null)
         {
-            
             _simConnected.Simulate(5, Time.fixedDeltaTime);
         }
+
         if (_sim != null)
         {
-            _sim.Simulate(2, Time.fixedDeltaTime);
             foreach (var node in _sim.Nodes)
             {
                 if (node.isAnchored)
                 {
-                    node.position = node.initPos;
+                    node.position.y = node.anchoredPos.y;
                 }
             }
+
+            _sim.Simulate(2, Time.fixedDeltaTime);
+
         }
+
     }
 
-    private void OnDrawGizmos()
+    public void DrawGizmos()
     {
         if (_sim != null)
         {
             _sim.DrawGizmos();
         }
     }
-    
+
+    public void RenderNodes(Material material, Mesh mesh)
+    {
+        var rparams = new RenderParams(material);
+        List<Matrix4x4> renderMatrices = new();
+        foreach (var node in IterateAllNodes())
+        {
+            Matrix4x4 mat = Matrix4x4.TRS(node.position, Quaternion.identity, Vector3.one * 0.1f);
+            renderMatrices.Add(mat);
+        }
+
+        Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
+    }
 }

@@ -14,6 +14,7 @@ namespace Verlet
         public Vector3 initPos;
         protected Vector3 prev;
         public bool isAnchored;
+        public Vector3 anchoredPos;
         private List<VerletEdge> connection;
 
         public VerletNode(Vector3 p)
