@@ -189,13 +189,16 @@ public class GarmentGenerator : MonoBehaviour
     public void MakeRuffle()
     {
         Generate();
-        _fabricManager.MakePanel("shortPanel",10,5,false);
-        _fabricManager.MakePanel("longPanel",30,5,false);
-        _fabricManager.CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(9,0),20);
-        _fabricManager.CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(19,0),20);
+        _fabricManager.MakePanel("shortPanel",30,10,false);
+        _fabricManager.MakePanel("longPanel",60,10,false);
+        _fabricManager.CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(29,0),60);
+        _fabricManager.CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(59,0),60);
+        _fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),10);
         _fabricManager.ConnectSeams("shortPanelSeam", "longPanelSeam");
-        _fabricManager.AnchorNodeIndex("shortPanel", 0);
-        _fabricManager.AnchorNodeIndex("shortPanel", 9);
+        foreach (var node in _fabricManager.GetSeams("shortPanelAnchored"))
+        {
+            _fabricManager.AnchorNode(node,new Vector3(0,0,0));
+        }
     }
     
     [ContextMenu("Make pattern mesh")]

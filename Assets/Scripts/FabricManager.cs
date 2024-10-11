@@ -270,16 +270,23 @@ public class FabricManager
 
     public void FixedUpdate()
     {
-        //hardcoded anchoring
-        _panelDictionary["sleeveLeft"].Nodes[_panelDictionary["sleeveLeft"].Width / 2].position.x = 0;
+        //hardcoded anchoring: large sweater
+        
+        /*_panelDictionary["sleeveLeft"].Nodes[_panelDictionary["sleeveLeft"].Width / 2].position.x = 0;
         _panelDictionary["sleeveRight"].Nodes[_panelDictionary["sleeveRight"].Width / 2].position.x =
             _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width;
         _panelDictionary["sleeveLeft"].Nodes[^(_panelDictionary["sleeveLeft"].Width / 2)].position.x =
             0 - _panelDictionary["sleeveLeft"].Height * _parent.stitchPrefab.height;
         _panelDictionary["sleeveRight"].Nodes[^(_panelDictionary["sleeveRight"].Width / 2)].position.x =
             _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
-            _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;
-        //
+            _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;*/
+        
+
+        foreach (var panelinfo in _panelDictionary.Values)
+        {
+            panelinfo.Nodes[panelinfo.HeldStitchIndex].position = panelinfo.ParentObject.transform.position;
+        }
+        
 
         if (_simConnected != null)
         {

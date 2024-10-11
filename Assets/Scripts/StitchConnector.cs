@@ -134,7 +134,7 @@ public static class StitchConnector
         for (int i = 0; i < seam1.Count; i++)
         {
             seam1[i].position += new Vector3(0, 0.5f, 0);
-            VerletEdge.ConnectNodes(seam1[i],seam2[i],0.01f);
+            VerletEdge.ConnectNodes(seam1[i],seam2[i],0.1f);
         }
     }
 }

@@ -371,7 +371,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 1, g: 0.90011406, b: 0.75, a: 0}
+  m_BackGroundColor: {r: 0.31764707, g: 0.31764707, b: 0.31764707, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -529,11 +529,11 @@ MonoBehaviour:
   heldStitchIndex: 0
   stitchPrefab: {fileID: 551623248201066721, guid: 6994466ddd20db44783ce561e458d5c1, type: 3}
   bodyWidth: 40
-  bodyHeight: 30
-  sleeveWidth: 25
-  sleeveHeight: 40
-  collarWidth: 0
-  collarHeight: 0
+  bodyHeight: 40
+  sleeveWidth: 8
+  sleeveHeight: 20
+  collarWidth: 8
+  collarHeight: 2
 --- !u!4 &1724805883
 Transform:
   m_ObjectHideFlags: 0
