@@ -54,10 +54,33 @@ namespace Verlet
         {
             var delta = a.position - b.position;
             var current = delta.magnitude;
+            var buffer = rest * 0.1f;
+            if (Mathf.Abs(current - rest) <= buffer)
+            {
+                return;
+            }
+
+            if (current >= rest + buffer)
+            {
+                rest = rest + buffer;
+            }
+
+            if (current <= rest - buffer)
+            {
+                rest = rest - buffer;
+            }
             var f = (current - rest) / current;
             a.position -= f * 0.5f * delta;
             b.position += f * 0.5f * delta;
-            
+
+
+            /*var delta = a.position - b.position;
+            var direction = delta.normalized;
+            var currentLength = delta.magnitude;
+            var error = currentLength - rest;
+            a.position -= error * 0.5f * direction;
+            b.position += error * 0.5f * direction;*/
+
         }
         
         
