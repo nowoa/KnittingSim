@@ -29,7 +29,12 @@ public class GarmentGenerator : MonoBehaviour
     public int collarHeight = 2;
 
     #endregion
-    
+
+    private void Start()
+    {
+        UIManager.Instance.SetCamera(Camera.main);
+    }
+
     [ContextMenu("make large sweater")]
     public void MakeLargeSweaterMesh()
     {

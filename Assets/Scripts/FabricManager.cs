@@ -24,13 +24,12 @@ public class FabricManager
     private List<StitchInfo> _stitchInfos;
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
-    private List<VerletNode> _nodesToSimulate;
-    public static int nodeCount;
-    private List<VerletNode> _connectedNodesToSimulate;
+    public static int NodeCount;
+    private List<VerletNode> _allNodes;
     private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
     private bool _isCircular;
-
+    private VerletNode closestNode;
 
     public void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
     {
@@ -209,7 +208,7 @@ public class FabricManager
             nodesToSimulate.AddRange(myPanelInfo.Nodes);
         }
 
-        nodeCount = nodesToSimulate.Count;
+        NodeCount = nodesToSimulate.Count;
         return nodesToSimulate;
     }
 
@@ -220,8 +219,8 @@ public class FabricManager
             foreach (var n in info.Nodes) yield return n;
         }
     }
-
-    [ContextMenu("update connected node")]
+    
+    //get nodes connected to selected node by radius
     private void GetConnectedNodes()
     {
         var centralNode = GetAllNodes()[_parent.heldStitchIndex];
@@ -280,8 +279,11 @@ public class FabricManager
         _panelDictionary["sleeveRight"].Nodes[^(_panelDictionary["sleeveRight"].Width / 2)].position.x =
             _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
             _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;*/
-        
 
+        
+        closestNode = UIManager.Instance.ClosestStitch(GetAllNodes());
+        Debug.Log(closestNode.position);
+        
         foreach (var panelinfo in _panelDictionary.Values)
         {
             panelinfo.Nodes[panelinfo.HeldStitchIndex].position = panelinfo.ParentObject.transform.position;
@@ -314,6 +316,11 @@ public class FabricManager
         if (_sim != null)
         {
             _sim.DrawGizmos();
+        }
+
+        if (closestNode != null)
+        {
+            Gizmos.DrawSphere(closestNode.position, 0.1f);
         }
     }
 

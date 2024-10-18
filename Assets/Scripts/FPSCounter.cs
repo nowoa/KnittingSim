@@ -22,7 +22,7 @@ public class FPSCounter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _nodeCount = FabricManager.nodeCount;
+        _nodeCount = FabricManager.NodeCount;
         _frameCount += 1;
         _timer += Time.deltaTime;
         if (_timer > 1)
