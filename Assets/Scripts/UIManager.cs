@@ -25,17 +25,12 @@ public class UIManager
     private UIManager()
     {
         _screenSpacePositions = new List<Vector3>();
+        _camera = Camera.main;
     }
 
     private List<Vector3> _screenSpacePositions;
     private Camera _camera;  // Camera should be passed or set manually
     private Vector3 _selectedStitch;
-
-    // Method to set the camera reference (since this isn't a MonoBehaviour)
-    public void SetCamera(Camera camera)
-    {
-        _camera = camera;
-    }
 
     // Method to select the closest stitch from a list of stitches
     public VerletNode ClosestStitch(List<VerletNode> myStitches)
@@ -60,5 +55,10 @@ public class UIManager
         }
 
         return myStitches[shortestDistanceIndex];  // Return the closest stitch
+    }
+
+    public Vector3 MouseToWorldPos(Vector3 myMousePos)
+    {
+        return _camera.ScreenToWorldPoint(myMousePos);
     }
 }

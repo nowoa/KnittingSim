@@ -30,10 +30,7 @@ public class GarmentGenerator : MonoBehaviour
 
     #endregion
 
-    private void Start()
-    {
-        UIManager.Instance.SetCamera(Camera.main);
-    }
+    
 
     [ContextMenu("make large sweater")]
     public void MakeLargeSweaterMesh()

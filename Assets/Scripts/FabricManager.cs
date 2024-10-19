@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
@@ -10,10 +11,12 @@ public class FabricManager
 {
 
     private GarmentGenerator _parent;
+    private Camera _camera;
 
     public FabricManager(GarmentGenerator parent)
     {
         _parent = parent;
+        _camera = Camera.main;
     }
 
 
@@ -280,9 +283,17 @@ public class FabricManager
             _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
             _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;*/
 
-        
-        closestNode = UIManager.Instance.ClosestStitch(GetAllNodes());
-        Debug.Log(closestNode.position);
+        if (!Input.GetKey(KeyCode.Mouse0))
+        {
+            closestNode = UIManager.Instance.ClosestStitch(GetAllNodes());
+        }
+
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            var mousePos = Input.mousePosition;
+            mousePos.z = closestNode.position.z - _camera.transform.position.z;
+            closestNode.position = UIManager.Instance.MouseToWorldPos(mousePos);
+        }
         
         foreach (var panelinfo in _panelDictionary.Values)
         {
