@@ -28,6 +28,10 @@ public class GarmentGenerator : MonoBehaviour
     public int collarWidth = 10;
     public int collarHeight = 2;
 
+    public int hGauge;
+    public int vGauge;
+    private float scaleFactor = 0.5f;
+
     #endregion
 
     
@@ -230,6 +234,8 @@ public class GarmentGenerator : MonoBehaviour
 
     void Generate()
     {
+        stitchPrefab.height = ((float)10 / vGauge)*scaleFactor;
+        stitchPrefab.width = ((float)10 / hGauge)*scaleFactor;
         _fabricManager?.RemovePreviousData();
         _fabricManager = new FabricManager(this);
     }
