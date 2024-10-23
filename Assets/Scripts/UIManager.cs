@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using Verlet;
 
 public class UIManager
 {
+    private float _hoveredChildDepth;
+    
     // Static instance for the singleton
     private static UIManager _instance;
 
@@ -33,30 +36,46 @@ public class UIManager
     private Vector3 _selectedStitch;
 
     // Method to select the closest stitch from a list of stitches
-    public VerletNode ClosestStitch(List<VerletNode> myStitches)
+    public int ClosestChild(List<VerletNode> myChildren) // change to return transform instead of verletnode so its reusable
     {
-        float shortestDistance = float.MaxValue;  // Set to a large initial value
+        const float selectionRadius = 0.025f;
         int shortestDistanceIndex = -1;  // Initialize index
-        int i = 0;
+        Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
 
-        foreach (var n in myStitches)
+        for (var i = 0; i < myChildren.Count; i++)
         {
+            var c = myChildren[i];
             // Calculate distance between the mouse position and the current stitch
-            float distance = Vector3.Distance(Input.mousePosition, _camera.WorldToScreenPoint(n.position));
-
+            float distance = Vector3.Distance(Input.mousePosition, _camera.WorldToScreenPoint(c.position));
+            float closestDepth = float.MaxValue;
+            Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
+            Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
             // Update the closest stitch if the current distance is shorter
-            if (distance < shortestDistance)
+            if ((normalizedChildPos-normalizedMousePos).magnitude<selectionRadius && screenPoint.z<closestDepth)
             {
-                shortestDistance = distance;
                 shortestDistanceIndex = i;
+                _hoveredChildDepth = screenPoint.z;
+                closestDepth = screenPoint.z;
             }
-
-            i++;
         }
 
-        return myStitches[shortestDistanceIndex];  // Return the closest stitch
+        return shortestDistanceIndex; // Return the closest stitch
+    }
+    
+    private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)
+    {
+        float oneOverAverageScreenDimension = 1f / ((Screen.width + Screen.height) / 2f);
+        return new Vector3(
+            pixelCoord.x * oneOverAverageScreenDimension, 
+            pixelCoord.y * oneOverAverageScreenDimension, 
+            pixelCoord.z);
     }
 
+    public Vector3 GetTargetPos()
+    {
+        Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _hoveredChildDepth);
+        return _camera.ScreenToWorldPoint(mousePositionWithDepth);
+    }
     public Vector3 MouseToWorldPos(Vector3 myMousePos)
     {
         return _camera.ScreenToWorldPoint(myMousePos);

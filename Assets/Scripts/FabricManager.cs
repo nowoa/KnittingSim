@@ -283,16 +283,19 @@ public class FabricManager
             _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
             _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;*/
 
+        
         if (!Input.GetKey(KeyCode.Mouse0))
         {
-            closestNode = UIManager.Instance.ClosestStitch(GetAllNodes());
+            var hoveredNode = UIManager.Instance.ClosestChild(GetAllNodes());
+            closestNode = hoveredNode != -1 ? GetAllNodes()[UIManager.Instance.ClosestChild(GetAllNodes())] : null;
         }
 
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            var mousePos = Input.mousePosition;
-            mousePos.z = closestNode.position.z - _camera.transform.position.z;
-            closestNode.position = UIManager.Instance.MouseToWorldPos(mousePos);
+            if (closestNode != null)
+            {
+                closestNode.position = UIManager.Instance.GetTargetPos();
+            }
         }
         
         foreach (var panelinfo in _panelDictionary.Values)
@@ -322,6 +325,7 @@ public class FabricManager
 
     }
 
+    
     public void DrawGizmos()
     {
         if (_sim != null)
