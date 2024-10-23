@@ -234,8 +234,10 @@ public class GarmentGenerator : MonoBehaviour
 
     void Generate()
     {
+        //set stitch size to gauge
         stitchPrefab.height = ((float)10 / vGauge)*scaleFactor;
         stitchPrefab.width = ((float)10 / hGauge)*scaleFactor;
+        
         _fabricManager?.RemovePreviousData();
         _fabricManager = new FabricManager(this);
     }

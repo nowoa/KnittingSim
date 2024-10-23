@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Verlet;
+
 public struct StitchInfo
 {
     public Vector3 Position { get; }

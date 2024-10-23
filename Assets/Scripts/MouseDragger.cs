@@ -1,42 +1,41 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verlet;
 
-public class UIManager
+public class MouseDragger
 {
     private float _hoveredChildDepth;
+    private Camera _camera;
     
-    // Static instance for the singleton
-    private static UIManager _instance;
-
-    // Public property to access the instance
-    public static UIManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new UIManager();  // Create the singleton instance if it doesn't exist
-            }
-            return _instance;
-        }
-    }
-
     // Private constructor to prevent external instantiation
-    private UIManager()
+    public MouseDragger(Camera camera)
     {
-        _screenSpacePositions = new List<Vector3>();
-        _camera = Camera.main;
+        _camera = camera;
     }
 
-    private List<Vector3> _screenSpacePositions;
-    private Camera _camera;  // Camera should be passed or set manually
-    private Vector3 _selectedStitch;
+    
 
     // Method to select the closest stitch from a list of stitches
-    public int ClosestChild(List<VerletNode> myChildren) // change to return transform instead of verletnode so its reusable
+
+    /*public void GetVectorFromAnything<Anything>(IEnumerable<Anything> items, Func<Anything, Vector3> getter)
+    {
+        List<Vector3> vectors = new();
+        foreach (var item in items)
+        {
+            vectors.Add(getter(item));
+        }
+    }
+    
+    public void CallSillyMethod(List<VerletNode> nodes)
+    {
+        GetVectorFromAnything(nodes, node => node.position);
+        List<Vector3> vectors = nodes.Select(node => node.position).ToList();
+    }*/
+
+public int ClosestChild(List<VerletNode> myChildren) // change to take transform instead of verletnode so its reusable
     {
         const float selectionRadius = 0.025f;
         int shortestDistanceIndex = -1;  // Initialize index

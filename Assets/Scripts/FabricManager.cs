@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UIElements;
 using Verlet;
 using Vector2Int = UnityEngine.Vector2Int;
 
@@ -12,11 +13,13 @@ public class FabricManager
 
     private GarmentGenerator _parent;
     private Camera _camera;
+    private MouseDragger _mouseDragger;
 
     public FabricManager(GarmentGenerator parent)
     {
         _parent = parent;
         _camera = Camera.main;
+        _mouseDragger = new MouseDragger(_camera);
     }
 
 
@@ -286,15 +289,15 @@ public class FabricManager
         
         if (!Input.GetKey(KeyCode.Mouse0))
         {
-            var hoveredNode = UIManager.Instance.ClosestChild(GetAllNodes());
-            closestNode = hoveredNode != -1 ? GetAllNodes()[UIManager.Instance.ClosestChild(GetAllNodes())] : null;
+            var hoveredNode = _mouseDragger.ClosestChild(GetAllNodes());
+            closestNode = hoveredNode != -1 ? GetAllNodes()[_mouseDragger.ClosestChild(GetAllNodes())] : null;
         }
 
         if (Input.GetKey(KeyCode.Mouse0))
         {
             if (closestNode != null)
             {
-                closestNode.position = UIManager.Instance.GetTargetPos();
+                closestNode.position = _mouseDragger.GetTargetPos();
             }
         }
         
