@@ -9,7 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, -1f, 0);
+        private Vector3 _gravity = new Vector3(0, -0.5f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -18,10 +18,11 @@ namespace Verlet
         
         public void Simulate(int iterations, float dt)
         {
-            var time = dt / iterations;
+            var time = dt/iterations;
+            Step(dt);
             for (int iter = 0; iter < iterations; iter++ )
             {
-                Step(time);
+                
                 Solve();
             }
         }

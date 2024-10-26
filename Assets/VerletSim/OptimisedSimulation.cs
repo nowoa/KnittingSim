@@ -26,7 +26,7 @@ namespace Verlet
             {
                 
                 nodes[i] = new VerletNode(transform.position + new Vector3(i%columns*distance, Mathf.Floor(i/columns)*distance,0));
-                nodes[i].initPos = nodes[i].position;
+                
                 
 
                 if (i-columns >= 0) // connect node above
@@ -111,18 +111,7 @@ namespace Verlet
 
         private void FixedUpdate()
         {
-
-            /*foreach (var node in _sim.Nodes)
-            {
-                node.position = node.initPos;
-            }*/
-            
-            
             _sim.Simulate(1,Time.fixedDeltaTime);
-            foreach (var node in _simAnchored.Nodes)
-            {
-                node.position = node.initPos;
-            }
             _simConnected.Nodes[_simConnected.Nodes.Count/2].position = transform.position;
             _simConnected.Simulate(5,Time.fixedDeltaTime);
         }

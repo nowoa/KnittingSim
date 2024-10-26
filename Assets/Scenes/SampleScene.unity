@@ -421,7 +421,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.27, y: -2.51, z: -6.11}
+  m_LocalPosition: {x: -0.27, y: -2.51, z: -6.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -522,16 +522,15 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   pattern: {fileID: 0}
   panelName: 
-  width: 4
+  width: 10
   height: 4
-  isCircular: 0
+  isCircular: 1
   anchored: 0
   heldStitchIndex: 0
-  stitchPrefab: {fileID: 551623248201066721, guid: 6994466ddd20db44783ce561e458d5c1, type: 3}
-  bodyWidth: 40
-  bodyHeight: 40
-  sleeveWidth: 8
-  sleeveHeight: 20
+  bodyWidth: 20
+  bodyHeight: 30
+  sleeveWidth: 10
+  sleeveHeight: 25
   collarWidth: 8
   collarHeight: 2
   hGauge: 15

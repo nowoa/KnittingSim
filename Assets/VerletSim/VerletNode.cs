@@ -11,7 +11,6 @@ namespace Verlet
         public List<VerletEdge> Connection => connection;
 
         public Vector3 position;
-        public Vector3 initPos;
         protected Vector3 prev;
         public bool isAnchored;
         public Vector3 anchoredPos;
