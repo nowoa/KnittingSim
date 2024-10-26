@@ -7,6 +7,8 @@ using Verlet;
 public class GarmentGenerator : MonoBehaviour
 {
     private FabricManager _fabricManager;
+    private StitchTemplate _stitchTemplate = new();
+    public StitchTemplate StitchTemplate => _stitchTemplate;
 
     #region Parameters
 
@@ -19,7 +21,6 @@ public class GarmentGenerator : MonoBehaviour
     public bool isCircular;
     public bool anchored;
     public int heldStitchIndex;
-    public StitchScript stitchPrefab;
     
     public int bodyWidth = 20;
     public int bodyHeight = 40;
@@ -117,7 +118,7 @@ public class GarmentGenerator : MonoBehaviour
 
         for (int i = _fabricManager.GetPanelInfo(cp).Width; i > 0; i--)
         {
-            _fabricManager.AnchorNode(_fabricManager.GetPanelInfo(cp).Nodes[^i],new Vector3(0,_fabricManager.GetPanelInfo(cp).Height*stitchPrefab.height,0) );
+            _fabricManager.AnchorNode(_fabricManager.GetPanelInfo(cp).Nodes[^i],new Vector3(0,_fabricManager.GetPanelInfo(cp).Height*_stitchTemplate.height,0) );
         }
     }
     
@@ -137,15 +138,6 @@ public class GarmentGenerator : MonoBehaviour
         }
     }
     
-    [ContextMenu("Make pattern mesh")]
-    public void MakePanelFromPattern()
-    {
-        Generate();
-        _fabricManager.MakePanel("patternPanel", pattern.width,pattern.height,pattern.isCircular);
-        /*var patternPanel = _panelDictionary["patternPanel"];*/
-        // TO DO: connect stitches
-        _fabricManager.GetStitchValue();
-    }
     
     [ContextMenu("Make panel")]
     public void MakePanel()
@@ -165,10 +157,9 @@ public class GarmentGenerator : MonoBehaviour
     void Generate()
     {
         //set stitch size to gauge
-        stitchPrefab.height = ((float)10 / vGauge)*scaleFactor;
-        stitchPrefab.width = ((float)10 / hGauge)*scaleFactor;
+        StitchTemplate.height = (10f / vGauge)*scaleFactor;
+        StitchTemplate.width = (10f / hGauge)*scaleFactor;
         
-        _fabricManager?.RemovePreviousData();
         _fabricManager = new FabricManager(this);
     }
     

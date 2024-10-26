@@ -3,37 +3,37 @@ using UnityEngine;
 
 static class GridMaker
 { 
-    public static List<StitchInfo> MakePanelWithParameters(Vector2Int dimensions, Vector2 stitchPrefabDimensions, bool isCircular)
+    public static List<StitchInfo> MakePanelWithParameters(Vector2Int myDimensions, StitchTemplate myStitchTemplate, bool myIsCircular)
     {
         List<StitchInfo> stitchInfoList = new List<StitchInfo>();
-        var radius = dimensions.x * stitchPrefabDimensions.x/(2*Mathf.PI);
-        float angle = Mathf.PI * 2 / dimensions.x;
+        var radius = myDimensions.x * myStitchTemplate.width/(2*Mathf.PI);
+        float angle = Mathf.PI * 2 / myDimensions.x;
         float row = 0;
-        float diagonalIncrement = stitchPrefabDimensions.y /dimensions.x;
-        if (isCircular)
+        float diagonalIncrement = myStitchTemplate.height /myDimensions.x;
+        if (myIsCircular)
         {
-            for (var i = 0; i < dimensions.y; i++)
+            for (var i = 0; i < myDimensions.y; i++)
             {
-                for (var u = 0; u < dimensions.x; u++)
+                for (var u = 0; u < myDimensions.x; u++)
                 {
                 
                     var newPos = new Vector3(Mathf.Cos(angle * u) * radius, row + diagonalIncrement * u,
                         Mathf.Sin(angle * u) * radius);
-                    StitchInfo stitch = new StitchInfo(newPos,u,i);
+                    StitchInfo stitch = new StitchInfo(u,i);
                     stitchInfoList.Add(stitch);
                 }
-                row+=stitchPrefabDimensions.y;
+                row+=myStitchTemplate.height;
             }
         }
         else
         {
-            for (int i = 0; i < dimensions.y; i++)
+            for (int i = 0; i < myDimensions.y; i++)
             {
-                Vector3 heightPos = new Vector3(0, i*stitchPrefabDimensions.y, 0);
-                for (int u = 0; u < dimensions.x; u++)
+                Vector3 heightPos = new Vector3(0, i*myStitchTemplate.height, 0);
+                for (int u = 0; u < myDimensions.x; u++)
                 {
-                    Vector3 newPos = new Vector3(u * stitchPrefabDimensions.x, heightPos.y, 0);
-                    StitchInfo stitch = new StitchInfo(newPos,u,i);
+                    Vector3 newPos = new Vector3(u * myStitchTemplate.width, heightPos.y, 0);
+                    StitchInfo stitch = new StitchInfo(u,i);
                     stitchInfoList.Add(stitch);
                 }
             }

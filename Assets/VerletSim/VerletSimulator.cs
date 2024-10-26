@@ -9,7 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, -1f, 0);
+        private Vector3 _gravity = new Vector3(0, -0.1f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {

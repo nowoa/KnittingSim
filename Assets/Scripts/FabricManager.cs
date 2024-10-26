@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 using Verlet;
+using Random = UnityEngine.Random;
 using Vector2Int = UnityEngine.Vector2Int;
 
 public class FabricManager
@@ -38,20 +34,13 @@ public class FabricManager
     {
         // get stitchInfos for panel (position, coordinates, etc.)
         _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(
-            new Vector2Int(mpPanelWidth, mpPanelHeight),
-            new Vector2(_parent.stitchPrefab.width, _parent.stitchPrefab.height), mpIsCircular));
-
-        // create stitchScripts at positions
-        var initFabric = InitFabric(mpName, _stitchInfos);
-        List<StitchScript> stitches = initFabric.Item1;
-        GameObject parentObject = initFabric.Item2;
+            new Vector2Int(mpPanelWidth, mpPanelHeight), _parent.StitchTemplate, mpIsCircular));
 
         // create verletnodes at positions
         List<VerletNode> nodes = InitNodes(_stitchInfos);
 
         //create panelInfo for panel
-        var thisPanelInfo = new PanelInfo(stitches, nodes, mpPanelWidth, mpPanelHeight, mpIsCircular,
-            parentObject.transform, parentObject.GetComponent<Panel>().heldStitchIndex);
+        var thisPanelInfo = new PanelInfo(nodes, mpPanelWidth, mpPanelHeight, mpIsCircular);
 
         //add panelInfo to dictionary (to keep track of the panels we have, and be able to iterate through all of them)
         _panelDictionary[mpName] = thisPanelInfo;
@@ -63,16 +52,7 @@ public class FabricManager
         _sim = new VerletSimulator(GetAllNodes());
     }
 
-    public void RemovePreviousData()
-    {
-
-        foreach (var panelInfo in _panelDictionary.Values)
-        {
-            GameObject.Destroy(panelInfo.ParentObject.gameObject);
-        }
-
-        Debug.Log("remove data");
-    }
+    
 
     public PanelInfo GetPanelInfo(string key)
     {
@@ -86,43 +66,17 @@ public class FabricManager
 
     public void ConnectSeams(string key1, string key2)
     {
-        StitchConnector.ConnectSeams(_seamDictionary[key1], _seamDictionary[key2]);
+        NodeConnector.ConnectSeams(_seamDictionary[key1], _seamDictionary[key2]);
     }
 
-    (List<StitchScript>, GameObject) InitFabric(string myPanelName, List<StitchInfo> incomingStitchInfos)
-    {
-        var parentObject = new GameObject(myPanelName);
-        parentObject.AddComponent<Panel>();
-        var stitches = new List<StitchScript>();
-        foreach (Transform child in parentObject.transform)
-        {
-            GameObject.Destroy(child.gameObject);
-        }
-
-        foreach (var stitch in incomingStitchInfos)
-        {
-            var newStitch = GameObject.Instantiate(_parent.stitchPrefab, stitch.Position, Quaternion.identity);
-            newStitch.xCoordinate = stitch.XCoordinate;
-            newStitch.yCoordinate = stitch.YCoordinate;
-            // TO DO: create verlet nodes at stitch positions
-            if (parentObject != null)
-            {
-                newStitch.transform.parent = parentObject.transform;
-            }
-
-            stitches.Add(newStitch);
-        }
-
-        return (stitches, parentObject);
-    }
+    
 
     List<VerletNode> InitNodes(List<StitchInfo> incomingStitchInfos)
     {
         var nodes = new List<VerletNode>();
         foreach (var stitch in incomingStitchInfos)
         {
-            var newNode = new VerletNode(stitch.Position);
-            newNode.initPos = stitch.Position;
+            var newNode = new VerletNode(Random.insideUnitSphere);
             nodes.Add(newNode);
         }
 
@@ -132,9 +86,8 @@ public class FabricManager
     private void Connect(string myPanelName)
     {
         var panel = _panelDictionary[myPanelName];
-
-        StitchConnector.ConnectStitches(panel.Stitches, panel.Width, panel.IsCircular);
-        StitchConnector.ConnectNodes(panel.Nodes, panel.Width, panel.IsCircular);
+        
+        NodeConnector.ConnectNodes(panel.Nodes, panel.Width, panel.IsCircular, _parent.StitchTemplate);
     }
 
     private void AddNodeToSeamFromCoordinate(string myPanelName, string mySeamKey, Vector2Int myCoordinate)
@@ -192,14 +145,7 @@ public class FabricManager
     {
         _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
     }
-
-    public void GetStitchValue()
-    {
-        foreach (var i in _panelDictionary["patternPanel"].Stitches)
-        {
-            i.isKnit = _parent.pattern.GetStitch(i.xCoordinate, i.yCoordinate);
-        }
-    }
+    
 
     //get all nodes
     private List<VerletNode> GetAllNodes()
@@ -271,18 +217,6 @@ public class FabricManager
 
     public void FixedUpdate()
     {
-        //hardcoded anchoring: large sweater
-        
-        /*_panelDictionary["sleeveLeft"].Nodes[_panelDictionary["sleeveLeft"].Width / 2].position.x = 0;
-        _panelDictionary["sleeveRight"].Nodes[_panelDictionary["sleeveRight"].Width / 2].position.x =
-            _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width;
-        _panelDictionary["sleeveLeft"].Nodes[^(_panelDictionary["sleeveLeft"].Width / 2)].position.x =
-            0 - _panelDictionary["sleeveLeft"].Height * _parent.stitchPrefab.height;
-        _panelDictionary["sleeveRight"].Nodes[^(_panelDictionary["sleeveRight"].Width / 2)].position.x =
-            _panelDictionary["frontPanel"].Width * _parent.stitchPrefab.width +
-            _panelDictionary["sleeveRight"].Height * _parent.stitchPrefab.height;*/
-
-        
         if (!Input.GetKey(KeyCode.Mouse0))
         {
             var hoveredNode = _mouseDragger.ClosestChild(GetAllNodes());
@@ -296,12 +230,6 @@ public class FabricManager
                 closestNode.position = _mouseDragger.GetTargetPos();
             }
         }
-        
-        foreach (var panelinfo in _panelDictionary.Values)
-        {
-            panelinfo.Nodes[panelinfo.HeldStitchIndex].position = panelinfo.ParentObject.transform.position;
-        }
-        
 
         if (_simConnected != null)
         {
