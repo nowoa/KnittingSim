@@ -21,10 +21,7 @@ public class FabricManager
         _camera = Camera.main;
         _mouseDragger = new MouseDragger(_camera);
     }
-
-
-    /*public float displacementFactor; // TO DO
-    [SerializeField] private bool isRibbed; // TO DO*/
+    
     private readonly Dictionary<string, PanelInfo> _panelDictionary = new();
     private readonly Dictionary<string, List<VerletNode>> _seamDictionary = new();
     private List<StitchInfo> _stitchInfos;
@@ -82,7 +79,7 @@ public class FabricManager
         return _panelDictionary[key];
     }
 
-    public List<VerletNode> GetSeams(string key)
+    public List<VerletNode> GetSeam(string key)
     {
         return _seamDictionary[key];
     }
@@ -126,7 +123,6 @@ public class FabricManager
         {
             var newNode = new VerletNode(stitch.Position);
             newNode.initPos = stitch.Position;
-            // TO DO: create verlet nodes at stitch positions
             nodes.Add(newNode);
         }
 

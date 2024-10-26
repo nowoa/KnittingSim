@@ -10,31 +10,10 @@ public class MouseDragger
     private float _hoveredChildDepth;
     private Camera _camera;
     
-    // Private constructor to prevent external instantiation
     public MouseDragger(Camera camera)
     {
         _camera = camera;
     }
-
-    
-
-    // Method to select the closest stitch from a list of stitches
-
-    /*public void GetVectorFromAnything<Anything>(IEnumerable<Anything> items, Func<Anything, Vector3> getter)
-    {
-        List<Vector3> vectors = new();
-        foreach (var item in items)
-        {
-            vectors.Add(getter(item));
-        }
-    }
-    
-    public void CallSillyMethod(List<VerletNode> nodes)
-    {
-        GetVectorFromAnything(nodes, node => node.position);
-        List<Vector3> vectors = nodes.Select(node => node.position).ToList();
-    }*/
-
 public int ClosestChild(List<VerletNode> myChildren) // change to take transform instead of verletnode so its reusable
     {
         const float selectionRadius = 0.025f;
