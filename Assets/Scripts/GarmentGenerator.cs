@@ -130,7 +130,7 @@ public class GarmentGenerator : MonoBehaviour
         _fabricManager.MakePanel("longPanel",60,10,false);
         _fabricManager.CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(29,0),60);
         _fabricManager.CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(59,0),60);
-        _fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),10);
+        _fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),30);
         _fabricManager.ConnectSeams("shortPanelSeam", "longPanelSeam");
         foreach (var node in _fabricManager.GetSeam("shortPanelAnchored"))
         {
