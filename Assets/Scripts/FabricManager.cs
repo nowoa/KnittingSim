@@ -9,13 +9,11 @@ public class FabricManager
 
     private GarmentGenerator _parent;
     private Camera _camera;
-    private MouseDragger _mouseDragger;
+    private MouseDragger _mouseDragger = MouseDragger.Instance;
 
     public FabricManager(GarmentGenerator parent)
     {
         _parent = parent;
-        _camera = Camera.main;
-        _mouseDragger = new MouseDragger(_camera);
     }
     
     private readonly Dictionary<string, PanelInfo> _panelDictionary = new();
@@ -145,10 +143,11 @@ public class FabricManager
     {
         _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
     }
-    
 
+
+    public static List<VerletNode> AllNodes;
     //get all nodes
-    private List<VerletNode> GetAllNodes()
+    public List<VerletNode> GetAllNodes()
     {
         List<VerletNode> nodesToSimulate = new List<VerletNode>();
         foreach (PanelInfo myPanelInfo in _panelDictionary.Values)
@@ -157,6 +156,7 @@ public class FabricManager
         }
 
         NodeCount = nodesToSimulate.Count;
+        AllNodes = nodesToSimulate;
         return nodesToSimulate;
     }
 
@@ -217,18 +217,9 @@ public class FabricManager
 
     public void FixedUpdate()
     {
-        if (!Input.GetKey(KeyCode.Mouse0))
+        if (_mouseDragger.SelectedChildIndex != -1)
         {
-            var hoveredNode = _mouseDragger.ClosestChild(GetAllNodes());
-            closestNode = hoveredNode != -1 ? GetAllNodes()[_mouseDragger.ClosestChild(GetAllNodes())] : null;
-        }
-
-        if (Input.GetKey(KeyCode.Mouse0))
-        {
-            if (closestNode != null)
-            {
-                closestNode.position = _mouseDragger.GetTargetPos();
-            }
+            GetAllNodes()[_mouseDragger.SelectedChildIndex].position = _mouseDragger.GetTargetPos();
         }
 
         if (_simConnected != null)
@@ -260,9 +251,9 @@ public class FabricManager
             _sim.DrawGizmos();
         }
 
-        if (closestNode != null)
+        if (_mouseDragger.HoveredChildIndex !=-1)
         {
-            Gizmos.DrawSphere(closestNode.position, 0.1f);
+            Gizmos.DrawSphere(GetAllNodes()[_mouseDragger.HoveredChildIndex].position, 0.1f);
         }
     }
 

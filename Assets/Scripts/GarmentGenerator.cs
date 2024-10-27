@@ -137,7 +137,28 @@ public class GarmentGenerator : MonoBehaviour
             _fabricManager.AnchorNode(node,new Vector3(0,0,0));
         }
     }
-    
+
+    [ContextMenu("make scrunchie")]
+    public void MakeScrunchie()
+    {
+        Generate();
+        var ruffleWidth = 20;
+        var ruffleHeight = 7;
+        var hairTieWidth = 7;
+        
+        _fabricManager.MakePanel("ruffles",ruffleWidth,ruffleHeight,true);
+        _fabricManager.MakePanel("hairTie",hairTieWidth,1,true);
+        
+        _fabricManager.CreateSeam("ruffles", "rufflesToHairTieBottom", new Vector2Int(0,0), new Vector2Int(ruffleWidth-1,0),ruffleWidth);
+        _fabricManager.CreateSeam("ruffles", "rufflesToHairTieTop", new Vector2Int(0,ruffleHeight-1), new Vector2Int(ruffleWidth-1,ruffleHeight-1),ruffleWidth);
+        _fabricManager.CreateSeam("hairTie", "hairTieToRuffles", new Vector2Int(0,0),new Vector2Int(hairTieWidth-1,0),ruffleWidth);
+        
+        _fabricManager.ConnectSeams("rufflesToHairTieBottom", "hairTieToRuffles");
+        _fabricManager.ConnectSeams("rufflesToHairTieTop", "hairTieToRuffles");
+        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[0],new Vector3(0,0,0));
+        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[1],new Vector3(0,0,0));
+        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[2],new Vector3(0,0,0));
+    }
     
     [ContextMenu("Make panel")]
     public void MakePanel()

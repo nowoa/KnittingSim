@@ -9,7 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, -0.5f, 0);
+        private Vector3 _gravity = new Vector3(0, -0.1f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -55,7 +55,7 @@ namespace Verlet
         {
             var delta = a.position - b.position;
             var current = delta.magnitude;
-            var buffer = rest * 0.3f;
+            var buffer = rest * 0.4f;
             if (Mathf.Abs(current - rest) <= buffer)
             {
                 return;
