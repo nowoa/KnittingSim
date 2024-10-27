@@ -120,7 +120,7 @@ namespace Verlet
         {
             if (_sim != null)
             {
-                _sim.DrawGizmos();
+                _sim.DrawGizmos(Color.white);
             }
             
         }

@@ -45,7 +45,6 @@ public class Dragger : Tool
 
     public override void MainAction()
     {
-        Debug.Log("dragger active");
         _mouseDragger.UpdateSelected();
     }
 
@@ -57,64 +56,22 @@ public class Dragger : Tool
 
 public class StitchBrush : Tool
 {
-        
-    public override void MainAction()
-    {
-        //apply selected stitch type
-    }
-
-        
 }
 
 public class Increaser : Tool
 {
-
-    public override void MainAction()
-    {
-        //add stitch at position
-    }
 }
 
 public class Decreaser : Tool
 {
-
-    public override void MainAction()
-    {
-        //decrease stitch at position
-    }
 }
 
 public class PanelStamp : Tool
 {
-        
-        
-    public override void MainAction()
-    {
-        //apply panel (maybe add scaling options? aka dragging over a grid to repeat the panel )
-    }
 }
 
 public class SeamMaker : Tool
 {
-    public override void MainAction()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void MainActionEnd()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void SecondaryAction()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void SecondaryActionEnd()
-    {
-        throw new System.NotImplementedException();
-    }
 }
 
 public static class ToolManager
@@ -135,7 +92,6 @@ public static class ToolManager
     
     public static void SetActiveTool(Tool myTool)
     {
-        Debug.Log("set active tool:" + myTool.ToString());
         _activeTool = myTool;
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verlet;
 using Random = UnityEngine.Random;
@@ -6,7 +7,6 @@ using Vector2Int = UnityEngine.Vector2Int;
 
 public class FabricManager
 {
-
     private GarmentGenerator _parent;
     private Camera _camera;
     private MouseDragger _mouseDragger = MouseDragger.Instance;
@@ -22,35 +22,21 @@ public class FabricManager
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
     public static int NodeCount;
-    private List<VerletNode> _allNodes;
     private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
     private bool _isCircular;
-    private VerletNode closestNode;
+    private VerletNode _closestNode;
 
-    public void MakePanel(string mpName, int mpPanelWidth, int mpPanelHeight, bool mpIsCircular)
+    public void MakePanel(string myPanelName, int myPanelWidth, int myPanelHeight, bool myIsCircular)
     {
-        // get stitchInfos for panel (position, coordinates, etc.)
-        _stitchInfos = new List<StitchInfo>(GridMaker.MakePanelWithParameters(
-            new Vector2Int(mpPanelWidth, mpPanelHeight), _parent.StitchTemplate, mpIsCircular));
-
-        // create verletnodes at positions
+        _stitchInfos = new List<StitchInfo>(GridMaker.MakePanel(new Vector2Int(myPanelWidth, myPanelHeight)));
         List<VerletNode> nodes = InitNodes(_stitchInfos);
-
-        //create panelInfo for panel
-        var thisPanelInfo = new PanelInfo(nodes, mpPanelWidth, mpPanelHeight, mpIsCircular);
-
-        //add panelInfo to dictionary (to keep track of the panels we have, and be able to iterate through all of them)
-        _panelDictionary[mpName] = thisPanelInfo;
-
-        //connect stitches and nodes to the correct neighbors
-        Connect(mpName);
-
-        //pass all nodes to the verletsimulator
+        var thisPanelInfo = new PanelInfo(nodes, myPanelWidth, myPanelHeight, myIsCircular);
+        _panelDictionary[myPanelName] = thisPanelInfo;
+        Connect(myPanelName);
         _sim = new VerletSimulator(GetAllNodes());
+        AllNodes = GetAllNodes();
     }
-
-    
 
     public PanelInfo GetPanelInfo(string key)
     {
@@ -67,12 +53,10 @@ public class FabricManager
         NodeConnector.ConnectSeams(_seamDictionary[key1], _seamDictionary[key2]);
     }
 
-    
-
-    List<VerletNode> InitNodes(List<StitchInfo> incomingStitchInfos)
+    List<VerletNode> InitNodes(List<StitchInfo> myStitchInfos)
     {
         var nodes = new List<VerletNode>();
-        foreach (var stitch in incomingStitchInfos)
+        for (int i = 0; i < myStitchInfos.Count; i++)
         {
             var newNode = new VerletNode(Random.insideUnitSphere);
             nodes.Add(newNode);
@@ -88,23 +72,10 @@ public class FabricManager
         NodeConnector.ConnectNodes(panel.Nodes, panel.Width, panel.IsCircular, _parent.StitchTemplate);
     }
 
-    private void AddNodeToSeamFromCoordinate(string myPanelName, string mySeamKey, Vector2Int myCoordinate)
-    {
-        if (!_seamDictionary.ContainsKey(mySeamKey))
-        {
-            _seamDictionary[mySeamKey] = new List<VerletNode>();
-        }
-
-        _seamDictionary[mySeamKey].Add(_panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y));
-    }
-
     public void CreateSeam(string myPanelName, string mySeamKey, Vector2Int myStartingPoint, Vector2Int myEndPoint,
         int myLength)
     {
-        if (!_seamDictionary.ContainsKey(mySeamKey))
-        {
-            _seamDictionary[mySeamKey] = new List<VerletNode>();
-        }
+        _seamDictionary.TryAdd(mySeamKey, new List<VerletNode>());
 
         float lerpStep = 1 / (float)myLength;
         for (int i = 1; i <= myLength; i++)
@@ -119,10 +90,7 @@ public class FabricManager
     public void CreateSeamReverse(string myPanelName, string mySeamKey, Vector2Int myStartingPoint,
         Vector2Int myEndPoint, int myLength)
     {
-        if (!_seamDictionary.ContainsKey(mySeamKey))
-        {
-            _seamDictionary[mySeamKey] = new List<VerletNode>();
-        }
+        _seamDictionary.TryAdd(mySeamKey, new List<VerletNode>());
 
         float lerpStep = 1 / (float)myLength;
         for (int i = 1; i <= myLength; i++)
@@ -143,8 +111,7 @@ public class FabricManager
     {
         _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
     }
-
-
+    
     public static List<VerletNode> AllNodes;
     //get all nodes
     public List<VerletNode> GetAllNodes()
@@ -168,45 +135,30 @@ public class FabricManager
         }
     }
     
-    //get nodes connected to selected node by radius
     private void GetConnectedNodes()
     {
-        var centralNode = GetAllNodes()[_parent.heldStitchIndex];
-        List<VerletNode> connectedNodesLayer1 = new List<VerletNode>();
-        List<VerletNode> connectedNodesLayer2 = new List<VerletNode>();
-        List<VerletNode> connectedNodesLayer3 = new List<VerletNode>();
-        foreach (var edge in centralNode.Connection)
+        if (_mouseDragger.SelectedChildIndex == -1) return;
+        var centralNode = AllNodes[_mouseDragger.SelectedChildIndex];
+        
+        var connectedNodes = new HashSet<VerletNode>();
+    
+        AddConnectedNodes(centralNode, connectedNodes, 3);
+        _simConnected = new VerletSimulator(connectedNodes.ToList());
+    }
+
+    private void AddConnectedNodes(VerletNode node, HashSet<VerletNode> connectedNodes, int depth)
+    {
+        if (depth <= 0) return;
+
+        foreach (var edge in node.Connection)
         {
-            if (!connectedNodesLayer1.Contains(edge.Other(centralNode)))
+            var otherNode = edge.Other(node);
+
+            if (connectedNodes.Add(otherNode))
             {
-                connectedNodesLayer1.Add(edge.Other(centralNode));
+                AddConnectedNodes(otherNode, connectedNodes, depth - 1);
             }
         }
-
-        connectedNodesLayer2.AddRange(connectedNodesLayer1);
-        foreach (var node in connectedNodesLayer1)
-        {
-            foreach (var edge in node.Connection)
-            {
-                if (!connectedNodesLayer2.Contains(edge.Other(node)))
-                {
-                    connectedNodesLayer2.Add(edge.Other(node));
-                }
-            }
-        }
-
-        foreach (var node in connectedNodesLayer2)
-        {
-            foreach (var edge in node.Connection)
-            {
-                if (!connectedNodesLayer3.Contains(edge.Other(node)))
-                {
-                    connectedNodesLayer3.Add(edge.Other(node));
-                }
-            }
-        }
-
-        _simConnected = new VerletSimulator(connectedNodesLayer3);
     }
 
     public void AnchorNode(VerletNode node, Vector3 myPosition)
@@ -219,7 +171,8 @@ public class FabricManager
     {
         if (_mouseDragger.SelectedChildIndex != -1)
         {
-            GetAllNodes()[_mouseDragger.SelectedChildIndex].position = _mouseDragger.GetTargetPos();
+            GetConnectedNodes();
+            AllNodes[_mouseDragger.SelectedChildIndex].position = _mouseDragger.GetTargetPos();
         }
 
         if (_simConnected != null)
@@ -242,18 +195,23 @@ public class FabricManager
         }
 
     }
-
     
     public void DrawGizmos()
     {
         if (_sim != null)
         {
-            _sim.DrawGizmos();
+            _sim.DrawGizmos(Color.white);
+        }
+
+        if (_simConnected != null)
+        {
+            _simConnected.DrawGizmos(Color.magenta);
+            Debug.Log("sim connected");
         }
 
         if (_mouseDragger.HoveredChildIndex !=-1)
         {
-            Gizmos.DrawSphere(GetAllNodes()[_mouseDragger.HoveredChildIndex].position, 0.1f);
+            Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].position, 0.1f);
         }
     }
 
