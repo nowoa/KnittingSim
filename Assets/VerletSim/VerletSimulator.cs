@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Verlet
 {
     public class VerletSimulator
@@ -15,42 +14,40 @@ namespace Verlet
         {
             this.particles = particles;
         }
-        
+
         public void Simulate(int iterations, float dt)
         {
-            var time = dt/iterations;
+            var time = dt / iterations;
             Step(dt);
-            for (int iter = 0; iter < iterations; iter++ )
+            for (int iter = 0; iter < iterations; iter++)
             {
-                
                 Solve();
             }
         }
-        
+
         void Step(float deltaTime)
         {
-            
             particles.ForEach(p =>
             {
-                p.position += _gravity*deltaTime;
+                p.position += _gravity * deltaTime;
                 p.Step();
             });
         }
-        
+
         void Solve()
         {
             particles.ForEach(p => Solve(p));
         }
-        
+
         void Solve(VerletNode particle)
         {
             particle.Connection.ForEach(e =>
             {
                 var other = e.Other(particle);
-                Solve(particle,other,e.Length);
+                Solve(particle, other, e.Length);
             });
         }
-        
+
         void Solve(VerletNode a, VerletNode b, float rest)
         {
             var delta = a.position - b.position;
@@ -60,6 +57,7 @@ namespace Verlet
             {
                 return;
             }
+
             if (current >= rest + buffer)
             {
                 rest = rest + buffer;
@@ -69,37 +67,30 @@ namespace Verlet
             {
                 rest = rest - buffer;
             }
+
             var f = (current - rest) / current;
             a.position -= f * 0.5f * delta;
             b.position += f * 0.5f * delta;
-
-
             /*var delta = a.position - b.position;
             var direction = delta.normalized;
             var currentLength = delta.magnitude;
             var error = currentLength - rest;
             a.position -= error * 0.5f * direction;
             b.position += error * 0.5f * direction;*/
-
         }
-        
-        
+
         public void DrawGizmos(Color myColor)
         {
-            for(int i =0, n = particles.Count; i<n;i++)
+            for (int i = 0, n = particles.Count; i < n; i++)
             {
-                var p = particles[i];/*
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawSphere(p.position,0.2f);*/
-
+                var p = particles[i];
                 Gizmos.color = myColor;
                 p.Connection.ForEach(e =>
                 {
                     var other = e.Other(p);
-                    Gizmos.DrawLine(p.position,other.position);
+                    Gizmos.DrawLine(p.position, other.position);
                 });
             }
         }
-        
     }
 }

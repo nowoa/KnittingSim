@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -7,13 +8,13 @@ public abstract class Tool
 {
     protected MouseDragger _mouseDragger = MouseDragger.Instance;
     public static VerletNode closestNode;
-        
+
     public virtual void DefaultBehavior()
     {
         //hovering
         if (FabricManager.AllNodes != null)
         {
-            _mouseDragger.UpdateHover(FabricManager.AllNodes); //TO DO: cache getallnodes, update value when a change is applied
+            _mouseDragger.UpdateHover(FabricManager.AllNodes);
         }
     }
 
@@ -36,13 +37,10 @@ public abstract class Tool
     {
         Debug.Log("No secondary action end implemented");
     }
-
-
 }
 
 public class Dragger : Tool
 {
-
     public override void MainAction()
     {
         _mouseDragger.UpdateSelected();
@@ -51,6 +49,20 @@ public class Dragger : Tool
     public override void MainActionEnd()
     {
         _mouseDragger.SelectedChildIndex = -1;
+    }
+
+    public override void SecondaryAction()
+    {
+        //pin nodes into place (anchoring)
+        if (_mouseDragger.HoveredChildIndex == -1)
+        {
+            return;
+        }
+
+        var cachedHoveredNode = FabricManager.AllNodes[_mouseDragger.HoveredChildIndex];
+        cachedHoveredNode.isAnchored = !cachedHoveredNode.isAnchored;
+        cachedHoveredNode.anchoredPos = _mouseDragger.GetTargetPos();
+
     }
 }
 
@@ -84,12 +96,11 @@ public static class ToolManager
     public static Tool PanelStamp = new PanelStamp();
     public static Tool SeamMaker = new SeamMaker();
 
-
     static ToolManager()
     {
         _activeTool = Dragger;
     }
-    
+
     public static void SetActiveTool(Tool myTool)
     {
         _activeTool = myTool;
@@ -99,6 +110,7 @@ public static class ToolManager
     {
         _activeTool.DefaultBehavior();
     }
+
     public static void OnMainAction()
     {
         _activeTool.MainAction();
@@ -108,6 +120,7 @@ public static class ToolManager
     {
         _activeTool.MainActionEnd();
     }
+
     public static void OnSecondaryAction()
     {
         _activeTool.SecondaryAction();

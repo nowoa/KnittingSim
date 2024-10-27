@@ -26,6 +26,7 @@ public class MouseDragger
     public int HoveredChildIndex;
     private Camera _camera;
     public int SelectedChildIndex =-1;
+  
     
     private MouseDragger()
     {
@@ -42,6 +43,7 @@ public class MouseDragger
         const float selectionRadius = 0.025f;
         float closestDepth = float.MaxValue;
         Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
+        float shortestDistance = float.MaxValue;
         for (var i = 0; i < myChildren.Count; i++)
         {
             var c = myChildren[i];
@@ -50,13 +52,14 @@ public class MouseDragger
             
             Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
             Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
+            var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
             // Update the closest stitch if the current distance is shorter
-            if ((normalizedChildPos-normalizedMousePos).magnitude<selectionRadius && screenPoint.z<closestDepth)
+            if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
             {
                 HoveredChildIndex = i;
                 _hoveredChildDepth = screenPoint.z;
-                closestDepth = screenPoint.z;
-                
+                shortestDistance = distanceToMouse;
+
             }
         }
     }

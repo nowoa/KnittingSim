@@ -82,11 +82,11 @@ public class GarmentGenerator : MonoBehaviour
         _fabricManager.CreateSeam(fp,fpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
         _fabricManager.CreateSeam(bp,bpbR,new Vector2Int(bodyWidth-1,0),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),bodyHeight-sleeveWidth);
         _fabricManager.CreateSeam(fp,b2sL,new Vector2Int(0,bodyHeight-sleeveWidth),new Vector2Int(0,bodyHeight-1),sleeveWidth);
-        _fabricManager.CreateSeamReverse(bp,b2sL,new Vector2Int(0,bodyHeight-2),new Vector2Int(0,bodyHeight-sleeveWidth-1),sleeveWidth);
-        _fabricManager.CreateSeam(fp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth),new Vector2Int(bodyWidth-1,bodyHeight-1),sleeveWidth);
-        _fabricManager.CreateSeamReverse(bp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-2),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),sleeveWidth);
+        _fabricManager.CreateSeam(bp,b2sL,new Vector2Int(0,bodyHeight-2),new Vector2Int(0,bodyHeight-sleeveWidth-1),sleeveWidth, true);
+        _fabricManager.CreateSeam(fp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth),new Vector2Int(bodyWidth-1,bodyHeight-1),sleeveWidth, true);
+        _fabricManager.CreateSeam(bp,b2sR,new Vector2Int(bodyWidth-1,bodyHeight-2),new Vector2Int(bodyWidth-1,bodyHeight-sleeveWidth-1),sleeveWidth);
         _fabricManager.CreateSeam(fp,b2c,new Vector2Int((bodyWidth-collarWidth)/2,bodyHeight-1),new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-2,bodyHeight-1),collarWidth-1);
-        _fabricManager.CreateSeamReverse(bp,b2c,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(((bodyWidth-collarWidth)/2)+1,bodyHeight-1),collarWidth-1);
+        _fabricManager.CreateSeam(bp,b2c,new Vector2Int(bodyWidth-((bodyWidth-collarWidth)/2)-1,bodyHeight-1),new Vector2Int(((bodyWidth-collarWidth)/2)+1,bodyHeight-1),collarWidth-1, true);
         _fabricManager.CreateSeam(sL,s2bL,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
         _fabricManager.CreateSeam(sR,s2bR,new Vector2Int(0,0),new Vector2Int(sleeveWidth*2-1,0),sleeveWidth*2);
         _fabricManager.CreateSeam(cp,c2b,new Vector2Int(0,0),new Vector2Int(collarWidth*2-3,0),collarWidth*2-2);
