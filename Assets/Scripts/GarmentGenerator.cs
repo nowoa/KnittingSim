@@ -19,8 +19,6 @@ public class GarmentGenerator : MonoBehaviour
     public  int width = 10;
     public  int height = 10;
     public bool isCircular;
-    public bool anchored;
-    public int heldStitchIndex;
     
     public int bodyWidth = 20;
     public int bodyHeight = 40;
@@ -130,12 +128,12 @@ public class GarmentGenerator : MonoBehaviour
         _fabricManager.MakePanel("longPanel",60,10,false);
         _fabricManager.CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(29,0),60);
         _fabricManager.CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(59,0),60);
-        _fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),30);
+        /*_fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),30);*/
         _fabricManager.ConnectSeams("shortPanelSeam", "longPanelSeam");
-        foreach (var node in _fabricManager.GetSeam("shortPanelAnchored"))
+        /*foreach (var node in _fabricManager.GetSeam("shortPanelAnchored"))
         {
             _fabricManager.AnchorNode(node,new Vector3(0,0,0));
-        }
+        }*/
     }
 
     [ContextMenu("make scrunchie")]
@@ -155,9 +153,10 @@ public class GarmentGenerator : MonoBehaviour
         
         _fabricManager.ConnectSeams("rufflesToHairTieBottom", "hairTieToRuffles");
         _fabricManager.ConnectSeams("rufflesToHairTieTop", "hairTieToRuffles");
+        /*
         _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[0],new Vector3(0,0,0));
         _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[1],new Vector3(0,0,0));
-        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[2],new Vector3(0,0,0));
+        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[2],new Vector3(0,0,0));*/
     }
     
     [ContextMenu("Make panel")]
@@ -165,13 +164,6 @@ public class GarmentGenerator : MonoBehaviour
     {
         Generate();
         _fabricManager.MakePanel(panelName,width,height,isCircular);
-        if (anchored)
-        {
-            for (int i = 0; i < width; i++)
-            {
-                _fabricManager.AnchorNodeIndex(panelName,i);
-            }
-        }
         
     }
 

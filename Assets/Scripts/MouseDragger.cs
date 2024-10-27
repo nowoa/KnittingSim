@@ -8,8 +8,6 @@ using Verlet;
 public class MouseDragger
 {
     private static MouseDragger _instance;
-    
-    // Public property to access the singleton instance
     public static MouseDragger Instance
     {
         get
@@ -47,13 +45,11 @@ public class MouseDragger
         for (var i = 0; i < myChildren.Count; i++)
         {
             var c = myChildren[i];
-            // Calculate distance between the mouse position and the current stitch
             float distance = Vector3.Distance(Input.mousePosition, _camera.WorldToScreenPoint(c.position));
             
             Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
             Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
             var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
-            // Update the closest stitch if the current distance is shorter
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
             {
                 HoveredChildIndex = i;
