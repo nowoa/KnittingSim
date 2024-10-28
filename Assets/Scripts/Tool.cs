@@ -89,18 +89,52 @@ public class SeamMaker : Tool
 
 public class Knife : Tool
 {
+    private bool isCutting;
+    public override void DefaultBehavior()
+    {
+        base.DefaultBehavior();
+        if (isCutting)
+        {
+            var cachedIndex = _mouseDragger.HoveredChildIndex;
+            if (cachedIndex != -1)
+            {
+                Cut(cachedIndex);
+            }
+        }
+    }
+
     public override void MainAction()
     {
         var cachedIndex = _mouseDragger.HoveredChildIndex;
-        if (cachedIndex == -1)
+        Cut(cachedIndex);
+        isCutting = true;
+    }
+
+    private void Cut(int myIndex)
+    {
+        
+        if (myIndex == -1)
         {
             return;
         }
-        FabricManager.AllNodes[cachedIndex].RemoveAllEdges();
-        FabricManager.AllNodes[cachedIndex].NodeRight.RemoveBendEdge(true);
-        FabricManager.AllNodes[cachedIndex].NodesAbove.Last().RemoveBendEdge(false);
-        FabricManager.AllNodes.RemoveAt(cachedIndex);
+        FabricManager.AllNodes[myIndex].RemoveAllEdges();
+        var verletNode = FabricManager.AllNodes[myIndex].NodeRight;
+        if (verletNode != null)
+        {
+            verletNode.RemoveBendEdge(true);
+        }
+
+        if (FabricManager.AllNodes[myIndex].NodesAbove.Count > 0)
+        {
+            FabricManager.AllNodes[myIndex].NodesAbove.Last().RemoveBendEdge(false);
+        }
+        FabricManager.AllNodes.RemoveAt(myIndex);
         FabricManager.InvokeUpdateSimulation();
+    }
+
+    public override void MainActionEnd()
+    {
+        isCutting = false;
     }
 }
 

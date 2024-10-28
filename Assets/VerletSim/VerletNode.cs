@@ -43,6 +43,8 @@ namespace Verlet
         {
             Position = Prev = p;
             _connection = new List<VerletEdge>();
+            _nodesAbove = new List<VerletNode>();
+            _nodesBelow = new List<VerletNode>();
         }
 
         public void Step()
@@ -60,21 +62,11 @@ namespace Verlet
 
         public void AddNodeAbove(VerletNode n)
         {
-            if (_nodesAbove == null)
-            {
-                _nodesAbove = new List<VerletNode>();
-                
-            }
             _nodesAbove.Add(n);
         }
 
         public void AddNodeBelow(VerletNode n)
         {
-            if (_nodesBelow == null)
-            {
-                _nodesBelow = new List<VerletNode>();
-                
-            }
             _nodesBelow.Add(n);
         }
 
@@ -111,13 +103,19 @@ namespace Verlet
         {
             if (horizontal)
             {
-                _bendEdgeHorizontal.Other(this).Connection.Remove(_bendEdgeHorizontal);
-                _connection.Remove(_bendEdgeHorizontal);
+                if (_bendEdgeHorizontal != null)
+                {
+                    _bendEdgeHorizontal.Other(this).Connection.Remove(_bendEdgeHorizontal);
+                    _connection.Remove(_bendEdgeHorizontal);
+                }
             }
             else
             {
-                _bendEdgeVertical.Other(this).Connection.Remove(_bendEdgeVertical);
-                _connection.Remove(_bendEdgeVertical);
+                if (_bendEdgeVertical != null)
+                {
+                    _bendEdgeVertical.Other(this).Connection.Remove(_bendEdgeVertical);
+                    _connection.Remove(_bendEdgeVertical);
+                }
             }
         }
     }
