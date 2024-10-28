@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ToolBoxUI : MonoBehaviour
 {
@@ -14,6 +15,16 @@ public class ToolBoxUI : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void OnPointerEnter()
+    {
+        InputHandler.GameInput = false;
+    }
+
+    public void OnPointerExit()
+    {
+        InputHandler.GameInput = true;
     }
 
     public void Dragger()
@@ -44,5 +55,10 @@ public class ToolBoxUI : MonoBehaviour
     public void SeamMaker()
     {
         ToolManager.SetActiveTool(ToolManager.SeamMaker);
+    }
+
+    public void Knife()
+    {
+        ToolManager.SetActiveTool(ToolManager.Knife);
     }
 }

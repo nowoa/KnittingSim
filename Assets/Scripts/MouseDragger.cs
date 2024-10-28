@@ -39,15 +39,12 @@ public class MouseDragger
 
         HoveredChildIndex = -1;
         const float selectionRadius = 0.025f;
-        float closestDepth = float.MaxValue;
         Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
         float shortestDistance = float.MaxValue;
         for (var i = 0; i < myChildren.Count; i++)
         {
             var c = myChildren[i];
-            float distance = Vector3.Distance(Input.mousePosition, _camera.WorldToScreenPoint(c.position));
-            
-            Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
+            Vector3 screenPoint = _camera.WorldToScreenPoint(c.Position);
             Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
             var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)

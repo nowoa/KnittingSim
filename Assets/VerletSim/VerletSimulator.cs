@@ -29,7 +29,7 @@ namespace Verlet
         {
             particles.ForEach(p =>
             {
-                p.position += _gravity * deltaTime;
+                p.Position += _gravity * deltaTime;
                 p.Step();
             });
         }
@@ -50,7 +50,7 @@ namespace Verlet
 
         void Solve(VerletNode a, VerletNode b, float rest)
         {
-            var delta = a.position - b.position;
+            var delta = a.Position - b.Position;
             var current = delta.magnitude;
             var buffer = rest * 0.4f;
             if (Mathf.Abs(current - rest) <= buffer)
@@ -69,8 +69,8 @@ namespace Verlet
             }
 
             var f = (current - rest) / current;
-            a.position -= f * 0.5f * delta;
-            b.position += f * 0.5f * delta;
+            a.Position -= f * 0.5f * delta;
+            b.Position += f * 0.5f * delta;
             /*var delta = a.position - b.position;
             var direction = delta.normalized;
             var currentLength = delta.magnitude;
@@ -88,7 +88,7 @@ namespace Verlet
                 p.Connection.ForEach(e =>
                 {
                     var other = e.Other(p);
-                    Gizmos.DrawLine(p.position, other.position);
+                    Gizmos.DrawLine(p.Position, other.Position);
                 });
             }
         }

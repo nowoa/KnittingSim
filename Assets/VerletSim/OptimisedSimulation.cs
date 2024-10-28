@@ -112,7 +112,7 @@ namespace Verlet
         private void FixedUpdate()
         {
             _sim.Simulate(1,Time.fixedDeltaTime);
-            _simConnected.Nodes[_simConnected.Nodes.Count/2].position = transform.position;
+            _simConnected.Nodes[_simConnected.Nodes.Count/2].Position = transform.position;
             _simConnected.Simulate(5,Time.fixedDeltaTime);
         }
 

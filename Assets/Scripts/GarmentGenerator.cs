@@ -97,7 +97,7 @@ public class GarmentGenerator : MonoBehaviour
         _fabricManager.ConnectSeams(s2bR,b2sR);
         _fabricManager.ConnectSeams(c2b,b2c);
 
-        foreach (var node in _fabricManager.GetSeam(fpnL))
+        /*foreach (var node in _fabricManager.GetSeam(fpnL))
         {
             _fabricManager.AnchorNode(node,new Vector3(0,0,0));
         }
@@ -117,7 +117,7 @@ public class GarmentGenerator : MonoBehaviour
         for (int i = _fabricManager.GetPanelInfo(cp).Width; i > 0; i--)
         {
             _fabricManager.AnchorNode(_fabricManager.GetPanelInfo(cp).Nodes[^i],new Vector3(0,_fabricManager.GetPanelInfo(cp).Height*_stitchTemplate.height,0) );
-        }
+        }*/
     }
     
     [ContextMenu("make ruffle")]

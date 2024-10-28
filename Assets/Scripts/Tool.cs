@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Verlet;
@@ -53,15 +54,15 @@ public class Dragger : Tool
 
     public override void SecondaryAction()
     {
-        //pin nodes into place (anchoring)
-        if (_mouseDragger.HoveredChildIndex == -1)
+        var cachedIndex = _mouseDragger.HoveredChildIndex;
+        if (cachedIndex == -1)
         {
             return;
         }
+        var cachedHoveredNode = FabricManager.AllNodes[cachedIndex];
 
-        var cachedHoveredNode = FabricManager.AllNodes[_mouseDragger.HoveredChildIndex];
-        cachedHoveredNode.isAnchored = !cachedHoveredNode.isAnchored;
-        cachedHoveredNode.anchoredPos = _mouseDragger.GetTargetPos();
+        cachedHoveredNode.IsAnchored = !cachedHoveredNode.IsAnchored;
+        cachedHoveredNode.AnchoredPos = _mouseDragger.GetTargetPos();
 
     }
 }
@@ -86,6 +87,23 @@ public class SeamMaker : Tool
 {
 }
 
+public class Knife : Tool
+{
+    public override void MainAction()
+    {
+        var cachedIndex = _mouseDragger.HoveredChildIndex;
+        if (cachedIndex == -1)
+        {
+            return;
+        }
+        FabricManager.AllNodes[cachedIndex].RemoveAllEdges();
+        FabricManager.AllNodes[cachedIndex].NodeRight.RemoveBendEdge(true);
+        FabricManager.AllNodes[cachedIndex].NodesAbove.Last().RemoveBendEdge(false);
+        FabricManager.AllNodes.RemoveAt(cachedIndex);
+        FabricManager.InvokeUpdateSimulation();
+    }
+}
+
 public static class ToolManager
 {
     private static Tool _activeTool;
@@ -95,6 +113,7 @@ public static class ToolManager
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
     public static Tool SeamMaker = new SeamMaker();
+    public static Tool Knife = new Knife();
 
     static ToolManager()
     {
