@@ -10,14 +10,14 @@ namespace Verlet
     {
         public float Length => length;
 
-        private VerletNode a, b;
+        public VerletNode a, b;
         private float length;
 
         public VerletEdge(VerletNode a, VerletNode b)
         {
             this.a = a;
             this.b = b;
-            this.length = (a.position - b.position).magnitude;
+            this.length = (a.Position - b.Position).magnitude;
 
         }
 

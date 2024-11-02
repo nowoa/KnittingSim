@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
+    public static bool GameInput = true;
     private void Start()
     {
         
@@ -13,6 +14,7 @@ public class InputHandler : MonoBehaviour
 
     private void Update()
     {
+        if(!GameInput){return;}
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             ToolManager.OnMainAction();

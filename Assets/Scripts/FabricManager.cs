@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,6 +21,16 @@ public class FabricManager
     private string _panelName;
     private bool _isCircular;
     private VerletNode _closestNode;
+    public static event Action UpdateSimulation;
+
+    public static void InvokeUpdateSimulation()
+    {
+        if (UpdateSimulation != null)
+        {
+            UpdateSimulation.Invoke();
+        }
+        else{Debug.Log("no panel created yet!");}
+    }
     
     public FabricManager(GarmentGenerator parent)
     {
@@ -35,6 +46,7 @@ public class FabricManager
         Connect(myPanelName);
         _sim = new VerletSimulator(GetAllNodes());
         AllNodes = GetAllNodes();//needs to be updated any time the list of nodes is changed
+        UpdateSimulation += OnSimulationUpdate;
     }
     
     private List<StitchInfo> GetStitchInfos(Vector2Int myDimensions)
@@ -105,12 +117,12 @@ public class FabricManager
 
     public void AnchorNodeCoordinate(string myPanelName, Vector2Int myCoordinate)
     {
-        _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).isAnchored = true;
+        _panelDictionary[myPanelName].GetNodeAt(myCoordinate.x, myCoordinate.y).IsAnchored = true;
     }
 
     public void AnchorNodeIndex(string myPanelName, int index)
     {
-        _panelDictionary[myPanelName].Nodes[index].isAnchored = true;
+        _panelDictionary[myPanelName].Nodes[index].IsAnchored = true;
     }
 
     public static List<VerletNode> AllNodes;
@@ -137,6 +149,12 @@ public class FabricManager
         }
     }
 
+    public void OnSimulationUpdate()
+    {
+        _sim = new VerletSimulator(AllNodes);
+    }
+    
+
     private void GetConnectedNodes()
     {
         if (_mouseDragger.SelectedChildIndex == -1) return;
@@ -161,8 +179,8 @@ public class FabricManager
 
     public void AnchorNode(VerletNode node, Vector3 myPosition)
     {
-        node.isAnchored = true;
-        node.anchoredPos = myPosition;
+        node.IsAnchored = true;
+        node.AnchoredPos = myPosition;
     }
 
     public void FixedUpdate()
@@ -170,8 +188,8 @@ public class FabricManager
         if (_mouseDragger.SelectedChildIndex != -1)
         {
             GetConnectedNodes();
-            AllNodes[_mouseDragger.SelectedChildIndex].position = _mouseDragger.GetTargetPos();
-            AllNodes[_mouseDragger.SelectedChildIndex].anchoredPos = _mouseDragger.GetTargetPos();
+            AllNodes[_mouseDragger.SelectedChildIndex].Position = _mouseDragger.GetTargetPos();
+            AllNodes[_mouseDragger.SelectedChildIndex].AnchoredPos = _mouseDragger.GetTargetPos();
 
         }
 
@@ -184,9 +202,9 @@ public class FabricManager
         {
             foreach (var node in _sim.Nodes)
             {
-                if (node.isAnchored)
+                if (node.IsAnchored)
                 {
-                    node.position = node.anchoredPos;
+                    node.Position = node.AnchoredPos;
                 }
             }
 
@@ -208,16 +226,16 @@ public class FabricManager
 
         if (_mouseDragger.HoveredChildIndex != -1)
         {
-            Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].position, 0.1f);
+            Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].Position, 0.1f);
         }
         if (_sim != null)
         {
             foreach (var node in _sim.Nodes)
             {
-                if (node.isAnchored)
+                if (node.IsAnchored)
                 {
                     Gizmos.color = Color.green;
-                    Gizmos.DrawSphere(node.position,0.1f);
+                    Gizmos.DrawSphere(node.Position,0.1f);
                 }
             }
         }
@@ -228,9 +246,9 @@ public class FabricManager
     {
         var rparams = new RenderParams(material);
         List<Matrix4x4> renderMatrices = new();
-        foreach (var node in IterateAllNodes())
+        foreach (var node in AllNodes)
         {
-            Matrix4x4 mat = Matrix4x4.TRS(node.position, Quaternion.identity, Vector3.one * 0.1f);
+            Matrix4x4 mat = Matrix4x4.TRS(node.Position, Quaternion.identity, Vector3.one * 0.1f);
             renderMatrices.Add(mat);
         }
 
