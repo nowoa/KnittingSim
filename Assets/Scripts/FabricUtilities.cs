@@ -1,19 +1,44 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Verlet;
+using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
 {
     public int XCoordinate { get; }
     public int YCoordinate { get; }
+    public VerletNode topLeft { get; }
+    public VerletNode topRight { get; }
+    public VerletNode bottomLeft { get; }
+    public VerletNode bottomRight { get; }
+    private Vector3 _position;
+    public Vector3 position => _position;
+    public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
-    public StitchInfo( int x, int y)
+    public StitchInfo(VerletNode tl, VerletNode tr, VerletNode bl, VerletNode br)
     {
-        XCoordinate = x;
-        YCoordinate = y;
+        topLeft = tl;
+        topRight = tr;
+        bottomLeft = bl;
+        bottomRight = br;
+        corners = new()
+        {
+            tl,
+            tr,
+            bl,
+            br
+        };
+
         //will hold more information such as stitch type, inc/dec etc
     }
+
+    public void SetPosition(Vector3 myPos)
+    {
+        _position = myPos;
+    }
+    
 }
 
 public class PanelInfo

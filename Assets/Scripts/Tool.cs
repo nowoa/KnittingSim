@@ -17,6 +17,11 @@ public abstract class Tool
         {
             _mouseDragger.UpdateHover(FabricManager.AllNodes);
         }
+
+        if (FabricManager.AllStitches != null)
+        {
+            _mouseDragger.UpdateHoverStitch();
+        }
     }
 
     public virtual void MainAction()
@@ -44,12 +49,14 @@ public class Dragger : Tool
 {
     public override void MainAction()
     {
-        _mouseDragger.UpdateSelected();
+        /*_mouseDragger.UpdateSelected();*/
+        _mouseDragger.UpdateSelectedStitch();
     }
 
     public override void MainActionEnd()
     {
         _mouseDragger.SelectedChildIndex = -1;
+        _mouseDragger.SelectedStitchIndex = -1;
     }
 
     public override void SecondaryAction()

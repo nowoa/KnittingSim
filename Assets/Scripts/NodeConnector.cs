@@ -10,7 +10,11 @@ public static class NodeConnector
         var diagonalLength = CalculateDiagonal(myStitchTemplate);
         for (int i = 0; i < myNodes.Count; i++)
         {
+            
+            var diagonalRightUpIndex = i + myWidth + 1;
             var downIndex = i - myWidth;
+            var upIndex = i + myWidth;
+            var rightIndex = i + 1;
             if (downIndex.IsInRangeOf(myNodes))
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[downIndex],myStitchTemplate.height);
@@ -70,7 +74,6 @@ public static class NodeConnector
                     continue;
                 }
                 
-                var rightIndex = i + 1;
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[rightIndex],myStitchTemplate.width);
                 myNodes[i].SetNodeRight(myNodes[rightIndex]);
                 myNodes[rightIndex].SetNodeLeft(myNodes[i]);
@@ -88,11 +91,15 @@ public static class NodeConnector
                         myNodes[diagonalRightDownIndex],diagonalLength); 
                 }
 
-                var diagonalRightUpIndex = i + myWidth + 1;
                 if ((diagonalRightUpIndex).IsInRangeOf(myNodes))
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[diagonalRightUpIndex],diagonalLength);
                 }
+            }
+
+            if (diagonalRightUpIndex.IsInRangeOf(myNodes) && !isLastInRow)
+            {
+                FabricManager.AllStitches.Add(new StitchInfo(myNodes[upIndex],myNodes[diagonalRightUpIndex], myNodes[i], myNodes[rightIndex]));
             }
         }
     }
