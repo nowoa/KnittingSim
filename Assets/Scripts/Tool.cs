@@ -49,14 +49,12 @@ public class Dragger : Tool
 {
     public override void MainAction()
     {
-        /*_mouseDragger.UpdateSelected();*/
-        _mouseDragger.UpdateSelectedStitch();
+        _mouseDragger.UpdateSelected();
     }
 
     public override void MainActionEnd()
     {
         _mouseDragger.SelectedChildIndex = -1;
-        _mouseDragger.SelectedStitchIndex = -1;
     }
 
     public override void SecondaryAction()
@@ -102,7 +100,7 @@ public class Knife : Tool
         base.DefaultBehavior();
         if (isCutting)
         {
-            var cachedIndex = _mouseDragger.HoveredChildIndex;
+            var cachedIndex = _mouseDragger.HoveredStitchIndex;
             if (cachedIndex != -1)
             {
                 Cut(cachedIndex);
@@ -112,7 +110,7 @@ public class Knife : Tool
 
     public override void MainAction()
     {
-        var cachedIndex = _mouseDragger.HoveredChildIndex;
+        var cachedIndex = _mouseDragger.HoveredStitchIndex;
         Cut(cachedIndex);
         isCutting = true;
     }
@@ -124,18 +122,9 @@ public class Knife : Tool
         {
             return;
         }
-        FabricManager.AllNodes[myIndex].RemoveAllEdges();
-        var verletNode = FabricManager.AllNodes[myIndex].NodeRight;
-        if (verletNode != null)
-        {
-            verletNode.RemoveBendEdge(true);
-        }
 
-        if (FabricManager.AllNodes[myIndex].NodesAbove.Count > 0)
-        {
-            FabricManager.AllNodes[myIndex].NodesAbove.Last().RemoveBendEdge(false);
-        }
-        FabricManager.AllNodes.RemoveAt(myIndex);
+        FabricManager.AllStitches[myIndex].RemoveStitch();
+        //TO DO: if node doesnt have any edges anymore, remove node
         FabricManager.InvokeUpdateSimulation();
     }
 

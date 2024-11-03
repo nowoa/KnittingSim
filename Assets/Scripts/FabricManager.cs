@@ -54,6 +54,10 @@ public class FabricManager
         Connect(myPanelName);
         _sim = new VerletSimulator(GetAllNodes());
         UpdateSimulation += OnSimulationUpdate;
+        foreach (var s in AllStitches)
+        {
+            s.SetSize(new Vector2(_parent.StitchTemplate.width, _parent.StitchTemplate.height));
+        }
     }
 
     public PanelInfo GetPanelInfo(string key)
@@ -187,21 +191,9 @@ public class FabricManager
 
         }
 
-        if (_mouseDragger.SelectedStitchIndex != -1)
-        {
-            
-            AllStitches[_mouseDragger.SelectedStitchIndex].SetPosition(_mouseDragger.GetTargetPosStitch());
-            for (int i = 0; i < AllStitches[_mouseDragger.SelectedStitchIndex].corners.Count; i++)
-            {
-                AllStitches[_mouseDragger.SelectedStitchIndex].corners[i].Position =
-                    _mouseDragger.GetTargetPosStitch() + _mouseDragger.OffsetPositions[i];
-                Debug.Log(_mouseDragger.GetTargetPos() + " " + _mouseDragger.OffsetPositions[i]);
-            }
-        }
-
         if (_simConnected != null)
         {
-            _simConnected.Simulate(5, Time.fixedDeltaTime);
+            _simConnected.Simulate(3, Time.fixedDeltaTime);
         }
 
         if (_sim != null)

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Verlet
 {
-
+//TO DO: restructure adding edges and removing edges functions into one big function
     public class VerletNode
     {
         #region private variables
@@ -19,6 +19,9 @@ namespace Verlet
         private VerletNode _nodeRight;
         private VerletEdge _bendEdgeHorizontal;
         private VerletEdge _bendEdgeVertical;
+        private VerletEdge _shearEdgeUp;
+        private VerletEdge _shearEdgeDown;
+        private VerletEdge _edgeUp;
         private Vector3 Prev;
 
         #endregion
@@ -32,6 +35,9 @@ namespace Verlet
         public VerletNode NodeRight => _nodeRight;
         public VerletEdge BendEdgeHorizontal => _bendEdgeHorizontal;
         public VerletEdge BendEdgeVertical => _bendEdgeVertical;
+        public VerletEdge ShearEdgeUp => _shearEdgeUp;
+        public VerletEdge ShearEdgeDown => _shearEdgeDown;
+        public VerletEdge EdgeUp => _edgeUp;
 
         #endregion
         
@@ -89,34 +95,47 @@ namespace Verlet
         {
             _bendEdgeVertical = e;
         }
-        
-        public void RemoveAllEdges()
+
+        public void SetShearEdge(VerletEdge e, bool up = true)
         {
-            foreach (var edge in new List<VerletEdge>(_connection))
+            if (up) _shearEdgeUp = e;
+            else
             {
-                edge.Other(this).Connection.Remove(edge);
-                _connection.Remove(edge);
+                _shearEdgeDown = e;
             }
+
         }
 
-        public void RemoveBendEdge(bool horizontal)
+        public void SetVerticalEdge(VerletEdge e)
         {
-            if (horizontal)
+            _edgeUp = e;
+        }
+
+        public void RemoveShearEdge(bool up = true)
+        {
+            if (up)
             {
-                if (_bendEdgeHorizontal != null)
+                if (_shearEdgeUp != null)
                 {
-                    _bendEdgeHorizontal.Other(this).Connection.Remove(_bendEdgeHorizontal);
-                    _connection.Remove(_bendEdgeHorizontal);
+                    _shearEdgeUp.Other(this).Connection.Remove(_shearEdgeUp);
+                    _connection.Remove(_shearEdgeUp);
                 }
             }
             else
             {
-                if (_bendEdgeVertical != null)
+                if (_shearEdgeDown != null)
                 {
-                    _bendEdgeVertical.Other(this).Connection.Remove(_bendEdgeVertical);
-                    _connection.Remove(_bendEdgeVertical);
+                    _shearEdgeDown.Other(this).Connection.Remove(_shearEdgeDown);
+                    _connection.Remove(_shearEdgeDown);
                 }
             }
         }
+
+        public void RemoveVerticalEdge()
+        {
+            _edgeUp.Other(this).Connection.Remove(_edgeUp);
+            _connection.Remove(_edgeUp);
+        }
+
     }
 }

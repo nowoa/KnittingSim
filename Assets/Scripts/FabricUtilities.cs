@@ -14,6 +14,10 @@ public class StitchInfo
     public VerletNode bottomRight { get; }
     private Vector3 _position;
     public Vector3 position => _position;
+    private float _height;
+    private float _width;
+    public float height => _height;
+    public float width => _width;
     public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
@@ -38,7 +42,23 @@ public class StitchInfo
     {
         _position = myPos;
     }
-    
+
+    public void SetSize(Vector2 mySize)
+    {
+        _height = mySize.y;
+        _width = mySize.x;
+    }
+
+    public void RemoveStitch()
+    {
+        corners[0].RemoveShearEdge(false);
+        corners[2].RemoveShearEdge();
+        if (corners[3].ShearEdgeUp == null)
+        {
+            corners[3].RemoveVerticalEdge();
+            //TO DO: remove edges based on other removed stitches
+        }
+    }
 }
 
 public class PanelInfo

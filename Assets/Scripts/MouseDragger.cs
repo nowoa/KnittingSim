@@ -27,8 +27,6 @@ public class MouseDragger
     private Camera _camera;
     public int SelectedChildIndex =-1;
     public int SelectedStitchIndex = -1;
-    public List<Vector3> OffsetPositions;
-    public float cachedDepth;
   
     
     private MouseDragger()
@@ -94,24 +92,6 @@ public class MouseDragger
     {
         SelectedChildIndex = HoveredChildIndex;
     }
-
-    public void UpdateSelectedStitch()
-    {
-        SelectedStitchIndex = HoveredStitchIndex;
-        cachedDepth = _hoveredStitchDepth;
-        Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
-        OffsetPositions = new List<Vector3>();
-        if (SelectedStitchIndex !=-1)
-        {
-            foreach (var c in FabricManager.AllStitches[SelectedStitchIndex].corners)
-            {
-                Vector3 screenPoint = _camera.WorldToScreenPoint(c.Position);
-                Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
-                Vector2 offsetPos = normalizedChildPos - normalizedMousePos;
-                OffsetPositions.Add(offsetPos);
-            }
-        }
-    }
     
     private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)
     {
@@ -125,12 +105,6 @@ public class MouseDragger
     public Vector3 GetTargetPos()
     {
         Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _hoveredChildDepth);
-        return _camera.ScreenToWorldPoint(mousePositionWithDepth);
-    }
-
-    public Vector3 GetTargetPosStitch()
-    {
-        Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, cachedDepth);
         return _camera.ScreenToWorldPoint(mousePositionWithDepth);
     }
     
