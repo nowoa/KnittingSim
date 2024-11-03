@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static Verlet.VerletNode.EdgeType;
 
 
 namespace Verlet
@@ -22,7 +24,9 @@ namespace Verlet
         private VerletEdge _shearEdgeUp;
         private VerletEdge _shearEdgeDown;
         private VerletEdge _edgeUp;
+        private VerletEdge _edgeRight;
         private Vector3 Prev;
+        
 
         #endregion
 
@@ -38,6 +42,13 @@ namespace Verlet
         public VerletEdge ShearEdgeUp => _shearEdgeUp;
         public VerletEdge ShearEdgeDown => _shearEdgeDown;
         public VerletEdge EdgeUp => _edgeUp;
+        public VerletEdge EdgeRight => _edgeRight;
+        public enum EdgeType
+        {
+            Structural,
+            Bend,
+            Shear
+        }
 
         #endregion
         
@@ -86,56 +97,67 @@ namespace Verlet
             _nodeRight = n;
         }
 
-        public void SetHorizontalBendEdge(VerletEdge e)
-        {
-            _bendEdgeHorizontal = e;
-        }
-
-        public void SetVerticalBendEdge(VerletEdge e)
-        {
-            _bendEdgeVertical = e;
-        }
-
-        public void SetShearEdge(VerletEdge e, bool up = true)
-        {
-            if (up) _shearEdgeUp = e;
-            else
-            {
-                _shearEdgeDown = e;
-            }
-
-        }
-
-        public void SetVerticalEdge(VerletEdge e)
-        {
-            _edgeUp = e;
-        }
-
-        public void RemoveShearEdge(bool up = true)
+        public void SetBendEdge(VerletEdge edge, bool up)
         {
             if (up)
-            {
-                if (_shearEdgeUp != null)
-                {
-                    _shearEdgeUp.Other(this).Connection.Remove(_shearEdgeUp);
-                    _connection.Remove(_shearEdgeUp);
-                }
-            }
+                _bendEdgeVertical = edge;
             else
+                _bendEdgeHorizontal = edge;
+        }
+
+        public void SetShearEdge(VerletEdge edge, bool up)
+        {
+            if (up)
+                _shearEdgeUp = edge;
+            else
+                _shearEdgeDown = edge;
+        }
+
+        public void SetStructuralEdge(VerletEdge edge, bool up)
+        {
+            if (up)
+                _edgeUp = edge;
+            else
+                _edgeRight = edge;
+        }
+
+        public void RemoveBendEdge(bool up)
+        {
+            var edgeToRemove = up ? _bendEdgeVertical : _bendEdgeHorizontal;
+            if (edgeToRemove != null)
             {
-                if (_shearEdgeDown != null)
-                {
-                    _shearEdgeDown.Other(this).Connection.Remove(_shearEdgeDown);
-                    _connection.Remove(_shearEdgeDown);
-                }
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _bendEdgeVertical = null;
+                else _bendEdgeHorizontal = null;
             }
         }
 
-        public void RemoveVerticalEdge()
+        public void RemoveShearEdge(bool up)
         {
-            _edgeUp.Other(this).Connection.Remove(_edgeUp);
-            _connection.Remove(_edgeUp);
+            var edgeToRemove = up ? _shearEdgeUp : _shearEdgeDown;
+            if (edgeToRemove != null)
+            {
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _shearEdgeUp = null;
+                else _shearEdgeDown = null;
+            }
         }
+
+        public void RemoveStructuralEdge(bool up)
+        {
+            var edgeToRemove = up ? _edgeUp : _edgeRight;
+            if (edgeToRemove != null)
+            {
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _edgeUp = null;
+                else _edgeRight = null;
+            }
+        }
+
+        
 
     }
 }

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Verlet;
+using static Verlet.VerletNode;
 using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
@@ -52,11 +55,52 @@ public class StitchInfo
     public void RemoveStitch()
     {
         corners[0].RemoveShearEdge(false);
-        corners[2].RemoveShearEdge();
+        corners[2].RemoveShearEdge(true);
+        
         if (corners[3].ShearEdgeUp == null)
         {
-            corners[3].RemoveVerticalEdge();
-            //TO DO: remove edges based on other removed stitches
+            Debug.Log("no neighbor right");
+            corners[3].RemoveStructuralEdge(true);
+            corners[3].RemoveBendEdge(true);
+            foreach (var n in corners[3].NodesBelow)
+            {
+                n.RemoveBendEdge(true);
+            }
+        }
+
+        var verletNode = corners[2].NodeLeft;
+        if (verletNode == null || verletNode.ShearEdgeUp == null)
+        {
+            Debug.Log("no neighbor left");
+            corners[2].RemoveStructuralEdge(true);
+            corners[2].RemoveBendEdge(true);
+            foreach (var n in corners[2].NodesBelow)
+            {
+                n.RemoveBendEdge(true);
+            }
+        }
+
+        if (corners[0].ShearEdgeUp == null)
+        {
+            corners[0].RemoveStructuralEdge(false);
+            corners[0].RemoveBendEdge(false);
+            var nodeLeft = corners[0].NodeLeft;
+            if (nodeLeft != null)
+            {
+                nodeLeft.RemoveBendEdge(false);
+            }
+        }
+
+        if (corners[2].NodesBelow.Any(n => n.ShearEdgeUp == null) || corners[2].NodesBelow.Count == 0)
+        {
+            corners[2].RemoveStructuralEdge(false);
+            corners[2].RemoveBendEdge(false);
+    
+            var nodeLeft = corners[2].NodeLeft;
+            if (nodeLeft != null)
+            {
+                nodeLeft.RemoveBendEdge(false);
+            }
         }
     }
 }

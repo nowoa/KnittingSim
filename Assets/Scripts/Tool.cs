@@ -50,6 +50,7 @@ public class Dragger : Tool
     public override void MainAction()
     {
         _mouseDragger.UpdateSelected();
+        Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
     }
 
     public override void MainActionEnd()
