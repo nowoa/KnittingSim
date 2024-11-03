@@ -9,8 +9,6 @@ using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
 {
-    public int XCoordinate { get; }
-    public int YCoordinate { get; }
     public VerletNode topLeft { get; }
     public VerletNode topRight { get; }
     public VerletNode bottomLeft { get; }
@@ -59,7 +57,6 @@ public class StitchInfo
         
         if (corners[3].ShearEdgeUp == null)
         {
-            Debug.Log("no neighbor right");
             corners[3].RemoveStructuralEdge(true);
             corners[3].RemoveBendEdge(true);
             foreach (var n in corners[3].NodesBelow)
@@ -71,7 +68,6 @@ public class StitchInfo
         var verletNode = corners[2].NodeLeft;
         if (verletNode == null || verletNode.ShearEdgeUp == null)
         {
-            Debug.Log("no neighbor left");
             corners[2].RemoveStructuralEdge(true);
             corners[2].RemoveBendEdge(true);
             foreach (var n in corners[2].NodesBelow)
@@ -102,6 +98,19 @@ public class StitchInfo
                 nodeLeft.RemoveBendEdge(false);
             }
         }
+    }
+
+    public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
+    {
+        if (startPos.NodesBelow.Count > 0)
+        {
+            startPos.NodesBelow.Last().RemoveAllEdges();
+            VerletEdge.ConnectNodes(startPos.NodesBelow.Last().NodeLeft, startPos.NodeRight,
+                myStitchInfo.width); // doesn't take into account gauge changes
+            FabricManager.AllNodes.Remove(startPos.NodesBelow.Last());
+            DecreaseColumn(startPos.NodesBelow.Last(), myStitchInfo);
+        }
+        else return;
     }
 }
 

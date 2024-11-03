@@ -2591,14 +2591,14 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   pattern: {fileID: 0}
   panelName: 
-  width: 5
-  height: 5
+  width: 3
+  height: 3
   isCircular: 0
-  bodyWidth: 20
-  bodyHeight: 30
-  sleeveWidth: 10
-  sleeveHeight: 25
-  collarWidth: 8
+  bodyWidth: 10
+  bodyHeight: 10
+  sleeveWidth: 4
+  sleeveHeight: 10
+  collarWidth: 3
   collarHeight: 2
   hGauge: 15
   vGauge: 21

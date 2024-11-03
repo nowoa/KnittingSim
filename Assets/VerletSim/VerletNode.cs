@@ -9,7 +9,6 @@ using static Verlet.VerletNode.EdgeType;
 
 namespace Verlet
 {
-//TO DO: restructure adding edges and removing edges functions into one big function
     public class VerletNode
     {
         #region private variables
@@ -156,8 +155,13 @@ namespace Verlet
                 else _edgeRight = null;
             }
         }
-
-        
-
+        public void RemoveAllEdges()
+        {
+            foreach (var edge in new List<VerletEdge>(_connection))
+            {
+                edge.Other(this).Connection.Remove(edge);
+                _connection.Remove(edge);
+            }
+        }
     }
 }
