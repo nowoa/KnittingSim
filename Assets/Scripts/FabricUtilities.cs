@@ -22,7 +22,7 @@ public class StitchInfo
     public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
-    public StitchInfo(VerletNode tl, VerletNode tr, VerletNode bl, VerletNode br)
+    public StitchInfo(VerletNode bl, VerletNode tl, VerletNode tr, VerletNode br)
     {
         topLeft = tl;
         topRight = tr;
@@ -30,9 +30,9 @@ public class StitchInfo
         bottomRight = br;
         corners = new()
         {
+            bl,
             tl,
             tr,
-            bl,
             br
         };
 
@@ -50,12 +50,17 @@ public class StitchInfo
         _width = mySize.x;
     }
 
+    public void UpdateCorners(VerletNode myNode, int myCornerIndex)
+    {
+        corners[myCornerIndex] = myNode;
+    }
+
     public void RemoveStitch()
     {
-        corners[0].RemoveShearEdge(false);
-        corners[2].RemoveShearEdge(true);
+        corners[1].RemoveShearEdge(false); //top left
+        corners[0].RemoveShearEdge(true); //bottom left
         
-        if (corners[3].ShearEdgeUp == null)
+        if (corners[3].ShearEdgeUp == null) // bottom right
         {
             corners[3].RemoveStructuralEdge(true);
             corners[3].RemoveBendEdge(true);
@@ -65,34 +70,34 @@ public class StitchInfo
             }
         }
 
-        var verletNode = corners[2].NodeLeft;
+        var verletNode = corners[0].NodeLeft;//bottom left
         if (verletNode == null || verletNode.ShearEdgeUp == null)
         {
-            corners[2].RemoveStructuralEdge(true);
-            corners[2].RemoveBendEdge(true);
+            corners[0].RemoveStructuralEdge(true);//bottom left
+            corners[0].RemoveBendEdge(true);
             foreach (var n in corners[2].NodesBelow)
             {
                 n.RemoveBendEdge(true);
             }
         }
 
-        if (corners[0].ShearEdgeUp == null)
+        if (corners[1].ShearEdgeUp == null)//top left
         {
-            corners[0].RemoveStructuralEdge(false);
-            corners[0].RemoveBendEdge(false);
-            var nodeLeft = corners[0].NodeLeft;
+            corners[1].RemoveStructuralEdge(false);
+            corners[1].RemoveBendEdge(false);
+            var nodeLeft = corners[1].NodeLeft;
             if (nodeLeft != null)
             {
                 nodeLeft.RemoveBendEdge(false);
             }
         }
 
-        if (corners[2].NodesBelow.Any(n => n.ShearEdgeUp == null) || corners[2].NodesBelow.Count == 0)
+        if (corners[0].NodesBelow.Any(n => n.ShearEdgeUp == null) || corners[2].NodesBelow.Count == 0) //bottom left
         {
-            corners[2].RemoveStructuralEdge(false);
-            corners[2].RemoveBendEdge(false);
+            corners[0].RemoveStructuralEdge(false);
+            corners[0].RemoveBendEdge(false);
     
-            var nodeLeft = corners[2].NodeLeft;
+            var nodeLeft = corners[0].NodeLeft;
             if (nodeLeft != null)
             {
                 nodeLeft.RemoveBendEdge(false);
@@ -114,6 +119,9 @@ public class StitchInfo
         VerletEdge.ConnectNodes(nodeLeft.NodesAbove.Last(), startPos.NodeRight,
             Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
         nodeLeft.NodesAbove.Last().SetShearEdge(nodeLeft.NodesAbove.Last().Connection.Last(),false);
+        
+        nodeLeft.Parent.UpdateCorners(startPos.NodeRight, 3);
+        nodeLeft.Parent.UpdateCorners(startPos.NodeRight.NodesAbove.Last(),2);
         
         if (startPos.NodesBelow.Count > 0)
         {

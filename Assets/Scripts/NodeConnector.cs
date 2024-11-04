@@ -59,7 +59,7 @@ public static class NodeConnector
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightUpIndex],diagonalLength);
                 myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
-                var parentStitch = new StitchInfo(myNodes[upIndex], myNodes[diagonalRightUpIndex], myNodes[i],
+                var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                     myNodes[rightIndex]);
                 FabricManager.AllStitches.Add(parentStitch);
                 myNodes[i].SetParentStitch(parentStitch);
@@ -101,7 +101,7 @@ public static class NodeConnector
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[diagonalRightUpIndex],diagonalLength);
                     myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
-                    var parentStitch = new StitchInfo(myNodes[upIndex], myNodes[diagonalRightUpIndex], myNodes[i],
+                    var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                         myNodes[rightIndex]);
                     FabricManager.AllStitches.Add(parentStitch);
                     myNodes[i].SetParentStitch(parentStitch);
