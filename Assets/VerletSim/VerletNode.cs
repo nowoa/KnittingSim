@@ -24,6 +24,7 @@ namespace Verlet
         private VerletEdge _shearEdgeDown;
         private VerletEdge _edgeUp;
         private VerletEdge _edgeRight;
+        private StitchInfo _parent;
         private Vector3 Prev;
         
 
@@ -42,6 +43,7 @@ namespace Verlet
         public VerletEdge ShearEdgeDown => _shearEdgeDown;
         public VerletEdge EdgeUp => _edgeUp;
         public VerletEdge EdgeRight => _edgeRight;
+        public StitchInfo Parent => _parent;
         public enum EdgeType
         {
             Structural,
@@ -94,6 +96,11 @@ namespace Verlet
         public void SetNodeRight(VerletNode n)
         {
             _nodeRight = n;
+        }
+
+        public void SetParentStitch(StitchInfo parent)
+        {
+            _parent = parent;
         }
 
         public void SetBendEdge(VerletEdge edge, bool up)

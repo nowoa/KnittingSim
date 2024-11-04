@@ -34,5 +34,10 @@ public static class Calculation
 
         return new Vector3(x, y, z);
     }
+
+    public static float CalculateDiagonal(float width, float height)
+    {
+        return (Mathf.Sqrt(Mathf.Pow(width, 2) + Mathf.Pow(height, 2)));
+    }
     
 }

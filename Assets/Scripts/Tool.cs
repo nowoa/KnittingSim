@@ -90,11 +90,10 @@ public class Decreaser : Tool
         var stitchInfo = FabricManager.AllStitches[cachedIndex];
         var bottomLeft = stitchInfo.bottomLeft;
         var bottomRight = stitchInfo.bottomRight;
-        bottomLeft.RemoveAllEdges();
+        
         if (bottomLeft.NodeLeft != null)
         {
             bottomLeft.NodeLeft.RemoveBendEdge(false);
-            VerletEdge.ConnectNodes(bottomLeft.NodeLeft, bottomRight, stitchInfo.width);
             stitchInfo.DecreaseColumn(bottomLeft, stitchInfo);
         }
         FabricManager.AllNodes.Remove(bottomLeft);

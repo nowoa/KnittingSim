@@ -59,7 +59,10 @@ public static class NodeConnector
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightUpIndex],diagonalLength);
                 myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
-                FabricManager.AllStitches.Add(new StitchInfo(myNodes[upIndex],myNodes[diagonalRightUpIndex], myNodes[i], myNodes[rightIndex]));
+                var parentStitch = new StitchInfo(myNodes[upIndex], myNodes[diagonalRightUpIndex], myNodes[i],
+                    myNodes[rightIndex]);
+                FabricManager.AllStitches.Add(parentStitch);
+                myNodes[i].SetParentStitch(parentStitch);
             }
              
             if (myIsCircular)
@@ -98,7 +101,10 @@ public static class NodeConnector
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[diagonalRightUpIndex],diagonalLength);
                     myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
-                    FabricManager.AllStitches.Add(new StitchInfo(myNodes[upIndex],myNodes[diagonalRightUpIndex], myNodes[i], myNodes[rightIndex]));
+                    var parentStitch = new StitchInfo(myNodes[upIndex], myNodes[diagonalRightUpIndex], myNodes[i],
+                        myNodes[rightIndex]);
+                    FabricManager.AllStitches.Add(parentStitch);
+                    myNodes[i].SetParentStitch(parentStitch);
                 }
             }
 

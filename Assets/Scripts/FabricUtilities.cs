@@ -102,15 +102,27 @@ public class StitchInfo
 
     public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
     {
+        var nodeLeft = startPos.NodeLeft;
+        startPos.RemoveAllEdges();
+        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight, myStitchInfo.width);
+        nodeLeft.SetStructuralEdge(nodeLeft.Connection.Last(),false);
+        
+        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight.NodesAbove.Last(),
+            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
+       nodeLeft.SetShearEdge(nodeLeft.Connection.Last(), true);
+        
+        VerletEdge.ConnectNodes(nodeLeft.NodesAbove.Last(), startPos.NodeRight,
+            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
+        nodeLeft.NodesAbove.Last().SetShearEdge(nodeLeft.NodesAbove.Last().Connection.Last(),false);
+        
         if (startPos.NodesBelow.Count > 0)
         {
-            startPos.NodesBelow.Last().RemoveAllEdges();
-            VerletEdge.ConnectNodes(startPos.NodesBelow.Last().NodeLeft, startPos.NodeRight,
-                myStitchInfo.width); // doesn't take into account gauge changes
-            FabricManager.AllNodes.Remove(startPos.NodesBelow.Last());
-            DecreaseColumn(startPos.NodesBelow.Last(), myStitchInfo);
+            DecreaseColumn(startPos.NodesBelow.Last(), startPos.NodesBelow.Last().Parent);
+            FabricManager.AllNodes.Remove(startPos);
+            FabricManager.AllStitches.Remove(myStitchInfo);
         }
-        else return;
+        
+        else FabricManager.AllNodes.Remove(startPos);
     }
 }
 
