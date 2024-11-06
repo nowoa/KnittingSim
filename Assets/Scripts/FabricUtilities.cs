@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -105,10 +106,11 @@ public class StitchInfo
         }
     }
 
-    public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
+    public async Task DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
     {
         var nodeLeft = startPos.NodeLeft;
         startPos.RemoveAllEdges();
+        
         VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight, myStitchInfo.width);
         nodeLeft.SetStructuralEdge(nodeLeft.Connection.Last(),false);
         
@@ -125,7 +127,8 @@ public class StitchInfo
         
         if (startPos.NodesBelow.Count > 0)
         {
-            DecreaseColumn(startPos.NodesBelow.Last(), startPos.NodesBelow.Last().Parent);
+            await Task.Delay(10);
+            await DecreaseColumn(startPos.NodesBelow.Last(), startPos.NodesBelow.Last().Parent);
             FabricManager.AllNodes.Remove(startPos);
             FabricManager.AllStitches.Remove(myStitchInfo);
         }
