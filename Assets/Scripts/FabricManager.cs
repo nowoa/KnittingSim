@@ -180,6 +180,28 @@ public class FabricManager
         node.IsAnchored = true;
         node.AnchoredPos = myPosition;
     }
+    
+    public void Stretch()
+    {
+        foreach (var panel in _panelDictionary.Values)
+        {
+            panel.Nodes[0].IsAnchored = true;
+            panel.Nodes[0].AnchoredPos = new Vector3(-0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), -0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes[panel.Width-1].IsAnchored = true;
+            panel.Nodes[panel.Width-1].AnchoredPos =
+                new Vector3(0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), -0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes[^panel.Width].IsAnchored = true;
+            panel.Nodes[^panel.Width].AnchoredPos =
+                new Vector3(-0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), 0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes.Last().IsAnchored = true;
+            panel.Nodes.Last().AnchoredPos = new Vector3(0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f),
+                0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+        }
+    }
 
     public void FixedUpdate()
     {
@@ -212,7 +234,10 @@ public class FabricManager
         //update stitch position
         foreach (var stitch in AllStitches)
         {
-            stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
+            if (stitch.corners.Any(item => item != null))
+            {
+                stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
+            }
         }
         
     }
@@ -234,7 +259,7 @@ public class FabricManager
             Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].Position, 0.1f);
         }
         
-        if (_mouseDragger.HoveredStitchIndex != -1)
+        if (_mouseDragger.HoveredStitchIndex != -1 && !AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
         {
             Gizmos.color=Color.red;
             Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);

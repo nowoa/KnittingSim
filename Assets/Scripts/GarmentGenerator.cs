@@ -167,6 +167,12 @@ public class GarmentGenerator : MonoBehaviour
         
     }
 
+    [ContextMenu("stretch")]
+    public void Stretch()
+    {
+        _fabricManager.Stretch();
+    }
+
     void Generate()
     {
         //set stitch size to gauge

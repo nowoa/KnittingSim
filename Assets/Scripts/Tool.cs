@@ -89,15 +89,16 @@ public class Decreaser : Tool
         var cachedIndex = _mouseDragger.HoveredStitchIndex;
         var stitchInfo = FabricManager.AllStitches[cachedIndex];
         var bottomLeft = stitchInfo.bottomLeft;
-        var bottomRight = stitchInfo.bottomRight;
-        
+
         if (bottomLeft.NodeLeft != null)
         {
             bottomLeft.NodeLeft.RemoveBendEdge(false);
-            stitchInfo.DecreaseColumn(bottomLeft, stitchInfo);
         }
-        FabricManager.AllNodes.Remove(bottomLeft);
-        FabricManager.InvokeUpdateSimulation();
+
+        stitchInfo.DecreaseColumn(bottomLeft, stitchInfo);
+            
+            FabricManager.InvokeUpdateSimulation();
+     
     }
     
 }
