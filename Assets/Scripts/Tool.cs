@@ -89,10 +89,88 @@ public class Increaser : Tool
 
 public class Decreaser : Tool
 {
+    private List<StitchInfo> stitchesToDecrease;
+    private bool toolActivated;
+    private bool rightDirection;
+    private StitchInfo previousStitchInfo;
+    private bool hasExecutedThisFrame;
+
+    public override void DefaultBehavior()
+    {
+        
+        base.DefaultBehavior();
+        if (!toolActivated)
+        {
+            return;
+        }
+
+        var stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+
+        if (!HasStitchInfoChanged(stitchInfo))
+        {
+            return; 
+        }
+        
+        bool HasStitchInfoChanged(StitchInfo currentStitchInfo)
+        {
+            return previousStitchInfo != currentStitchInfo;
+        }
+
+        hasExecutedThisFrame = false;
+        previousStitchInfo = stitchInfo;
+
+        if (stitchInfo.corners[0] == stitchesToDecrease.Last().corners[3])
+        {
+            if (stitchesToDecrease.Count == 1)
+            {
+                rightDirection = true;
+            }
+
+            if (rightDirection)
+            {
+                if(!stitchesToDecrease.Contains(stitchInfo))
+                {
+                    stitchesToDecrease.Add(stitchInfo);
+                    Debug.Log("added stitch to the right");
+                }
+            }
+
+            if (!rightDirection && !hasExecutedThisFrame)
+            {
+                stitchesToDecrease.Remove(stitchesToDecrease.Last());
+                hasExecutedThisFrame = true;
+            }
+        }
+
+        if (stitchInfo.corners[3] == stitchesToDecrease.Last().corners[0])
+        {
+            if (stitchesToDecrease.Count == 1)
+            {
+                rightDirection = false;
+            }
+            if (rightDirection && !hasExecutedThisFrame)
+            {
+                stitchesToDecrease.Remove(stitchesToDecrease.Last());
+                hasExecutedThisFrame = true;
+            }
+
+            if (!rightDirection)
+            {
+                if(!stitchesToDecrease.Contains(stitchInfo))
+                {
+                    stitchesToDecrease.Add(stitchInfo);
+                    Debug.Log("added stitch to the left");
+                }
+            }
+        }
+        Debug.Log(stitchesToDecrease.Count);
+    }
+
     public override void MainAction()
     {
         var cachedIndex = _mouseDragger.HoveredStitchIndex;
-        if (cachedIndex >= 0 && cachedIndex < FabricManager.AllStitches.Count)
+        toolActivated = true;
+        /*if (cachedIndex >= 0 && cachedIndex < FabricManager.AllStitches.Count)
         {
             var stitchInfo = FabricManager.AllStitches[cachedIndex];
             var bottomLeft = stitchInfo.bottomLeft;
@@ -103,12 +181,19 @@ public class Decreaser : Tool
             }
 
             stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
-        }
+        }*/
 
         FabricManager.InvokeUpdateSimulation();
-     
+
+        stitchesToDecrease = new List<StitchInfo>();
+        stitchesToDecrease.Add(FabricManager.AllStitches[cachedIndex]);
+
     }
-    
+
+    public override void MainActionEnd()
+    {
+        toolActivated = false;
+    }
 }
 
 public class PanelStamp : Tool
