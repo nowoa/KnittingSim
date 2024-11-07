@@ -58,6 +58,7 @@ public class FabricManager
         {
             s.SetSize(new Vector2(_parent.StitchTemplate.width, _parent.StitchTemplate.height));
         }
+        Stretch();
     }
 
     public PanelInfo GetPanelInfo(string key)

@@ -22,6 +22,8 @@ public abstract class Tool
         {
             _mouseDragger.UpdateHoverStitch();
         }
+        
+        
     }
 
     public virtual void MainAction()
@@ -50,7 +52,10 @@ public class Dragger : Tool
     public override void MainAction()
     {
         _mouseDragger.UpdateSelected();
-        Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
+        if (_mouseDragger.SelectedChildIndex >= 0 && _mouseDragger.SelectedChildIndex < FabricManager.AllNodes.Count)
+        {
+            Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
+        }
     }
 
     public override void MainActionEnd()
@@ -87,17 +92,20 @@ public class Decreaser : Tool
     public override void MainAction()
     {
         var cachedIndex = _mouseDragger.HoveredStitchIndex;
-        var stitchInfo = FabricManager.AllStitches[cachedIndex];
-        var bottomLeft = stitchInfo.bottomLeft;
-
-        if (bottomLeft.NodeLeft != null)
+        if (cachedIndex >= 0 && cachedIndex < FabricManager.AllStitches.Count)
         {
-            bottomLeft.NodeLeft.RemoveBendEdge(false);
+            var stitchInfo = FabricManager.AllStitches[cachedIndex];
+            var bottomLeft = stitchInfo.bottomLeft;
+
+            if (bottomLeft.NodeLeft != null)
+            {
+                bottomLeft.NodeLeft.RemoveBendEdge(false);
+            }
+
+            stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
         }
 
-        stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
-            
-            FabricManager.InvokeUpdateSimulation();
+        FabricManager.InvokeUpdateSimulation();
      
     }
     

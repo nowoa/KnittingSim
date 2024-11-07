@@ -73,7 +73,7 @@ public class StitchInfo
         {
             corners[3].RemoveStructuralEdge(true);
             corners[3].RemoveBendEdge(true);
-            corners[3].NodeBelow.RemoveBendEdge(true);
+            corners[3].NodeBelow?.RemoveBendEdge(true);
 
             corners[3].SetNodeAbove(null);
             corners[2].SetNodeBelow(null);
@@ -84,7 +84,7 @@ public class StitchInfo
         {
             corners[0].RemoveStructuralEdge(true); //bottom left
             corners[0].RemoveBendEdge(true);
-            corners[0].NodeBelow.RemoveBendEdge(true);
+            corners[0].NodeBelow?.RemoveBendEdge(true);
 
             corners[0].SetNodeAbove(null);
             corners[1].SetNodeBelow(null);
@@ -104,7 +104,8 @@ public class StitchInfo
             corners[2].SetNodeLeft(null);
         }
 
-        if (corners[0].NodeBelow.ShearEdgeUp==null || corners[0].NodeBelow==null) //bottom left
+        
+        if (corners[0].NodeBelow == null || corners[0].NodeBelow?.ShearEdgeUp == null) // Safely check ShearEdgeUp if NodeBelow is not null
         {
             corners[0].RemoveStructuralEdge(false);
             corners[0].RemoveBendEdge(false);
@@ -166,14 +167,40 @@ public class StitchInfo
         }
         
         
-        
-        
         var nodeLeft = startPos.NodeLeft;
         
-        if (nodeLeft == null || startPos.NodeRight == null || startPos.NodeRight.NodeAbove == null || 
-            nodeLeft.NodeBelow == null || startPos.Parent == null || nodeLeft.Parent == null)
+        if (nodeLeft == null)
         {
-            Debug.Log("one of the needed nodes is null!");
+            Debug.Log("nodeLeft is null!");
+        }
+        if (startPos.NodeRight == null)
+        {
+            Debug.Log("startPos.NodeRight is null!");
+        }
+        else if (startPos.NodeRight.NodeAbove == null)
+        {
+            Debug.Log("startPos.NodeRight.NodeAbove is null!");
+        }
+        
+        if (nodeLeft.NodeBelow == null)
+        {
+            Debug.Log("nodeLeft.NodeBelow is null!");
+        }
+
+        if (startPos?.Parent == null)
+        {
+            Debug.Log("startPos.Parent is null!");
+        }
+
+        if (nodeLeft?.Parent == null)
+        {
+            Debug.Log("nodeLeft.Parent is null!");
+        }
+
+// Early return if any of the required nodes are null
+        if (startPos.NodeRight == null || startPos.NodeRight.NodeAbove == null || startPos.Parent == null || nodeLeft.Parent == null)
+        {
+            Debug.Log("One or more of the required nodes are null, aborting operation.");
             return;
         }
 
