@@ -22,6 +22,8 @@ public class FabricManager
     private bool _isCircular;
     private VerletNode _closestNode;
     public static event Action UpdateSimulation;
+    public static List<VerletNode> AllNodes = new();
+    public static List<StitchInfo> AllStitches = new();
 
     public static void InvokeUpdateSimulation()
     {
@@ -35,33 +37,28 @@ public class FabricManager
     public FabricManager(GarmentGenerator parent)
     {
         _parent = parent;
+        ClearPreviousData();
+    }
+
+    private void ClearPreviousData()
+    {
+        AllStitches.Clear();
+        AllNodes.Clear();
     }
 
     public void MakePanel(string myPanelName, int myPanelWidth, int myPanelHeight, bool myIsCircular)
     {
-        _stitchInfos = new List<StitchInfo>(GetStitchInfos(new Vector2Int(myPanelWidth, myPanelHeight)));
-        List<VerletNode> nodes = InitNodes(_stitchInfos);
-        var thisPanelInfo = new PanelInfo(nodes, myPanelWidth, myPanelHeight, myIsCircular);
+        List<VerletNode> nodes = InitNodes(new Vector2Int(myPanelWidth+1,myPanelHeight+1));
+        var thisPanelInfo = new PanelInfo(nodes, myPanelWidth+1, myPanelHeight+1, myIsCircular);
         _panelDictionary[myPanelName] = thisPanelInfo;
         Connect(myPanelName);
         _sim = new VerletSimulator(GetAllNodes());
-        AllNodes = GetAllNodes();//needs to be updated any time the list of nodes is changed
         UpdateSimulation += OnSimulationUpdate;
-    }
-    
-    private List<StitchInfo> GetStitchInfos(Vector2Int myDimensions)
-    {
-        List<StitchInfo> stitchInfoList = new List<StitchInfo>();
-        
-        for (int i = 0; i < myDimensions.y; i++)
+        foreach (var s in AllStitches)
         {
-            for (int u = 0; u < myDimensions.x; u++)
-            {
-                StitchInfo stitch = new StitchInfo(u,i);
-                stitchInfoList.Add(stitch);
-            }
+            s.SetSize(new Vector2(_parent.StitchTemplate.width, _parent.StitchTemplate.height));
         }
-        return stitchInfoList;
+        Stretch();
     }
 
     public PanelInfo GetPanelInfo(string key)
@@ -79,13 +76,16 @@ public class FabricManager
         NodeConnector.ConnectSeams(_seamDictionary[key1], _seamDictionary[key2]);
     }
 
-    private List<VerletNode> InitNodes(List<StitchInfo> myStitchInfos)
+    private List<VerletNode> InitNodes(Vector2Int myDimensions)
     {
         var nodes = new List<VerletNode>();
-        for (int i = 0; i < myStitchInfos.Count; i++)
+        for (int y = 0; y < myDimensions.y; y++)
         {
-            var newNode = new VerletNode(Random.insideUnitSphere);
-            nodes.Add(newNode);
+            for (int x = 0; x < myDimensions.x; x++)
+            {
+                VerletNode node = new VerletNode(Random.insideUnitSphere);
+                nodes.Add(node);
+            }
         }
 
         return nodes;
@@ -125,7 +125,6 @@ public class FabricManager
         _panelDictionary[myPanelName].Nodes[index].IsAnchored = true;
     }
 
-    public static List<VerletNode> AllNodes;
 
     //get all nodes
     public List<VerletNode> GetAllNodes()
@@ -182,6 +181,28 @@ public class FabricManager
         node.IsAnchored = true;
         node.AnchoredPos = myPosition;
     }
+    
+    public void Stretch()
+    {
+        foreach (var panel in _panelDictionary.Values)
+        {
+            panel.Nodes[0].IsAnchored = true;
+            panel.Nodes[0].AnchoredPos = new Vector3(-0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), -0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes[panel.Width-1].IsAnchored = true;
+            panel.Nodes[panel.Width-1].AnchoredPos =
+                new Vector3(0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), -0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes[^panel.Width].IsAnchored = true;
+            panel.Nodes[^panel.Width].AnchoredPos =
+                new Vector3(-0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f), 0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+            panel.Nodes.Last().IsAnchored = true;
+            panel.Nodes.Last().AnchoredPos = new Vector3(0.5f*((panel.Width) * _parent.StitchTemplate.width * 1.5f),
+                0.5f*((panel.Height) * _parent.StitchTemplate.height * 1.5f), 0);
+            
+        }
+    }
 
     public void FixedUpdate()
     {
@@ -195,7 +216,7 @@ public class FabricManager
 
         if (_simConnected != null)
         {
-            _simConnected.Simulate(5, Time.fixedDeltaTime);
+            _simConnected.Simulate(3, Time.fixedDeltaTime);
         }
 
         if (_sim != null)
@@ -210,6 +231,16 @@ public class FabricManager
 
             _sim.Simulate(2, Time.fixedDeltaTime);
         }
+        
+        //update stitch position
+        foreach (var stitch in AllStitches)
+        {
+            if (stitch.corners.Any(item => item != null))
+            {
+                stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
+            }
+        }
+        
     }
 
     public void DrawGizmos()
@@ -227,6 +258,18 @@ public class FabricManager
         if (_mouseDragger.HoveredChildIndex != -1)
         {
             Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].Position, 0.1f);
+        }
+        
+        if (_mouseDragger.HoveredStitchIndex != -1 && !AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
+        {
+            Gizmos.color=Color.red;
+            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);
+            Gizmos.color=Color.yellow;
+            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[1].Position, 0.05f);
+            Gizmos.color=Color.green;
+            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[2].Position, 0.05f);
+            Gizmos.color=Color.blue;
+            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[3].Position, 0.05f);
         }
         if (_sim != null)
         {

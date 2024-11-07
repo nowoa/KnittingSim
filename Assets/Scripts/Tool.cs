@@ -17,6 +17,13 @@ public abstract class Tool
         {
             _mouseDragger.UpdateHover(FabricManager.AllNodes);
         }
+
+        if (FabricManager.AllStitches != null)
+        {
+            _mouseDragger.UpdateHoverStitch();
+        }
+        
+        
     }
 
     public virtual void MainAction()
@@ -45,6 +52,10 @@ public class Dragger : Tool
     public override void MainAction()
     {
         _mouseDragger.UpdateSelected();
+        if (_mouseDragger.SelectedChildIndex >= 0 && _mouseDragger.SelectedChildIndex < FabricManager.AllNodes.Count)
+        {
+            Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
+        }
     }
 
     public override void MainActionEnd()
@@ -73,10 +84,31 @@ public class StitchBrush : Tool
 
 public class Increaser : Tool
 {
+    
 }
 
 public class Decreaser : Tool
 {
+    public override void MainAction()
+    {
+        var cachedIndex = _mouseDragger.HoveredStitchIndex;
+        if (cachedIndex >= 0 && cachedIndex < FabricManager.AllStitches.Count)
+        {
+            var stitchInfo = FabricManager.AllStitches[cachedIndex];
+            var bottomLeft = stitchInfo.bottomLeft;
+
+            if (bottomLeft.NodeLeft != null)
+            {
+                bottomLeft.NodeLeft.RemoveBendEdge(false);
+            }
+
+            stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
+        }
+
+        FabricManager.InvokeUpdateSimulation();
+     
+    }
+    
 }
 
 public class PanelStamp : Tool
@@ -95,7 +127,7 @@ public class Knife : Tool
         base.DefaultBehavior();
         if (isCutting)
         {
-            var cachedIndex = _mouseDragger.HoveredChildIndex;
+            var cachedIndex = _mouseDragger.HoveredStitchIndex;
             if (cachedIndex != -1)
             {
                 Cut(cachedIndex);
@@ -105,7 +137,7 @@ public class Knife : Tool
 
     public override void MainAction()
     {
-        var cachedIndex = _mouseDragger.HoveredChildIndex;
+        var cachedIndex = _mouseDragger.HoveredStitchIndex;
         Cut(cachedIndex);
         isCutting = true;
     }
@@ -117,18 +149,9 @@ public class Knife : Tool
         {
             return;
         }
-        FabricManager.AllNodes[myIndex].RemoveAllEdges();
-        var verletNode = FabricManager.AllNodes[myIndex].NodeRight;
-        if (verletNode != null)
-        {
-            verletNode.RemoveBendEdge(true);
-        }
 
-        if (FabricManager.AllNodes[myIndex].NodesAbove.Count > 0)
-        {
-            FabricManager.AllNodes[myIndex].NodesAbove.Last().RemoveBendEdge(false);
-        }
-        FabricManager.AllNodes.RemoveAt(myIndex);
+        FabricManager.AllStitches[myIndex].RemoveStitch();
+        //TO DO: if node doesnt have any edges anymore, remove node
         FabricManager.InvokeUpdateSimulation();
     }
 

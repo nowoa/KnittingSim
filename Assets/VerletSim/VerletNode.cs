@@ -1,37 +1,55 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static Verlet.VerletNode.EdgeType;
 
 
 namespace Verlet
 {
-
     public class VerletNode
     {
         #region private variables
         
         private List<VerletEdge> _connection;
-        private List<VerletNode> _nodesAbove;
-        private List<VerletNode> _nodesBelow;
+        private VerletNode _nodeAbove;
+        private VerletNode _nodeBelow;
         private VerletNode _nodeLeft;
         private VerletNode _nodeRight;
         private VerletEdge _bendEdgeHorizontal;
         private VerletEdge _bendEdgeVertical;
+        private VerletEdge _shearEdgeUp;
+        private VerletEdge _shearEdgeDown;
+        private VerletEdge _edgeUp;
+        private VerletEdge _edgeRight;
+        private StitchInfo _parent;
         private Vector3 Prev;
+        
 
         #endregion
 
         #region access givers
 
         public List<VerletEdge> Connection => _connection;
-        public List<VerletNode> NodesAbove => _nodesAbove;
-        public List<VerletNode> NodesBelow => _nodesBelow;
+        public VerletNode NodeAbove => _nodeAbove;
+        public VerletNode NodeBelow => _nodeBelow;
         public VerletNode NodeLeft => _nodeLeft;
         public VerletNode NodeRight => _nodeRight;
         public VerletEdge BendEdgeHorizontal => _bendEdgeHorizontal;
         public VerletEdge BendEdgeVertical => _bendEdgeVertical;
+        public VerletEdge ShearEdgeUp => _shearEdgeUp;
+        public VerletEdge ShearEdgeDown => _shearEdgeDown;
+        public VerletEdge EdgeUp => _edgeUp;
+        public VerletEdge EdgeRight => _edgeRight;
+        public StitchInfo Parent => _parent;
+        public enum EdgeType
+        {
+            Structural,
+            Bend,
+            Shear
+        }
 
         #endregion
         
@@ -43,8 +61,6 @@ namespace Verlet
         {
             Position = Prev = p;
             _connection = new List<VerletEdge>();
-            _nodesAbove = new List<VerletNode>();
-            _nodesBelow = new List<VerletNode>();
         }
 
         public void Step()
@@ -60,14 +76,14 @@ namespace Verlet
             _connection.Add(e);
         }
 
-        public void AddNodeAbove(VerletNode n)
+        public void SetNodeAbove(VerletNode n)
         {
-            _nodesAbove.Add(n);
+            _nodeAbove = n;
         }
 
-        public void AddNodeBelow(VerletNode n)
+        public void SetNodeBelow(VerletNode n)
         {
-            _nodesBelow.Add(n);
+            _nodeBelow = n;
         }
 
         public void SetNodeLeft(VerletNode n)
@@ -80,42 +96,76 @@ namespace Verlet
             _nodeRight = n;
         }
 
-        public void SetHorizontalBendEdge(VerletEdge e)
+        public void SetParentStitch(StitchInfo parent)
         {
-            _bendEdgeHorizontal = e;
+            _parent = parent;
         }
 
-        public void SetVerticalBendEdge(VerletEdge e)
+        public void SetBendEdge(VerletEdge edge, bool up)
         {
-            _bendEdgeVertical = e;
+            if (up)
+                _bendEdgeVertical = edge;
+            else
+                _bendEdgeHorizontal = edge;
         }
-        
+
+        public void SetShearEdge(VerletEdge edge, bool up)
+        {
+            if (up)
+                _shearEdgeUp = edge;
+            else
+                _shearEdgeDown = edge;
+        }
+
+        public void SetStructuralEdge(VerletEdge edge, bool up)
+        {
+            if (up)
+                _edgeUp = edge;
+            else
+                _edgeRight = edge;
+        }
+
+        public void RemoveBendEdge(bool up)
+        {
+            var edgeToRemove = up ? _bendEdgeVertical : _bendEdgeHorizontal;
+            if (edgeToRemove != null)
+            {
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _bendEdgeVertical = null;
+                else _bendEdgeHorizontal = null;
+            }
+        }
+
+        public void RemoveShearEdge(bool up)
+        {
+            var edgeToRemove = up ? _shearEdgeUp : _shearEdgeDown;
+            if (edgeToRemove != null)
+            {
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _shearEdgeUp = null;
+                else _shearEdgeDown = null;
+            }
+        }
+
+        public void RemoveStructuralEdge(bool up)
+        {
+            var edgeToRemove = up ? _edgeUp : _edgeRight;
+            if (edgeToRemove != null)
+            {
+                edgeToRemove.Other(this).Connection.Remove(edgeToRemove);
+                _connection.Remove(edgeToRemove);
+                if (up) _edgeUp = null;
+                else _edgeRight = null;
+            }
+        }
         public void RemoveAllEdges()
         {
             foreach (var edge in new List<VerletEdge>(_connection))
             {
                 edge.Other(this).Connection.Remove(edge);
                 _connection.Remove(edge);
-            }
-        }
-
-        public void RemoveBendEdge(bool horizontal)
-        {
-            if (horizontal)
-            {
-                if (_bendEdgeHorizontal != null)
-                {
-                    _bendEdgeHorizontal.Other(this).Connection.Remove(_bendEdgeHorizontal);
-                    _connection.Remove(_bendEdgeHorizontal);
-                }
-            }
-            else
-            {
-                if (_bendEdgeVertical != null)
-                {
-                    _bendEdgeVertical.Other(this).Connection.Remove(_bendEdgeVertical);
-                    _connection.Remove(_bendEdgeVertical);
-                }
             }
         }
     }

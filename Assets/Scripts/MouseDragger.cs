@@ -21,9 +21,12 @@ public class MouseDragger
     }
     
     private float _hoveredChildDepth;
+    private float _hoveredStitchDepth;
     public int HoveredChildIndex;
+    public int HoveredStitchIndex;
     private Camera _camera;
     public int SelectedChildIndex =-1;
+    public int SelectedStitchIndex = -1;
   
     
     private MouseDragger()
@@ -57,6 +60,34 @@ public class MouseDragger
         }
     }
 
+    public void UpdateHoverStitch()
+    {
+        var stitches = FabricManager.AllStitches;
+        if (SelectedStitchIndex != -1)
+        {
+            return;
+        }
+
+        HoveredStitchIndex = -1;
+        const float selectionRadius = 0.05f;
+        Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
+        float shortestDistance = float.MaxValue;
+        for (var i = 0; i < stitches.Count; i++)
+        {
+            var c = stitches[i];
+            Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
+            Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
+            var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
+            if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
+            {
+                HoveredStitchIndex = i;
+                _hoveredStitchDepth = screenPoint.z;
+                shortestDistance = distanceToMouse;
+
+            }
+        }
+    }
+
     public void UpdateSelected()
     {
         SelectedChildIndex = HoveredChildIndex;
@@ -76,6 +107,7 @@ public class MouseDragger
         Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _hoveredChildDepth);
         return _camera.ScreenToWorldPoint(mousePositionWithDepth);
     }
+    
     public Vector3 MouseToWorldPos(Vector3 myMousePos)
     {
         return _camera.ScreenToWorldPoint(myMousePos);
