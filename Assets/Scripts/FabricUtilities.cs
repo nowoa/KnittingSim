@@ -132,6 +132,26 @@ public class StitchInfo
         _isInactive = true;
     }
 
+    public void OverlapStitches(VerletNode startPos, StitchInfo myStitchInfo)
+    {
+        //overlap two stitches above (only first iteration)
+        if (startPos.NodeLeft != null)
+        {
+            var overlapStitchRight = myStitchInfo.corners[1].Parent;
+            var overlapStitchLeft = overlapStitchRight.corners[0].NodeLeft.Parent;
+            overlapStitchRight.corners[0].RemoveAllEdges();
+            var overlapLeft = overlapStitchRight.corners[0].NodeLeft;
+            var overlapRight = overlapStitchRight.corners[3];
+            VerletEdge.ConnectNodes(overlapLeft,overlapRight,overlapStitchRight.width);
+            overlapStitchRight.UpdateCorners(overlapLeft,0);
+            overlapLeft.Parent.UpdateCorners(overlapRight,3);
+            VerletEdge.ConnectNodes(overlapStitchLeft.corners[2],overlapStitchLeft.corners[3],overlapStitchLeft.height);
+            VerletEdge.ConnectNodes(overlapStitchRight.corners[0],overlapStitchRight.corners[1],overlapStitchRight.height);
+        }
+        
+        DecreaseColumn(startPos,myStitchInfo);
+
+    }
     public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
     {
         if (startPos.NodeLeft == null && startPos.NodeRight.NodeRight == null)
@@ -150,6 +170,10 @@ public class StitchInfo
             FabricManager.AllStitches.Remove(myStitchInfo);
             return;
         }
+        
+        
+        
+        
         var nodeLeft = startPos.NodeLeft;
         
         if (nodeLeft == null || startPos.NodeRight == null || startPos.NodeRight.NodesAbove.Count==0 || 

@@ -95,7 +95,7 @@ public class Decreaser : Tool
             bottomLeft.NodeLeft.RemoveBendEdge(false);
         }
 
-        stitchInfo.DecreaseColumn(bottomLeft, stitchInfo);
+        stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
             
             FabricManager.InvokeUpdateSimulation();
      
