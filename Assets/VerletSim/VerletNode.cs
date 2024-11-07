@@ -14,8 +14,8 @@ namespace Verlet
         #region private variables
         
         private List<VerletEdge> _connection;
-        private List<VerletNode> _nodesAbove;
-        private List<VerletNode> _nodesBelow;
+        private VerletNode _nodeAbove;
+        private VerletNode _nodeBelow;
         private VerletNode _nodeLeft;
         private VerletNode _nodeRight;
         private VerletEdge _bendEdgeHorizontal;
@@ -33,8 +33,8 @@ namespace Verlet
         #region access givers
 
         public List<VerletEdge> Connection => _connection;
-        public List<VerletNode> NodesAbove => _nodesAbove;
-        public List<VerletNode> NodesBelow => _nodesBelow;
+        public VerletNode NodeAbove => _nodeAbove;
+        public VerletNode NodeBelow => _nodeBelow;
         public VerletNode NodeLeft => _nodeLeft;
         public VerletNode NodeRight => _nodeRight;
         public VerletEdge BendEdgeHorizontal => _bendEdgeHorizontal;
@@ -61,8 +61,6 @@ namespace Verlet
         {
             Position = Prev = p;
             _connection = new List<VerletEdge>();
-            _nodesAbove = new List<VerletNode>();
-            _nodesBelow = new List<VerletNode>();
         }
 
         public void Step()
@@ -78,14 +76,14 @@ namespace Verlet
             _connection.Add(e);
         }
 
-        public void AddNodeAbove(VerletNode n)
+        public void SetNodeAbove(VerletNode n)
         {
-            _nodesAbove.Add(n);
+            _nodeAbove = n;
         }
 
-        public void AddNodeBelow(VerletNode n)
+        public void SetNodeBelow(VerletNode n)
         {
-            _nodesBelow.Add(n);
+            _nodeBelow = n;
         }
 
         public void SetNodeLeft(VerletNode n)

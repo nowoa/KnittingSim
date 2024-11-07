@@ -73,13 +73,10 @@ public class StitchInfo
         {
             corners[3].RemoveStructuralEdge(true);
             corners[3].RemoveBendEdge(true);
-            foreach (var n in corners[3].NodesBelow)
-            {
-                n.RemoveBendEdge(true);
-            }
+            corners[3].NodeBelow.RemoveBendEdge(true);
 
-            corners[3].NodesAbove.Clear();
-            corners[2].NodesBelow.Clear();
+            corners[3].SetNodeAbove(null);
+            corners[2].SetNodeBelow(null);
         }
 
         var verletNode = corners[0].NodeLeft; //bottom left
@@ -87,13 +84,10 @@ public class StitchInfo
         {
             corners[0].RemoveStructuralEdge(true); //bottom left
             corners[0].RemoveBendEdge(true);
-            foreach (var n in corners[0].NodesBelow)
-            {
-                n.RemoveBendEdge(true);
-            }
+            corners[0].NodeBelow.RemoveBendEdge(true);
 
-            corners[0].NodesAbove.Clear();
-            corners[1].NodesBelow.Clear();
+            corners[0].SetNodeAbove(null);
+            corners[1].SetNodeBelow(null);
         }
 
         if (corners[1].ShearEdgeUp == null) //top left
@@ -110,7 +104,7 @@ public class StitchInfo
             corners[2].SetNodeLeft(null);
         }
 
-        if (corners[0].NodesBelow.Any(n => n.ShearEdgeUp == null) || corners[0].NodesBelow.Count == 0) //bottom left
+        if (corners[0].NodeBelow.ShearEdgeUp==null || corners[0].NodeBelow==null) //bottom left
         {
             corners[0].RemoveStructuralEdge(false);
             corners[0].RemoveBendEdge(false);
@@ -162,9 +156,9 @@ public class StitchInfo
         {
             startPos.RemoveAllEdges();
             startPos.NodeRight.SetNodeLeft(null);
-            if (startPos.NodesBelow.Count>0)
+            if (startPos.NodeBelow !=null)
             {
-                DecreaseColumn(startPos.NodesBelow.Last(), startPos.NodesBelow.Last().Parent);
+                DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
             }
             FabricManager.AllNodes.Remove(startPos);
             FabricManager.AllStitches.Remove(myStitchInfo);
@@ -176,8 +170,8 @@ public class StitchInfo
         
         var nodeLeft = startPos.NodeLeft;
         
-        if (nodeLeft == null || startPos.NodeRight == null || startPos.NodeRight.NodesAbove.Count==0 || 
-            nodeLeft.NodesAbove.Count==0 || startPos.Parent == null || nodeLeft.Parent == null)
+        if (nodeLeft == null || startPos.NodeRight == null || startPos.NodeRight.NodeAbove == null || 
+            nodeLeft.NodeBelow == null || startPos.Parent == null || nodeLeft.Parent == null)
         {
             Debug.Log("one of the needed nodes is null!");
             return;
@@ -189,23 +183,23 @@ public class StitchInfo
         VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight, myStitchInfo.width);
         nodeLeft.SetStructuralEdge(nodeLeft.Connection.Last(),false);
         
-        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight.NodesAbove.Last(),
+        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight.NodeAbove,
             Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
        nodeLeft.SetShearEdge(nodeLeft.Connection.Last(), true);
         
-        VerletEdge.ConnectNodes(nodeLeft.NodesAbove.Last(), startPos.NodeRight,
+        VerletEdge.ConnectNodes(nodeLeft.NodeAbove, startPos.NodeRight,
             Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
-        nodeLeft.NodesAbove.Last().SetShearEdge(nodeLeft.NodesAbove.Last().Connection.Last(),false);
+        nodeLeft.NodeAbove.SetShearEdge(nodeLeft.NodeAbove.Connection.Last(),false);
         
         nodeLeft.Parent.UpdateCorners(startPos.NodeRight, 3);
-        nodeLeft.Parent.UpdateCorners(startPos.NodeRight.NodesAbove.Last(),2);
+        nodeLeft.Parent.UpdateCorners(startPos.NodeRight.NodeAbove,2);
         nodeLeft.SetNodeRight(startPos.NodeRight);
         startPos.NodeRight.SetNodeLeft(nodeLeft);
         
-        if (startPos.NodesBelow.Count > 0)
+        if (startPos.NodeBelow !=null)
         {
             /*await Task.Delay(10);*/
-            DecreaseColumn(startPos.NodesBelow.Last(), startPos.NodesBelow.Last().Parent);
+            DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
             FabricManager.AllNodes.Remove(startPos);
             FabricManager.AllStitches.Remove(myStitchInfo);
         } 

@@ -25,8 +25,8 @@ public static class NodeConnector
             if (upIndex.IsInRangeOf(myNodes)) //structural vertical
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[upIndex],myStitchTemplate.height);
-                myNodes[i].AddNodeAbove(myNodes[upIndex]);
-                myNodes[upIndex].AddNodeBelow(myNodes[i]);
+                myNodes[i].SetNodeAbove(myNodes[upIndex]);
+                myNodes[upIndex].SetNodeBelow(myNodes[i]);
                 myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(),true);
             }
 
