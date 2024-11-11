@@ -208,16 +208,14 @@ public class FabricManager
     {
         if (_mouseDragger.SelectedChildIndex != -1)
         {
-            GetConnectedNodes();
             AllNodes[_mouseDragger.SelectedChildIndex].Position = _mouseDragger.GetTargetPos();
             AllNodes[_mouseDragger.SelectedChildIndex].AnchoredPos = _mouseDragger.GetTargetPos();
-
         }
 
-        if (_simConnected != null)
+        /*if (_simConnected != null)
         {
             _simConnected.Simulate(3, Time.fixedDeltaTime);
-        }
+        }*/
 
         if (_sim != null)
         {
