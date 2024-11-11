@@ -27,7 +27,7 @@ public static class NodeConnector
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[upIndex],myStitchTemplate.height);
                 myNodes[i].SetNodeAbove(myNodes[upIndex]);
                 myNodes[upIndex].SetNodeBelow(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetStructuralEdge(true);
             }
 
             if (!isLastInRow) //structural horizontal
@@ -35,30 +35,30 @@ public static class NodeConnector
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[rightIndex],myStitchTemplate.width);
                 myNodes[i].SetNodeRight(myNodes[rightIndex]);
                 myNodes[rightIndex].SetNodeLeft(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetStructuralEdge(false);
             }
             
             if(!isLastInRow && diagonalRightDownIndex.IsInRangeOf(myNodes)) //shear down
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightDownIndex],diagonalLength);
-                myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetShearEdge(false);
             }
             
             if(bendEdgeRightIndex.IsInRangeOf(myNodes) && !isLastInRow && !isBeforeLastInRow) //bend horizontal
             {
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeRightIndex],myStitchTemplate.width*2);
-                myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetBendEdge(false);
             }
 
             if(bendEdgeUpIndex.IsInRangeOf(myNodes)) //bend vertical
             {
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeUpIndex],myStitchTemplate.height*2);
-                myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetBendEdge(true);
             }
             if(!isLastInRow && diagonalRightUpIndex.IsInRangeOf(myNodes)) //shear up
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightUpIndex],diagonalLength);
-                myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetShearEdge(true);
                 var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                     myNodes[rightIndex]);
                 FabricManager.AllStitches.Add(parentStitch);
@@ -82,25 +82,25 @@ public static class NodeConnector
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[rightIndex],myStitchTemplate.width); //structural horizontal
                 myNodes[i].SetNodeRight(myNodes[rightIndex]);
                 myNodes[rightIndex].SetNodeLeft(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(), false);
+                myNodes[i].SetStructuralEdge(false);
 
                 if((bendEdgeRightIndex).IsInRangeOf(myNodes)) //bend horizontal
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeRightIndex],myStitchTemplate.width*2); 
-                    myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),false);
+                    myNodes[i].SetBendEdge(false);
                 }
                     
                 if ((diagonalRightDownIndex).IsInRangeOf(myNodes)) //shear down
                 {
                     VerletEdge.ConnectNodes(myNodes[i],
                         myNodes[diagonalRightDownIndex],diagonalLength); 
-                    myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),false);
+                    myNodes[i].SetShearEdge(false);
                 }
 
                 if ((diagonalRightUpIndex).IsInRangeOf(myNodes)) //shear up
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[diagonalRightUpIndex],diagonalLength);
-                    myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
+                    myNodes[i].SetShearEdge(true);
                     var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                         myNodes[rightIndex]);
                     FabricManager.AllStitches.Add(parentStitch);

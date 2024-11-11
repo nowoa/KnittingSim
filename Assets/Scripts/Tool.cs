@@ -183,8 +183,6 @@ public class Decreaser : Tool
             stitchInfo.OverlapStitches(bottomLeft, stitchInfo);
         }*/
 
-        FabricManager.InvokeUpdateSimulation();
-
         stitchesToDecrease = new List<StitchInfo>();
         stitchesToDecrease.Add(FabricManager.AllStitches[cachedIndex]);
 
@@ -193,6 +191,8 @@ public class Decreaser : Tool
     public override void MainActionEnd()
     {
         toolActivated = false;
+        StitchInfo.Decrease(stitchesToDecrease,rightDirection);
+        FabricManager.InvokeUpdateSimulation();
     }
 }
 

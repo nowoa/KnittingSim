@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static Verlet.VerletNode.EdgeType;
@@ -101,24 +103,36 @@ namespace Verlet
             _parent = parent;
         }
 
-        public void SetBendEdge(VerletEdge edge, bool up)
+        public void SetBendEdge(bool up,VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
             if (up)
                 _bendEdgeVertical = edge;
             else
                 _bendEdgeHorizontal = edge;
         }
 
-        public void SetShearEdge(VerletEdge edge, bool up)
+        public void SetShearEdge(bool up, VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
             if (up)
                 _shearEdgeUp = edge;
             else
                 _shearEdgeDown = edge;
         }
 
-        public void SetStructuralEdge(VerletEdge edge, bool up)
+        public void SetStructuralEdge(bool up, VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
             if (up)
                 _edgeUp = edge;
             else
