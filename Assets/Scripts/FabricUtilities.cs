@@ -257,7 +257,18 @@ public class StitchInfo
             _firstDecrease.corners[3].SetStructuralEdge(true);
             VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[1],targetStitch.height);
             
-            //TO DO: shear edges
+            VerletEdge.ConnectNodes(_firstDecrease.corners[0],_firstDecrease.corners[2],Calculation.CalculateDiagonal(_firstDecrease.width,_firstDecrease.height));
+            _firstDecrease.corners[0].SetShearEdge(true);
+            
+            VerletEdge.ConnectNodes(_firstDecrease.corners[1],_firstDecrease.corners[3],Calculation.CalculateDiagonal(_firstDecrease.width, _firstDecrease.height));
+            _firstDecrease.corners[1].SetShearEdge(false);
+            
+            VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+            targetStitch.corners[0].SetShearEdge(true);
+            
+            VerletEdge.ConnectNodes(targetStitch.corners[1],targetStitch.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+            targetStitch.corners[1].SetShearEdge(false);
+            
             
             ConnectColumns(left.NodeBelow,right.NodeBelow);
         }
@@ -267,6 +278,10 @@ public class StitchInfo
             VerletEdge.ConnectNodes(stitchToConnect.corners[2],targetStitch.corners[3],stitchToConnect.height);
             stitchToConnect.UpdateCorners(_firstDecrease.corners[0],0);
             stitchToConnect.UpdateCorners(targetStitch.corners[3],3);
+            VerletEdge.ConnectNodes(stitchToConnect.corners[1],stitchToConnect.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+            stitchToConnect.corners[1].SetShearEdge(false);
+            VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+            
         }
         
         
@@ -282,6 +297,11 @@ public class StitchInfo
         
         VerletEdge.ConnectNodes(left,right.NodeAbove,Calculation.CalculateDiagonal(right.Parent.width,right.Parent.height));
         left.SetShearEdge(true);
+        
+        VerletEdge.ConnectNodes(left.NodeLeft,right,left.Parent.width*2);
+        left.NodeLeft.SetBendEdge(false);
+        VerletEdge.ConnectNodes(left,right.NodeRight,left.Parent.width*2);
+        left.SetBendEdge(false);
         
         left.Parent.UpdateCorners(right.NodeAbove, 2);
         left.Parent.UpdateCorners(right,3);
@@ -309,6 +329,13 @@ public class StitchInfo
             if (!_firstDecreaseBool)
             {
                 _firstDecreaseBool = true;
+            }
+
+            if (myStitches.Count > 2 && i<myStitches.Count-2)
+            {
+                Debug.Log("bend edge connected");
+                VerletEdge.ConnectNodes(myStitches[i].corners[1],myStitches[i+2].corners[1], myStitches[i].width*3);
+                myStitches[i].corners[1].SetBendEdge(false);
             }
         }
         FabricManager.InvokeUpdateSimulation();
