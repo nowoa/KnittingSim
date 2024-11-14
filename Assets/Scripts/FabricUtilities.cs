@@ -129,117 +129,48 @@ public class StitchInfo
         _isInactive = true;
     }
 
-    public void OverlapStitches(VerletNode startPos, StitchInfo myStitchInfo)
+    public static void Decrease(List<StitchInfo> myStitches, bool myDirection)
     {
-        //overlap two stitches above (only first iteration)
-        if (startPos.NodeLeft != null)
-        {
-            var overlapStitchRight = myStitchInfo.corners[1].Parent;
-            var overlapStitchLeft = overlapStitchRight.corners[0].NodeLeft.Parent;
-            overlapStitchRight.corners[0].RemoveAllEdges();
-            var overlapLeft = overlapStitchRight.corners[0].NodeLeft;
-            var overlapRight = overlapStitchRight.corners[3];
-            VerletEdge.ConnectNodes(overlapLeft,overlapRight,overlapStitchRight.width);
-            overlapStitchRight.UpdateCorners(overlapLeft,0);
-            overlapLeft.Parent.UpdateCorners(overlapRight,3);
-            VerletEdge.ConnectNodes(overlapStitchLeft.corners[2],overlapStitchLeft.corners[3],overlapStitchLeft.height);
-            VerletEdge.ConnectNodes(overlapStitchRight.corners[0],overlapStitchRight.corners[1],overlapStitchRight.height);
-        }
-        
-        DecreaseColumn(startPos,myStitchInfo);
-
-    }
-    public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
-    {
-        if (startPos.NodeLeft == null && startPos.NodeRight.NodeRight == null)
+        _firstDecrease = myStitches.First();
+        _firstDecreaseBool = false;
+        var targetStitch = myStitches.Last();
+        if (!myDirection) //TO DO: if going left, decrease logic needs to be inverted
         {
             return;
         }
-        if (startPos.NodeLeft == null) //woah this is like binding off lol
+        for (int i = 0; i < myStitches.Count-1;i++)
         {
-            startPos.RemoveAllEdges();
-            startPos.NodeRight.SetNodeLeft(null);
-            if (startPos.NodeBelow !=null)
+            var node = myStitches[i].corners[3];
+            RemoveColumn(node);
+            ConnectDecreasedStitches(myStitches[i],targetStitch);
+            if (!_firstDecreaseBool)
             {
-                DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
+                _firstDecreaseBool = true;
             }
-            FabricManager.AllNodes.Remove(startPos);
-            FabricManager.AllStitches.Remove(myStitchInfo);
-            return;
-        }
-        
-        var nodeLeft = startPos.NodeLeft;
 
-        #region Null Checks
-
-        if (nodeLeft == null)
-        {
-            Debug.Log("nodeLeft is null!");
+            if (myStitches.Count > 2 && i<myStitches.Count-2 && myStitches[i].corners[1].BendEdgeHorizontal==null)
+            {
+                Debug.Log("bend edge connected");
+                VerletEdge.ConnectNodes(myStitches[i].corners[1],myStitches[i+2].corners[1], myStitches[i].width*3);
+                myStitches[i].corners[1].SetBendEdge(false);
+            }
         }
-        if (startPos.NodeRight == null)
-        {
-            Debug.Log("startPos.NodeRight is null!");
-        }
-        else if (startPos.NodeRight.NodeAbove == null)
-        {
-            Debug.Log("startPos.NodeRight.NodeAbove is null!");
-        }
-        
-        if (nodeLeft.NodeBelow == null)
-        {
-            Debug.Log("nodeLeft.NodeBelow is null!");
-        }
-
-        if (startPos?.Parent == null)
-        {
-            Debug.Log("startPos.Parent is null!");
-        }
-
-        if (nodeLeft?.Parent == null)
-        {
-            Debug.Log("nodeLeft.Parent is null!");
-        }
-
-// Early return if any of the required nodes are null
-        if (startPos.NodeRight == null || startPos.NodeRight.NodeAbove == null || startPos.Parent == null || nodeLeft.Parent == null)
-        {
-            Debug.Log("One or more of the required nodes are null, aborting operation.");
-            return;
-        }
-
-
-
-        #endregion
-       
-        startPos.RemoveAllEdges();
-        
-        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight, myStitchInfo.width);
-        nodeLeft.SetStructuralEdge(false);
-        
-        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight.NodeAbove,
-            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
-       nodeLeft.SetShearEdge(true);
-        
-        VerletEdge.ConnectNodes(nodeLeft.NodeAbove, startPos.NodeRight,
-            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
-        nodeLeft.NodeAbove.SetShearEdge(false);
-        
-        nodeLeft.Parent.UpdateCorners(startPos.NodeRight, 3);
-        nodeLeft.Parent.UpdateCorners(startPos.NodeRight.NodeAbove,2);
-        nodeLeft.SetNodeRight(startPos.NodeRight);
-        startPos.NodeRight.SetNodeLeft(nodeLeft);
-        
-        if (startPos.NodeBelow !=null)
-        {
-            /*await Task.Delay(10);*/
-            DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
-            FabricManager.AllNodes.Remove(startPos);
-            FabricManager.AllStitches.Remove(myStitchInfo);
-        } 
-        FabricManager.AllNodes.Remove(startPos);
-        FabricManager.AllStitches.Remove(myStitchInfo);
+        FabricManager.InvokeUpdateSimulation();
     }
-
+    private static void RemoveColumn(VerletNode myNode, bool remove = false)
+         {
+             myNode.RemoveAllEdges();
+             if (myNode.NodeBelow != null)
+             {
+                 RemoveColumn(myNode.NodeBelow, true); 
+             }
+             FabricManager.AllNodes.Remove(myNode);
+             if (remove)
+             {
+                 FabricManager.AllStitches.Remove(myNode.Parent);
+             }
+     
+         }
     private static void ConnectDecreasedStitches(StitchInfo stitchToConnect, StitchInfo targetStitch)
     {
         var left = _firstDecrease.corners[0];
@@ -284,7 +215,6 @@ public class StitchInfo
         
         
     }
-
     private static void ConnectColumns(VerletNode left, VerletNode right)
     {
         var parent = right.Parent;
@@ -302,17 +232,19 @@ public class StitchInfo
         VerletEdge.ConnectNodes(left,right.NodeAbove,Calculation.CalculateDiagonal(parent.width,parent.height));
         left.SetShearEdge(true);
 
-        if (left.NodeLeft != null)
+        /*if (left.NodeLeft != null && left.NodeLeft.BendEdgeHorizontal==null)
         {
             VerletEdge.ConnectNodes(left.NodeLeft, right, parent.width * 2);
             left.NodeLeft.SetBendEdge(false);
         }
 
-        if (right.NodeRight != null)
+        if (right.NodeRight != null && left.BendEdgeHorizontal==null)
         {
             VerletEdge.ConnectNodes(left, right.NodeRight, parent.width * 2);
             left.SetBendEdge(false);
-        }
+        }*/
+        
+        // TO DO: figure out why the bend edges arent being removed if another decrease is made to the right
         
         left.Parent.UpdateCorners(right.NodeAbove, 2);
         left.Parent.UpdateCorners(right,3);
@@ -323,50 +255,7 @@ public class StitchInfo
         }
     }
 
-    public static void Decrease(List<StitchInfo> myStitches, bool myDirection)
-    {
-        _firstDecrease = myStitches.First();
-        _firstDecreaseBool = false;
-        var targetStitch = myStitches.Last();
-        if (!myDirection) //TO DO: if going left, decrease logic needs to be inverted
-        {
-            return;
-        }
-        for (int i = 0; i < myStitches.Count-1;i++)
-        {
-            var node = myStitches[i].corners[3];
-            RemoveColumn(node);
-            ConnectDecreasedStitches(myStitches[i],targetStitch);
-            if (!_firstDecreaseBool)
-            {
-                _firstDecreaseBool = true;
-            }
-
-            if (myStitches.Count > 2 && i<myStitches.Count-2)
-            {
-                Debug.Log("bend edge connected");
-                VerletEdge.ConnectNodes(myStitches[i].corners[1],myStitches[i+2].corners[1], myStitches[i].width*3);
-                myStitches[i].corners[1].SetBendEdge(false);
-            }
-        }
-        FabricManager.InvokeUpdateSimulation();
-    }
-
-    private static void RemoveColumn(VerletNode myNode, bool remove = false)
-    {
-        myNode.RemoveAllEdges();
-        if (myNode.NodeBelow != null)
-        {
-            RemoveColumn(myNode.NodeBelow, true); 
-        }
-        FabricManager.AllNodes.Remove(myNode);
-        if (remove)
-        {
-            FabricManager.AllStitches.Remove(myNode.Parent);
-        }
-        
-
-    }
+   
     
 }
 
