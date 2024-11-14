@@ -181,6 +181,13 @@ namespace Verlet
                 edge.Other(this).Connection.Remove(edge);
                 _connection.Remove(edge);
             }
+
+            _bendEdgeHorizontal = null;
+            _bendEdgeVertical = null;
+            _shearEdgeDown = null;
+            _shearEdgeUp = null;
+            _edgeUp = null;
+            _edgeRight = null;
         }
     }
 }

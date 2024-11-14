@@ -244,7 +244,6 @@ public class StitchInfo
     {
         var left = _firstDecrease.corners[0];
         var right = targetStitch.corners[3];
-        var shearLeft = stitchToConnect.corners[1];
         if (!_firstDecreaseBool)
         {
             VerletEdge.ConnectNodes(left, right, targetStitch.width);
@@ -253,9 +252,8 @@ public class StitchInfo
             _firstDecrease.UpdateCorners(right,3);
             targetStitch.UpdateCorners(left,0);
             
-            VerletEdge.ConnectNodes(_firstDecrease.corners[2], _firstDecrease.corners[3], targetStitch.height);
-            _firstDecrease.corners[3].SetStructuralEdge(true);
             VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[1],targetStitch.height);
+            targetStitch.corners[0].SetStructuralEdge(true);
             
             VerletEdge.ConnectNodes(_firstDecrease.corners[0],_firstDecrease.corners[2],Calculation.CalculateDiagonal(_firstDecrease.width,_firstDecrease.height));
             _firstDecrease.corners[0].SetShearEdge(true);
@@ -289,19 +287,32 @@ public class StitchInfo
 
     private static void ConnectColumns(VerletNode left, VerletNode right)
     {
-        VerletEdge.ConnectNodes(left,right,right.Parent.width);
+        var parent = right.Parent;
+        if (right.Parent == null)
+        {
+            parent = left.Parent;
+        }
+        
+        VerletEdge.ConnectNodes(left,right,parent.width); // choosing the stitch in which direction the decrease is going, unless it is null
         left.SetStructuralEdge(false);
         
-        VerletEdge.ConnectNodes(left.NodeAbove,right,Calculation.CalculateDiagonal(right.Parent.width,right.Parent.height));
+        VerletEdge.ConnectNodes(left.NodeAbove,right,Calculation.CalculateDiagonal(parent.width,parent.height));
         left.NodeAbove.SetShearEdge(false);
         
-        VerletEdge.ConnectNodes(left,right.NodeAbove,Calculation.CalculateDiagonal(right.Parent.width,right.Parent.height));
+        VerletEdge.ConnectNodes(left,right.NodeAbove,Calculation.CalculateDiagonal(parent.width,parent.height));
         left.SetShearEdge(true);
-        
-        VerletEdge.ConnectNodes(left.NodeLeft,right,left.Parent.width*2);
-        left.NodeLeft.SetBendEdge(false);
-        VerletEdge.ConnectNodes(left,right.NodeRight,left.Parent.width*2);
-        left.SetBendEdge(false);
+
+        if (left.NodeLeft != null)
+        {
+            VerletEdge.ConnectNodes(left.NodeLeft, right, parent.width * 2);
+            left.NodeLeft.SetBendEdge(false);
+        }
+
+        if (right.NodeRight != null)
+        {
+            VerletEdge.ConnectNodes(left, right.NodeRight, parent.width * 2);
+            left.SetBendEdge(false);
+        }
         
         left.Parent.UpdateCorners(right.NodeAbove, 2);
         left.Parent.UpdateCorners(right,3);
