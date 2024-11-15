@@ -24,7 +24,22 @@ public class StitchInfo
     public float height => _height;
     public float width => _width;
     private static StitchInfo _firstDecrease;
-    private static bool _firstDecreaseBool;
+    private static bool _firstDone;
+    private StitchType _stitchType = 0;
+    public StitchType stitchType => _stitchType;
+
+    public enum StitchType
+    {
+        normal,
+        DecreaseFirst,
+        DecreaseMiddle,
+        DecreaseLast,
+        BindOff,
+        CastOn,
+    }
+
+    private bool knit = true;
+    
     public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
@@ -41,8 +56,6 @@ public class StitchInfo
             tr,
             br
         };
-
-        //will hold more information such as stitch type, inc/dec etc
     }
 
     public void SetPosition(Vector3 myPos)
@@ -132,20 +145,21 @@ public class StitchInfo
     public static void Decrease(List<StitchInfo> myStitches, bool myDirection)
     {
         _firstDecrease = myStitches.First();
-        _firstDecreaseBool = false;
+        _firstDone = false;
         var targetStitch = myStitches.Last();
         if (!myDirection) //TO DO: if going left, decrease logic needs to be inverted
         {
             return;
         }
+        
         for (int i = 0; i < myStitches.Count-1;i++)
         {
             var node = myStitches[i].corners[3];
             RemoveColumn(node);
             ConnectDecreasedStitches(myStitches[i],targetStitch);
-            if (!_firstDecreaseBool)
+            if (!_firstDone)
             {
-                _firstDecreaseBool = true;
+                _firstDone = true;
             }
 
             if (myStitches.Count > 2 && i<myStitches.Count-2 && myStitches[i].corners[1].BendEdgeHorizontal==null)
@@ -155,6 +169,9 @@ public class StitchInfo
                 myStitches[i].corners[1].SetBendEdge(false);
             }
         }
+
+        
+        
         FabricManager.InvokeUpdateSimulation();
     }
     private static void RemoveColumn(VerletNode myNode, bool remove = false)
@@ -175,8 +192,10 @@ public class StitchInfo
     {
         var left = _firstDecrease.corners[0];
         var right = targetStitch.corners[3];
-        if (!_firstDecreaseBool)
+        if (!_firstDone)
         {
+            _firstDecrease._stitchType = StitchType.DecreaseFirst;
+            targetStitch._stitchType = StitchType.DecreaseLast;
             VerletEdge.ConnectNodes(left, right, targetStitch.width);
             left.SetStructuralEdge( false);
             
@@ -203,6 +222,7 @@ public class StitchInfo
         }
         else
         {
+            stitchToConnect._stitchType = StitchType.DecreaseMiddle;
             VerletEdge.ConnectNodes(stitchToConnect.corners[1],_firstDecrease.corners[0],stitchToConnect.height);
             VerletEdge.ConnectNodes(stitchToConnect.corners[2],targetStitch.corners[3],stitchToConnect.height);
             stitchToConnect.UpdateCorners(_firstDecrease.corners[0],0);

@@ -3,13 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class FPSCounter : MonoBehaviour
+public class DebuggingText : MonoBehaviour
 {
     public GarmentGenerator GarmentGenerator;
     private int _nodeCount;
     private float _current = 0;
-    public TMP_Text textField;
+    [FormerlySerializedAs("textField")] public TMP_Text fpsTextField;
+    public TMP_Text stitchTypeTextField;
     private int _frameCount;
 
     private float _timer;
@@ -30,10 +32,16 @@ public class FPSCounter : MonoBehaviour
             _current = _frameCount;
             _frameCount = 0;
             _timer -= 1;
-            textField.text = "fps: " + _current.ToString() + " nodes: " + _nodeCount.ToString();
+            fpsTextField.text = "fps: " + _current.ToString() + " nodes: " + _nodeCount.ToString();
             
         }
-        //_current = (int)(1f / Time.unscaledDeltaTime);
+
+        if (MouseDragger.Instance.HoveredStitchIndex >= 0 &&
+            MouseDragger.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        {
+            stitchTypeTextField.text =
+                FabricManager.AllStitches[MouseDragger.Instance.HoveredStitchIndex].stitchType.ToString();
+        }
     }
 
    
