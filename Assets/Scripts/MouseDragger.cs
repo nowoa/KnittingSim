@@ -75,7 +75,7 @@ public class MouseDragger
         for (var i = 0; i < stitches.Count; i++)
         {
             var c = stitches[i];
-            Vector3 screenPoint = _camera.WorldToScreenPoint(c.position);
+            Vector3 screenPoint = _camera.WorldToScreenPoint(c.Position);
             Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
             var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)

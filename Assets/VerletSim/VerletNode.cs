@@ -78,26 +78,6 @@ namespace Verlet
             _connection.Add(e);
         }
 
-        public void SetNodeAbove(VerletNode n)
-        {
-            _nodeAbove = n;
-        }
-
-        public void SetNodeBelow(VerletNode n)
-        {
-            _nodeBelow = n;
-        }
-
-        public void SetNodeLeft(VerletNode n)
-        {
-            _nodeLeft = n;
-        }
-
-        public void SetNodeRight(VerletNode n)
-        {
-            _nodeRight = n;
-        }
-
         public void SetParentStitch(StitchInfo parent)
         {
             _parent = parent;

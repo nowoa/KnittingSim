@@ -11,12 +11,18 @@ using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
 {
-    public VerletNode topLeft { get; }
-    public VerletNode topRight { get; }
-    public VerletNode bottomLeft { get; }
-    public VerletNode bottomRight { get; }
-    private Vector3 _position;
-    public Vector3 position => _position;
+    public VerletNode TopLeft { get; }
+    public VerletNode TopRight { get; }
+    public VerletNode BottomLeft { get; }
+    public VerletNode BottomRight { get; }
+
+    public StitchInfo StitchLeft { get; private set; }
+    public StitchInfo StitchRight { get; private set; }
+    public StitchInfo StitchAbove { get; private set; }
+    public StitchInfo StitchBelow { get; private set; }
+
+    public Vector3 Position { get; private set; }
+
     private float _height;
     private float _width;
     private bool _isInactive = false;
@@ -27,6 +33,7 @@ public class StitchInfo
     private static bool _firstDone;
     private StitchType _stitchType = 0;
     public StitchType stitchType => _stitchType;
+    private bool knit = true;
 
     public enum StitchType
     {
@@ -38,17 +45,35 @@ public class StitchInfo
         CastOn,
     }
 
-    private bool knit = true;
+    public void SetGridPosition(StitchInfo left, StitchInfo above, StitchInfo right, StitchInfo below)
+    {
+        if (left != null)
+        {
+            StitchLeft = left;
+        }
+        if (right != null)
+        {
+            StitchRight = right;
+        }
+        if (above != null)
+        {
+            StitchAbove = above;
+        }
+        if (below != null)
+        {
+            StitchBelow = below;
+        }
+    }
     
     public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
     public StitchInfo(VerletNode bl, VerletNode tl, VerletNode tr, VerletNode br)
     {
-        topLeft = tl;
-        topRight = tr;
-        bottomLeft = bl;
-        bottomRight = br;
+        TopLeft = tl;
+        TopRight = tr;
+        BottomLeft = bl;
+        BottomRight = br;
         corners = new()
         {
             bl,
@@ -60,7 +85,7 @@ public class StitchInfo
 
     public void SetPosition(Vector3 myPos)
     {
-        _position = myPos;
+        Position = myPos;
     }
 
     public void SetSize(Vector2 mySize)
@@ -89,9 +114,6 @@ public class StitchInfo
             corners[3].RemoveStructuralEdge(true);
             corners[3].RemoveBendEdge(true);
             corners[3].NodeBelow?.RemoveBendEdge(true);
-
-            corners[3].SetNodeAbove(null);
-            corners[2].SetNodeBelow(null);
         }
 
         var verletNode = corners[0].NodeLeft; //bottom left
@@ -100,9 +122,6 @@ public class StitchInfo
             corners[0].RemoveStructuralEdge(true); //bottom left
             corners[0].RemoveBendEdge(true);
             corners[0].NodeBelow?.RemoveBendEdge(true);
-
-            corners[0].SetNodeAbove(null);
-            corners[1].SetNodeBelow(null);
         }
 
         if (corners[1].ShearEdgeUp == null) //top left
@@ -114,9 +133,6 @@ public class StitchInfo
             {
                 nodeLeft.RemoveBendEdge(false);
             }
-
-            corners[1].SetNodeRight(null);
-            corners[2].SetNodeLeft(null);
         }
 
         
@@ -130,9 +146,6 @@ public class StitchInfo
             {
                 nodeLeft.RemoveBendEdge(false);
             }
-
-            corners[0].SetNodeRight(null);
-            corners[3].SetNodeLeft(null);
         }
 
         UpdateCorners(null, 0);
@@ -154,8 +167,8 @@ public class StitchInfo
         
         for (int i = 0; i < myStitches.Count-1;i++)
         {
-            var node = myStitches[i].corners[3];
-            RemoveColumn(node);
+            var stitch = myStitches[i];
+            RemoveColumn(stitch);
             ConnectDecreasedStitches(myStitches[i],targetStitch);
             if (!_firstDone)
             {
@@ -165,7 +178,7 @@ public class StitchInfo
             if (myStitches.Count > 2 && i<myStitches.Count-2 && myStitches[i].corners[1].BendEdgeHorizontal==null)
             {
                 Debug.Log("bend edge connected");
-                VerletEdge.ConnectNodes(myStitches[i].corners[1],myStitches[i+2].corners[1], myStitches[i].width*3);
+                VerletEdge.ConnectNodes(myStitches[i].corners[1],myStitches[i+2].corners[1], myStitches[i].width*2);
                 myStitches[i].corners[1].SetBendEdge(false);
             }
         }
@@ -174,17 +187,17 @@ public class StitchInfo
         
         FabricManager.InvokeUpdateSimulation();
     }
-    private static void RemoveColumn(VerletNode myNode, bool remove = false)
+    private static void RemoveColumn(StitchInfo myStitch, bool remove = false)
          {
-             myNode.RemoveAllEdges();
-             if (myNode.NodeBelow != null)
+             myStitch.corners[3].RemoveAllEdges();
+             if (myStitch.StitchBelow != null)
              {
-                 RemoveColumn(myNode.NodeBelow, true); 
+                 RemoveColumn(myStitch.StitchBelow, true); 
              }
-             FabricManager.AllNodes.Remove(myNode);
+             FabricManager.AllNodes.Remove(myStitch.corners[3]);
              if (remove)
              {
-                 FabricManager.AllStitches.Remove(myNode.Parent);
+                 FabricManager.AllStitches.Remove(myStitch.corners[3].Parent);
              }
      
          }
@@ -218,7 +231,7 @@ public class StitchInfo
             targetStitch.corners[1].SetShearEdge(false);
             
             
-            ConnectColumns(left.NodeBelow,right.NodeBelow);
+            ConnectColumns(_firstDecrease.StitchBelow,targetStitch.StitchBelow);
         }
         else
         {
@@ -235,22 +248,18 @@ public class StitchInfo
         
         
     }
-    private static void ConnectColumns(VerletNode left, VerletNode right)
+    private static void ConnectColumns(StitchInfo left, StitchInfo right)
     {
-        var parent = right.Parent;
-        if (right.Parent == null)
-        {
-            parent = left.Parent;
-        }
+        var stitchValues = right;
         
-        VerletEdge.ConnectNodes(left,right,parent.width); // choosing the stitch in which direction the decrease is going, unless it is null
-        left.SetStructuralEdge(false);
+        VerletEdge.ConnectNodes(left.corners[0],right.corners[3],stitchValues.width);
+        left.corners[0].SetStructuralEdge(false);
         
-        VerletEdge.ConnectNodes(left.NodeAbove,right,Calculation.CalculateDiagonal(parent.width,parent.height));
-        left.NodeAbove.SetShearEdge(false);
+        VerletEdge.ConnectNodes(left.StitchAbove.corners[0],right.corners[3],Calculation.CalculateDiagonal(stitchValues.width,stitchValues.height));
+        left.StitchAbove.corners[0].SetShearEdge(false);
         
-        VerletEdge.ConnectNodes(left,right.NodeAbove,Calculation.CalculateDiagonal(parent.width,parent.height));
-        left.SetShearEdge(true);
+        VerletEdge.ConnectNodes(left.corners[0],right.StitchAbove.corners[3],Calculation.CalculateDiagonal(stitchValues.width,stitchValues.height));
+        left.corners[0].SetShearEdge(true);
 
         /*if (left.NodeLeft != null && left.NodeLeft.BendEdgeHorizontal==null)
         {
@@ -266,12 +275,12 @@ public class StitchInfo
         
         // TO DO: figure out why the bend edges arent being removed if another decrease is made to the right
         
-        left.Parent.UpdateCorners(right.NodeAbove, 2);
-        left.Parent.UpdateCorners(right,3);
+        left.UpdateCorners(right.StitchAbove.corners[3], 2);
+        left.UpdateCorners(right.corners[3],3);
 
-        if (left.NodeBelow != null && right.NodeBelow != null)
+        if (left.StitchBelow != null && right.StitchBelow != null)
         {
-            ConnectColumns(left.NodeBelow,right.NodeBelow);
+            ConnectColumns(left.StitchBelow,right.StitchBelow);
         }
     }
 
