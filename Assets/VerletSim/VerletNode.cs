@@ -169,5 +169,32 @@ namespace Verlet
             _edgeUp = null;
             _edgeRight = null;
         }
+
+        public VerletEdge FindEdgeByNode(VerletNode other)
+        {
+            VerletEdge returnEdge = null;
+            foreach (var edge in _connection)
+            {
+                if (edge.a == this && edge.b == other)
+                {
+                    returnEdge = edge;
+                }
+                else if (edge.a == other && edge.b == this)
+                {
+                    returnEdge = edge;
+                }
+            }
+            if (returnEdge == null) Debug.Log("no edge between those two nodes!");
+            return returnEdge;
+        }
+
+        public static void RemoveEdge(VerletEdge edge)
+        {
+            if (edge.a != null && edge.b != null)
+            {
+                edge.a.Connection.Remove(edge);
+                edge.b.Connection.Remove(edge);
+            }
+        }
     }
 }

@@ -106,7 +106,16 @@ public class Decreaser : Tool
             return;
         }
 
-        var stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+        StitchInfo stitchInfo = null;
+        if (_mouseDragger.HoveredStitchIndex >= 0 && _mouseDragger.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        {
+            stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+        }
+
+        if (stitchInfo == null)
+        {
+            return;
+        }
 
         if (!HasStitchInfoChanged(stitchInfo))
         {

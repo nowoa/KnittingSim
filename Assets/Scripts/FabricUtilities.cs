@@ -5,6 +5,7 @@ using System.Xml;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 using Verlet;
 using static Verlet.VerletNode;
 using Vector3 = UnityEngine.Vector3;
@@ -101,12 +102,16 @@ public class StitchInfo
 
     public void RemoveStitch()
     {
+        if (stitchType == StitchType.DecreaseFirst || stitchType == StitchType.DecreaseMiddle ||
+            stitchType == StitchType.DecreaseLast)
+        {
+            RemoveDecrease(this);
+            return;
+        }
         if (isInactive)
         {
             return;
         }
-        
-        
         
         corners[0].RemoveShearEdge(true);
         corners[1].RemoveShearEdge(false);
@@ -183,73 +188,105 @@ public class StitchInfo
         }
 
         _isInactive = true;
-
-        /*corners[1].RemoveShearEdge(false); //top left
-        corners[0].RemoveShearEdge(true); //bottom left
-
-        if (corners[3].ShearEdgeUp == null) // bottom right
-        {
-            corners[3].RemoveStructuralEdge(true);
-            corners[3].RemoveBendEdge(true);
-            StitchBelow?.corners[3].RemoveBendEdge(true);
-        }
-
-        if (StitchLeft == null || StitchLeft.corners[0].ShearEdgeUp == null)
-        {
-            corners[0].RemoveStructuralEdge(true); //bottom left
-            corners[0].RemoveBendEdge(true);
-            StitchBelow?.corners[0].RemoveBendEdge(true);
-        }
-
-        if (corners[1].ShearEdgeUp == null) //top left
-        {
-            corners[1].RemoveStructuralEdge(false);
-            corners[1].RemoveBendEdge(false);
-            if (StitchLeft != null)
-            {
-                StitchLeft.corners[1].RemoveBendEdge(false);
-            }
-        }
-
-        
-        if (StitchBelow == null || StitchBelow.corners[0]?.ShearEdgeUp == null) // Safely check ShearEdgeUp if NodeBelow is not null
-        {
-            corners[0].RemoveStructuralEdge(false);
-            corners[0].RemoveBendEdge(false);
-
-            if (StitchLeft != null)
-            {
-                StitchLeft.corners[0].RemoveBendEdge(false);
-            }
-        }
-
-        UpdateCorners(null, 0);
-        UpdateCorners(null, 1);
-        UpdateCorners(null, 2);
-        UpdateCorners(null, 3);
-        if (StitchAbove != null)
-        {
-            StitchAbove.StitchBelow = null;
-        }
-
-        if (StitchRight != null)
-        {
-            StitchRight.StitchLeft = null;
-        }
-        
-        if (StitchBelow != null)
-        {
-            StitchBelow.StitchAbove = null;
-        }
-
-        if (StitchLeft != null)
-        {
-            StitchLeft.StitchRight = null;
-        }
-
-        _isInactive = true;*/
     }
 
+    private void RemoveDecrease(StitchInfo hoveredStitch)
+    {
+        var stitches = GetDecreaseStitches(hoveredStitch);
+        var lastStitch = stitches.Last();
+        var firstStitch = stitches.First();
+        for (int i = 1; i < stitches.Count; i++)
+        {
+            var edge = lastStitch.corners[0].FindEdgeByNode(stitches[i].corners[1]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
+        }
+
+        for (int i = 0; i < stitches.Count - 1; i++)
+        {
+            var edge = lastStitch.corners[3].FindEdgeByNode(stitches[i].corners[2]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
+        }
+
+        var shearDown = lastStitch.corners[3].FindEdgeByNode(firstStitch.corners[1]);
+        if (shearDown != null)
+        {
+            VerletNode.RemoveEdge(shearDown);
+        }
+        VerletNode.RemoveEdge(lastStitch.corners[0].ShearEdgeUp);
+
+        if (firstStitch.StitchLeft == null)
+        {
+            var edge = lastStitch.corners[0].FindEdgeByNode(firstStitch.corners[1]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
+
+            if (firstStitch.StitchBelow != null)
+            {
+                firstStitch.StitchBelow.corners[0].RemoveBendEdge(true);
+            }
+        }
+        
+        
+
+        if (firstStitch.StitchLeft != null)
+        {
+            firstStitch.StitchLeft.StitchRight = null;
+        }
+        if (lastStitch.StitchRight != null)
+        {
+            lastStitch.StitchRight.StitchLeft = null;
+        }
+
+        if (firstStitch.StitchBelow != null)
+        {
+            firstStitch.StitchBelow.StitchAbove = null;
+        }
+
+        foreach (var s in stitches)
+        {
+            s._isInactive = true;
+            if (s.StitchAbove != null)
+            {
+                s.StitchAbove.StitchBelow = null;
+            }
+            else
+            {
+                s.corners[1].RemoveStructuralEdge(false);
+                s.corners[1].RemoveBendEdge(false);
+                if (s.StitchLeft != null)
+                {
+                    s.StitchLeft.corners[1].RemoveBendEdge(false);
+                }
+            }
+        }
+    }
+
+    private static List<StitchInfo> GetDecreaseStitches(StitchInfo hoveredStitch)
+    {
+        var stitch = hoveredStitch;
+        var decreasedStitchesList = new List<StitchInfo>();
+        
+        while (stitch.stitchType != StitchType.DecreaseFirst)
+        {
+            stitch = stitch.StitchLeft;
+        }
+
+        while (stitch.stitchType != StitchType.DecreaseLast)
+        {
+            decreasedStitchesList.Add(stitch);
+            stitch = stitch.StitchRight;
+        }
+        decreasedStitchesList.Add(stitch);
+        return decreasedStitchesList;
+    }
     public static void Decrease(List<StitchInfo> myStitches, bool myDirection)
     {
         _firstDecrease = myStitches.First();
@@ -310,14 +347,12 @@ public class StitchInfo
         {
             _firstDecrease._stitchType = StitchType.DecreaseFirst;
             targetStitch._stitchType = StitchType.DecreaseLast;
+            
             VerletEdge.ConnectNodes(left, right, targetStitch.width);
             left.SetStructuralEdge( false);
             
             _firstDecrease.UpdateCorners(right,3);
             targetStitch.UpdateCorners(left,0);
-            
-            VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[1],targetStitch.height);
-            targetStitch.corners[0].SetStructuralEdge(true);
             
             VerletEdge.ConnectNodes(_firstDecrease.corners[0],_firstDecrease.corners[2],Calculation.CalculateDiagonal(_firstDecrease.width,_firstDecrease.height));
             _firstDecrease.corners[0].SetShearEdge(true);
@@ -331,7 +366,6 @@ public class StitchInfo
             VerletEdge.ConnectNodes(targetStitch.corners[1],targetStitch.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             targetStitch.corners[1].SetShearEdge(false);
             
-            
             ConnectColumns(_firstDecrease.StitchBelow,targetStitch.StitchBelow);
         }
         else
@@ -341,9 +375,6 @@ public class StitchInfo
             VerletEdge.ConnectNodes(stitchToConnect.corners[2],targetStitch.corners[3],stitchToConnect.height);
             stitchToConnect.UpdateCorners(_firstDecrease.corners[0],0);
             stitchToConnect.UpdateCorners(targetStitch.corners[3],3);
-            VerletEdge.ConnectNodes(stitchToConnect.corners[1],stitchToConnect.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
-            stitchToConnect.corners[1].SetShearEdge(false);
-            VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             
         }
     }
@@ -374,8 +405,11 @@ public class StitchInfo
         
         // TO DO: figure out why the bend edges arent being removed if another decrease is made to the right
         
-        left.UpdateCorners(right.StitchAbove.corners[3], 2);
+        left.UpdateCorners(right.corners[2], 2);
         left.UpdateCorners(right.corners[3],3);
+        right._isInactive = true;
+        left.StitchRight = left.corners[3].Parent;
+        left.StitchRight.StitchLeft = left;
 
         if (left.StitchBelow != null && right.StitchBelow != null)
         {
@@ -408,4 +442,3 @@ public class PanelInfo
         return _nodes[Calculation.GetIndexFromCoordinate(x, y, _width)];
     }
 }
-
