@@ -95,6 +95,7 @@ public class Decreaser : Tool
     private bool rightDirection;
     private StitchInfo previousStitchInfo;
     private bool hasExecutedThisFrame;
+    private List<StitchInfo> stitchesInDecrease;
 
     public override void DefaultBehavior()
     {
@@ -120,12 +121,39 @@ public class Decreaser : Tool
         hasExecutedThisFrame = false;
         previousStitchInfo = stitchInfo;
 
-        if (stitchInfo.corners[1] == stitchesToDecrease.Last().corners[2])
+        if (stitchesToDecrease.Count == 0)
+        {
+            if (stitchInfo.stitchType == StitchInfo.StitchType.DecreaseFirst
+                || stitchInfo.stitchType == StitchInfo.StitchType.DecreaseMiddle
+                || stitchInfo.stitchType == StitchInfo.StitchType.DecreaseLast)
+            {
+                var stitch = stitchInfo;
+                while (stitch.stitchType!=StitchInfo.StitchType.DecreaseFirst)
+                {
+                    stitch = stitch.StitchLeft;
+                }
+
+                stitchInfo = stitch;
+
+                while (stitch.stitchType!=StitchInfo.StitchType.DecreaseLast)
+                {
+                    stitchesInDecrease.Add(stitch);
+                    stitch = stitch.StitchRight;
+                }
+                stitchesInDecrease.Add(stitch);
+            }
+
+            if (!stitchesToDecrease.Contains(stitchInfo))
+            {
+                stitchesToDecrease.Add(stitchInfo);
+            }
+        }
+        if (stitchInfo.corners[0] == stitchesToDecrease.Last().corners[3])
         {
             AddOrRemoveDecrease(stitchInfo, true);
         }
         
-        if (stitchInfo.corners[2] == stitchesToDecrease.Last().corners[1])
+        if (stitchInfo.corners[3] == stitchesToDecrease.Last().corners[0])
         {
             AddOrRemoveDecrease(stitchInfo,false);
         }
@@ -138,11 +166,60 @@ public class Decreaser : Tool
             rightDirection = isRightDirection;
         }
 
-        if ((rightDirection && isRightDirection) || (!rightDirection && !isRightDirection))
+        if (rightDirection && isRightDirection)
         {
+            if (stitchesInDecrease.Count > 0)
+            {
+                foreach (var s in stitchesInDecrease)
+                {
+                    if (!stitchesToDecrease.Contains(s))
+                    {
+                        stitchesToDecrease.Add(s);
+                    }
+                }
+                stitchesInDecrease.Clear();
+            }
             if (!stitchesToDecrease.Contains(stitchInfo))
             {
                 stitchesToDecrease.Add(stitchInfo);
+            }
+
+            if (stitchInfo.stitchType == StitchInfo.StitchType.DecreaseFirst)
+            {
+                var stitch = stitchInfo;
+                while (stitch.stitchType != StitchInfo.StitchType.DecreaseLast)
+                {
+                    if(!stitchesToDecrease.Contains(stitch)) stitchesToDecrease.Add(stitch);
+                    stitch = stitch.StitchRight;
+                }
+                if(!stitchesToDecrease.Contains(stitch)) stitchesToDecrease.Add(stitch);
+            }
+        }
+
+        if (!rightDirection && !isRightDirection)
+        {
+            if (stitchesInDecrease.Count > 0)
+            {
+                for (int i = stitchesInDecrease.Count-1; i >= 0; i--)
+                {
+                    if(!stitchesToDecrease.Contains(stitchesInDecrease[i])) stitchesToDecrease.Add(stitchesInDecrease[i]);
+                }
+                stitchesInDecrease.Clear();
+            }
+            if (!stitchesToDecrease.Contains(stitchInfo))
+            {
+                stitchesToDecrease.Add(stitchInfo);
+            }
+
+            if (stitchInfo.stitchType == StitchInfo.StitchType.DecreaseLast)
+            {
+                var stitch = stitchInfo;
+                while (stitch.stitchType != StitchInfo.StitchType.DecreaseFirst)
+                {
+                    if(!stitchesToDecrease.Contains(stitch)) stitchesToDecrease.Add(stitch);
+                    stitch = stitch.StitchLeft;
+                }
+                if(!stitchesToDecrease.Contains(stitch)) stitchesToDecrease.Add(stitch);
             }
         }
 
@@ -157,10 +234,10 @@ public class Decreaser : Tool
 
     public override void MainAction()
     {
-        var cachedIndex = _mouseDragger.HoveredStitchIndex;
         toolActivated = true;
         stitchesToDecrease = new List<StitchInfo>();
-        stitchesToDecrease.Add(FabricManager.AllStitches[cachedIndex]);
+        stitchesInDecrease = new List<StitchInfo>();
+        previousStitchInfo = null;
     }
 
     public override void MainActionEnd()

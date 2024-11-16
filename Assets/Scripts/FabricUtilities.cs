@@ -160,21 +160,30 @@ public class StitchInfo
         _firstDecrease = myStitches.First();
         _firstDone = false;
         var targetStitch = myStitches.Last();
+        var removeColumnsList = new List<StitchInfo>(myStitches);
+        if (removeColumnsList.Last()._stitchType == StitchType.DecreaseLast)
+        {
+            while (removeColumnsList.Last()._stitchType != StitchType.DecreaseFirst)
+            {
+                removeColumnsList.Last()._stitchType = StitchType.DecreaseMiddle;
+                removeColumnsList.Remove(removeColumnsList.Last());
+            }
+        }
         if (!myDirection) //TO DO: if going left, decrease logic needs to be inverted
         {
             return;
         }
-        
+        for (int i = 0; i < removeColumnsList.Count-1;i++)
+        {
+            RemoveColumn(removeColumnsList[i]);
+        }
         for (int i = 0; i < myStitches.Count-1;i++)
         {
-            var stitch = myStitches[i];
-            RemoveColumn(stitch);
             ConnectDecreasedStitches(myStitches[i],targetStitch);
             if (!_firstDone)
             {
                 _firstDone = true;
             }
-
             if (myStitches.Count > 2 && i<myStitches.Count-2 && myStitches[i].corners[1].BendEdgeHorizontal==null)
             {
                 Debug.Log("bend edge connected");
@@ -182,25 +191,22 @@ public class StitchInfo
                 myStitches[i].corners[1].SetBendEdge(false);
             }
         }
-
-        
-        
         FabricManager.InvokeUpdateSimulation();
     }
-    private static void RemoveColumn(StitchInfo myStitch, bool remove = false)
-         {
-             myStitch.corners[3].RemoveAllEdges();
-             if (myStitch.StitchBelow != null)
-             {
-                 RemoveColumn(myStitch.StitchBelow, true); 
-             }
-             FabricManager.AllNodes.Remove(myStitch.corners[3]);
-             if (remove)
-             {
-                 FabricManager.AllStitches.Remove(myStitch.corners[3].Parent);
-             }
-     
-         }
+    private static void RemoveColumn(StitchInfo myStitch, bool remove = false) 
+    {
+        
+        myStitch.corners[3].RemoveAllEdges();
+        if (myStitch.StitchBelow != null)
+        {
+            RemoveColumn(myStitch.StitchBelow, true); 
+        }
+        FabricManager.AllNodes.Remove(myStitch.corners[3]);
+        if (remove)
+        {
+            FabricManager.AllStitches.Remove(myStitch.corners[3].Parent);
+        }
+    }
     private static void ConnectDecreasedStitches(StitchInfo stitchToConnect, StitchInfo targetStitch)
     {
         var left = _firstDecrease.corners[0];
