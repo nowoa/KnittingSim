@@ -245,8 +245,6 @@ public class StitchInfo
             VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             
         }
-        
-        
     }
     private static void ConnectColumns(StitchInfo left, StitchInfo right)
     {
@@ -283,9 +281,6 @@ public class StitchInfo
             ConnectColumns(left.StitchBelow,right.StitchBelow);
         }
     }
-
-   
-    
 }
 
 public class PanelInfo
@@ -306,7 +301,6 @@ public class PanelInfo
         _height = height;
         _isCircular = isCircular;
     }
-    
 
     public VerletNode GetNodeAt(int x, int y)
     {

@@ -292,7 +292,6 @@ public class FabricManager
             Matrix4x4 mat = Matrix4x4.TRS(node.Position, Quaternion.identity, Vector3.one * 0.1f);
             renderMatrices.Add(mat);
         }
-
         Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
     }
 }
