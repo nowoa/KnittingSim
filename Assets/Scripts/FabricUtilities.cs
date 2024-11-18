@@ -219,20 +219,6 @@ public class StitchInfo
             VerletNode.RemoveEdge(shearDown);
         }
         VerletNode.RemoveEdge(lastStitch.corners[0].ShearEdgeUp);
-
-        if (firstStitch.StitchLeft == null)
-        {
-            var edge = lastStitch.corners[0].FindEdgeByNode(firstStitch.corners[1]);
-            if (edge != null)
-            {
-                VerletNode.RemoveEdge(edge);
-            }
-
-            if (firstStitch.StitchBelow != null)
-            {
-                firstStitch.StitchBelow.corners[0].RemoveBendEdge(true);
-            }
-        }
         
         
 
@@ -240,14 +226,41 @@ public class StitchInfo
         {
             firstStitch.StitchLeft.StitchRight = null;
         }
+        else
+        {
+            var edge = lastStitch.corners[0].FindEdgeByNode(firstStitch.corners[1]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
+            firstStitch.corners[0].RemoveBendEdge(true);
+
+            if (firstStitch.StitchBelow != null)
+            {
+                firstStitch.StitchBelow.corners[0].RemoveBendEdge(true);
+            }
+        }
         if (lastStitch.StitchRight != null)
         {
             lastStitch.StitchRight.StitchLeft = null;
+        }
+        else
+        {
+            lastStitch.corners[3].RemoveStructuralEdge(true);
+            lastStitch.corners[3].RemoveBendEdge(true);
+            if (firstStitch.StitchBelow != null)
+            {
+                firstStitch.StitchBelow.corners[3].RemoveBendEdge(true);
+            }
         }
 
         if (firstStitch.StitchBelow != null)
         {
             firstStitch.StitchBelow.StitchAbove = null;
+        }
+        else
+        {
+            lastStitch.corners[0].RemoveStructuralEdge(false);
         }
 
         foreach (var s in stitches)
@@ -365,8 +378,11 @@ public class StitchInfo
             
             VerletEdge.ConnectNodes(targetStitch.corners[1],targetStitch.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             targetStitch.corners[1].SetShearEdge(false);
-            
-            ConnectColumns(_firstDecrease.StitchBelow,targetStitch.StitchBelow);
+
+            if (_firstDecrease.StitchBelow != null && targetStitch.StitchBelow!=null)
+            {
+                ConnectColumns(_firstDecrease.StitchBelow, targetStitch.StitchBelow);
+            }
         }
         else
         {
@@ -408,8 +424,16 @@ public class StitchInfo
         left.UpdateCorners(right.corners[2], 2);
         left.UpdateCorners(right.corners[3],3);
         right._isInactive = true;
-        left.StitchRight = left.corners[3].Parent;
-        left.StitchRight.StitchLeft = left;
+        if (left.corners[3].Parent != null)
+        {
+            left.StitchRight = left.corners[3].Parent;
+            left.StitchRight.StitchLeft = left;
+        }
+        else
+        {
+            left.StitchRight = null;
+        }
+        
 
         if (left.StitchBelow != null && right.StitchBelow != null)
         {

@@ -252,8 +252,12 @@ public class Decreaser : Tool
     public override void MainActionEnd()
     {
         toolActivated = false;
-        StitchInfo.Decrease(stitchesToDecrease,rightDirection);
-        FabricManager.InvokeUpdateSimulation();
+        if (stitchesToDecrease.Count >= 2)
+        {
+            StitchInfo.Decrease(stitchesToDecrease,rightDirection);
+            FabricManager.InvokeUpdateSimulation();
+        }
+        
     }
 }
 

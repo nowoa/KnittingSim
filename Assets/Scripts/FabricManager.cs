@@ -258,16 +258,19 @@ public class FabricManager
             Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].Position, 0.1f);
         }
         
-        if (_mouseDragger.HoveredStitchIndex != -1 && !AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
+        if (_mouseDragger.HoveredStitchIndex >0 && _mouseDragger.HoveredStitchIndex < AllStitches.Count)
         {
-            Gizmos.color=Color.red;
-            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);
-            Gizmos.color=Color.yellow;
-            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[1].Position, 0.05f);
-            Gizmos.color=Color.green;
-            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[2].Position, 0.05f);
-            Gizmos.color=Color.blue;
-            Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[3].Position, 0.05f);
+            if (!AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
+            {
+                Gizmos.color=Color.red;
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);
+                Gizmos.color=Color.yellow;
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[1].Position, 0.05f);
+                Gizmos.color=Color.green;
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[2].Position, 0.05f);
+                Gizmos.color=Color.blue;
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[3].Position, 0.05f);
+            }
         }
         if (_sim != null)
         {
