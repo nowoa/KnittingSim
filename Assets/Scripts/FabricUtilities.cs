@@ -360,12 +360,14 @@ public class StitchInfo
         {
             _firstDecrease._stitchType = StitchType.DecreaseFirst;
             targetStitch._stitchType = StitchType.DecreaseLast;
-            
             VerletEdge.ConnectNodes(left, right, targetStitch.width);
             left.SetStructuralEdge( false);
             
             _firstDecrease.UpdateCorners(right,3);
             targetStitch.UpdateCorners(left,0);
+            
+            VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[1],targetStitch.height);
+            targetStitch.corners[0].SetStructuralEdge(true);
             
             VerletEdge.ConnectNodes(_firstDecrease.corners[0],_firstDecrease.corners[2],Calculation.CalculateDiagonal(_firstDecrease.width,_firstDecrease.height));
             _firstDecrease.corners[0].SetShearEdge(true);
@@ -378,11 +380,9 @@ public class StitchInfo
             
             VerletEdge.ConnectNodes(targetStitch.corners[1],targetStitch.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             targetStitch.corners[1].SetShearEdge(false);
-
-            if (_firstDecrease.StitchBelow != null && targetStitch.StitchBelow!=null)
-            {
-                ConnectColumns(_firstDecrease.StitchBelow, targetStitch.StitchBelow);
-            }
+            
+            
+            ConnectColumns(_firstDecrease.StitchBelow,targetStitch.StitchBelow);
         }
         else
         {
@@ -391,6 +391,9 @@ public class StitchInfo
             VerletEdge.ConnectNodes(stitchToConnect.corners[2],targetStitch.corners[3],stitchToConnect.height);
             stitchToConnect.UpdateCorners(_firstDecrease.corners[0],0);
             stitchToConnect.UpdateCorners(targetStitch.corners[3],3);
+            VerletEdge.ConnectNodes(stitchToConnect.corners[1],stitchToConnect.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+            stitchToConnect.corners[1].SetShearEdge(false);
+            VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
             
         }
     }
