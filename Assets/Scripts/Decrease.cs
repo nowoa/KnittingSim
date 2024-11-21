@@ -219,22 +219,22 @@ namespace DefaultNamespace
         }
     }
 
-        private static void ConnectDecreasedStitches(StitchInfo stitchToConnect, StitchInfo targetStitch)
+        private static void ConnectDecreasedStitches(StitchInfo stitchToConnect)
         {
             var left = _firstDecrease.corners[0];
-            var right = targetStitch.corners[3];
+            var right = _lastDecrease.corners[3];
             if (!_firstDone)
             {
                 _firstDecrease.SetStitchType(StitchInfo.StitchType.DecreaseFirst);
-                targetStitch.SetStitchType(StitchInfo.StitchType.DecreaseLast);
-                VerletEdge.ConnectNodes(left, right, targetStitch.width);
+                _lastDecrease.SetStitchType(StitchInfo.StitchType.DecreaseLast);
+                VerletEdge.ConnectNodes(left, right, _lastDecrease.width);
                 left.SetStructuralEdge( false);
             
                 _firstDecrease.UpdateCorners(right,3);
-                targetStitch.UpdateCorners(left,0);
+                _lastDecrease.UpdateCorners(left,0);
             
-                VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[1],targetStitch.height);
-                targetStitch.corners[0].SetStructuralEdge(true);
+                VerletEdge.ConnectNodes(_lastDecrease.corners[0],_lastDecrease.corners[1],_lastDecrease.height);
+                _lastDecrease.corners[0].SetStructuralEdge(true);
             
                 VerletEdge.ConnectNodes(_firstDecrease.corners[0],_firstDecrease.corners[2],Calculation.CalculateDiagonal(_firstDecrease.width,_firstDecrease.height));
                 _firstDecrease.corners[0].SetShearEdge(true);
@@ -242,25 +242,25 @@ namespace DefaultNamespace
                 VerletEdge.ConnectNodes(_firstDecrease.corners[1],_firstDecrease.corners[3],Calculation.CalculateDiagonal(_firstDecrease.width, _firstDecrease.height));
                 _firstDecrease.corners[1].SetShearEdge(false);
             
-                VerletEdge.ConnectNodes(targetStitch.corners[0],targetStitch.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
-                targetStitch.corners[0].SetShearEdge(true);
+                VerletEdge.ConnectNodes(_lastDecrease.corners[0],_lastDecrease.corners[2],Calculation.CalculateDiagonal(_lastDecrease.width,_lastDecrease.height));
+                _lastDecrease.corners[0].SetShearEdge(true);
             
-                VerletEdge.ConnectNodes(targetStitch.corners[1],targetStitch.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
-                targetStitch.corners[1].SetShearEdge(false);
+                VerletEdge.ConnectNodes(_lastDecrease.corners[1],_lastDecrease.corners[3],Calculation.CalculateDiagonal(_lastDecrease.width,_lastDecrease.height));
+                _lastDecrease.corners[1].SetShearEdge(false);
             
             
-                ConnectColumns(_firstDecrease.StitchBelow,targetStitch.StitchBelow);
+                ConnectColumns(_firstDecrease.StitchBelow,_lastDecrease.StitchBelow);
             }
             else
             {
                 stitchToConnect.SetStitchType(StitchInfo.StitchType.DecreaseMiddle);
                 VerletEdge.ConnectNodes(stitchToConnect.corners[1],_firstDecrease.corners[0],stitchToConnect.height);
-                VerletEdge.ConnectNodes(stitchToConnect.corners[2],targetStitch.corners[3],stitchToConnect.height);
+                VerletEdge.ConnectNodes(stitchToConnect.corners[2],_lastDecrease.corners[3],stitchToConnect.height);
                 stitchToConnect.UpdateCorners(_firstDecrease.corners[0],0);
-                stitchToConnect.UpdateCorners(targetStitch.corners[3],3);
-                VerletEdge.ConnectNodes(stitchToConnect.corners[1],stitchToConnect.corners[3],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+                stitchToConnect.UpdateCorners(_lastDecrease.corners[3],3);
+                VerletEdge.ConnectNodes(stitchToConnect.corners[1],stitchToConnect.corners[3],Calculation.CalculateDiagonal(_lastDecrease.width,_lastDecrease.height));
                 stitchToConnect.corners[1].SetShearEdge(false);
-                VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(targetStitch.width,targetStitch.height));
+                VerletEdge.ConnectNodes(stitchToConnect.corners[0],stitchToConnect.corners[2],Calculation.CalculateDiagonal(_lastDecrease.width,_lastDecrease.height));
             
             }
         }
