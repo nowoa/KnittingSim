@@ -64,14 +64,14 @@ public static class NodeConnector
                 myNodes[i].SetParentStitch(parentStitch);
                 if (leftIndex.IsInRangeOf(myNodes)&& myNodes[leftIndex].Parent!=null)
                 {
-                    parentStitch.SetGridPosition(myNodes[leftIndex].Parent,null,null,null);
-                    myNodes[leftIndex].Parent.SetGridPosition(null,null,parentStitch,null);
+                    parentStitch.UpdateNeighborStitch(myNodes[leftIndex].Parent,"left");
+                    myNodes[leftIndex].Parent.UpdateNeighborStitch(parentStitch,"right");
                 }
 
                 if(downIndex.IsInRangeOf(myNodes)&& myNodes[downIndex].Parent!=null)
                 {
-                    parentStitch.SetGridPosition(null,null,null,myNodes[downIndex].Parent);
-                    myNodes[downIndex].Parent.SetGridPosition(null,parentStitch,null,null);
+                    parentStitch.UpdateNeighborStitch(myNodes[downIndex].Parent, "below");
+                    myNodes[downIndex].Parent.UpdateNeighborStitch(parentStitch,"above");
                 }
             }
              

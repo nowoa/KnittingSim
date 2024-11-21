@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using DefaultNamespace;
 using Unity.VisualScripting;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -254,7 +255,7 @@ public class Decreaser : Tool
         toolActivated = false;
         if (stitchesToDecrease.Count >= 2)
         {
-            StitchInfo.Decrease(stitchesToDecrease,rightDirection);
+            Decrease.Main(stitchesToDecrease,rightDirection);
             FabricManager.InvokeUpdateSimulation();
         }
         
