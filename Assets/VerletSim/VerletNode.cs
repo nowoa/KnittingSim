@@ -89,10 +89,27 @@ namespace Verlet
             {
                 edge = _connection.Last();
             }
+
             if (up)
+            {
+                if (_bendEdgeVertical != null)
+                {
+                    Debug.LogWarning(
+                        "bend edge vertical was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _bendEdgeVertical = edge;
+            }
+
             else
+            {
+                if (_bendEdgeHorizontal != null)
+                {
+                    Debug.LogWarning(
+                        "bend edge horizontal was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _bendEdgeHorizontal = edge;
+            }
+                
         }
 
         public void SetShearEdge(bool up, VerletEdge edge = null)
@@ -102,9 +119,25 @@ namespace Verlet
                 edge = _connection.Last();
             }
             if (up)
+            {
+                if (_shearEdgeUp != null)
+                {
+                    Debug.LogWarning(
+                        "shear edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
+
                 _shearEdgeUp = edge;
+            }
             else
+            {
+                if (_shearEdgeDown != null)
+                {
+                    Debug.LogWarning(
+                        "shear edge down was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _shearEdgeDown = edge;
+            }
+                
         }
 
         public void SetStructuralEdge(bool up, VerletEdge edge = null)
@@ -113,10 +146,27 @@ namespace Verlet
             {
                 edge = _connection.Last();
             }
+
             if (up)
+            {
+                if (_edgeUp != null)
+                {
+                    Debug.LogWarning(
+                        "structural edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _edgeUp = edge;
+            }
+
             else
+            {
+                if (_edgeRight != null)
+                {
+                    Debug.LogWarning(
+                        "structural edge right was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _edgeRight = edge;
+            }
+                
         }
 
         public void RemoveBendEdge(bool up)
