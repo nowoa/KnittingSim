@@ -285,16 +285,4 @@ public class FabricManager
         }
         
     }
-
-    public void RenderNodes(Material material, Mesh mesh)
-    {
-        var rparams = new RenderParams(material);
-        List<Matrix4x4> renderMatrices = new();
-        foreach (var node in AllNodes)
-        {
-            Matrix4x4 mat = Matrix4x4.TRS(node.Position, Quaternion.identity, Vector3.one * 0.1f);
-            renderMatrices.Add(mat);
-        }
-        Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
-    }
 }

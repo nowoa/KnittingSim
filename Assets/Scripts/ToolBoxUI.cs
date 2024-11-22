@@ -64,7 +64,7 @@ public class ToolBoxUI : MonoBehaviour
 
     public void MeshSnapshot()
     {
-        var meshScript = GameObject.FindObjectOfType<MeshManager>();
+        var meshScript = GameObject.FindObjectOfType<FabricMesh>();
         meshScript.GenerateMesh();
     }
 }

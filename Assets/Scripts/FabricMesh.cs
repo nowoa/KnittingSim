@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshManager : MonoBehaviour
+public class FabricMesh : MonoBehaviour
 {
     private Mesh _mesh;
-    private MeshManager _meshManager;
+    private FabricMesh _fabricMesh;
     private MeshFilter _meshFilter;
     void Start()
     {
-        _meshManager = gameObject.GetComponent<MeshManager>();
+        _fabricMesh = gameObject.GetComponent<FabricMesh>();
         _meshFilter = gameObject.GetComponent<MeshFilter>();
     }
 
@@ -42,11 +42,27 @@ public class MeshManager : MonoBehaviour
         var triangleList = new List<int>();
         foreach (var s in FabricManager.AllStitches)
         {
+            if (s.isInactive)
+            {
+                continue;
+            }
             vertexList.AddRange(new[] { s.corners[0].Position, s.corners[1].Position, s.corners[2].Position, s.corners[3].Position });
             triangleList.AddRange( new[] {vertexIndex, vertexIndex+1, vertexIndex +2, vertexIndex, vertexIndex+2, vertexIndex+3});
             vertexIndex +=4;
         }
 
         return (vertexList,triangleList);
+    }
+    
+    public void RenderNodes(Material material, Mesh mesh)
+    {
+        var rparams = new RenderParams(material);
+        List<Matrix4x4> renderMatrices = new();
+        foreach (var node in FabricManager.AllNodes)
+        {
+            Matrix4x4 mat = Matrix4x4.TRS(node.Position, Quaternion.identity, Vector3.one * 0.1f);
+            renderMatrices.Add(mat);
+        }
+        Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
     }
 }

@@ -194,6 +194,5 @@ public class GarmentGenerator : MonoBehaviour
 
     private void Update()
     {
-        _fabricManager?.RenderNodes(material, mesh);
     }
 }
