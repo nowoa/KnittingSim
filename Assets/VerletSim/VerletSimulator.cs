@@ -71,12 +71,6 @@ namespace Verlet
             var f = (current - rest) / current;
             a.Position -= f * 0.5f * delta;
             b.Position += f * 0.5f * delta;
-            /*var delta = a.position - b.position;
-            var direction = delta.normalized;
-            var currentLength = delta.magnitude;
-            var error = currentLength - rest;
-            a.position -= error * 0.5f * direction;
-            b.position += error * 0.5f * direction;*/
         }
 
         public void DrawGizmos(Color myColor)

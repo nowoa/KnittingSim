@@ -13,46 +13,7 @@ public class StitchScript : MonoBehaviour
     public StitchScript stitchRight;
     public StitchScript stitchAbove;
     public bool drawNormals;
-    /*private void OnDrawGizmos()
-    {
-        Vector3 leftPos;
-        Vector3 rightPos;
-        Color leftColor = new Color(1,0,0,0.5f);
-        Color rightColor = new Color(0, 0, 1, 0.5f);
-        if (stitchLeft != null)
-        {
-            var position = transform.position;
-            leftPos=GetAverage(position, stitchLeft.transform.position);
-            Gizmos.color = leftColor;
-            Gizmos.DrawSphere(leftPos,0.05f);
-            
-            Gizmos.DrawLine(leftPos,position);
-        }
 
-        if (stitchRight != null)
-        {
-            var position = transform.position;
-            rightPos = GetAverage(position, stitchRight.transform.position);
-            Gizmos.color = rightColor;
-            Gizmos.DrawSphere(rightPos,0.05f);
-            
-            Gizmos.DrawLine(position,rightPos);
-        }
-
-        //stitch center
-        Gizmos.color = Color.white; 
-        Gizmos.DrawSphere(transform.position,0.1f);
-        
-        //normal vectors
-        if(drawNormals)
-        {
-            
-            Gizmos.color = Color.yellow;
-            var position = transform.position;
-            Gizmos.DrawLine(position, position+GetNormal());
-        }
-    }*/
-    
     public static Vector3 GetNormal(Vector3 leftPos, Vector3 rightPos, Vector3 bottomPos, Vector3 topPos)
     {
         Vector3 horizontal = leftPos - rightPos;

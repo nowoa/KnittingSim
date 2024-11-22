@@ -5,33 +5,74 @@ using System.Xml;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 using Verlet;
 using static Verlet.VerletNode;
 using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
 {
-    public VerletNode topLeft { get; }
-    public VerletNode topRight { get; }
-    public VerletNode bottomLeft { get; }
-    public VerletNode bottomRight { get; }
-    private Vector3 _position;
-    public Vector3 position => _position;
+    public VerletNode TopLeft { get; }
+    public VerletNode TopRight { get; }
+    public VerletNode BottomLeft { get; }
+    public VerletNode BottomRight { get; }
+
+    public StitchInfo StitchLeft { get; private set; }
+    public StitchInfo StitchRight { get; private set; }
+    public StitchInfo StitchAbove { get; private set; }
+    public StitchInfo StitchBelow { get; private set; }
+
+    public Vector3 Position { get; private set; }
+
     private float _height;
     private float _width;
     private bool _isInactive = false;
     public bool isInactive => _isInactive;
     public float height => _height;
     public float width => _width;
+    
+    private StitchType _stitchType = 0;
+    public StitchType stitchType => _stitchType;
+    private bool knit = true;
+
+    public enum StitchType
+    {
+        normal,
+        DecreaseFirst,
+        DecreaseMiddle,
+        DecreaseLast,
+        BindOff,
+        CastOn,
+    }
+
+    public void UpdateNeighborStitch(StitchInfo stitch, string direction)
+    {
+        switch (direction)
+        {
+            case "left":
+                StitchLeft = stitch;
+                break;
+            case "above":
+                StitchAbove = stitch;
+                break;
+            case "right":
+                StitchRight = stitch;
+                break;
+            case "below":
+                StitchBelow = stitch;
+                break;
+        }
+    }
+    
     public List<VerletNode> corners { get; }
 
     // Constructor to initialize the position
     public StitchInfo(VerletNode bl, VerletNode tl, VerletNode tr, VerletNode br)
     {
-        topLeft = tl;
-        topRight = tr;
-        bottomLeft = bl;
-        bottomRight = br;
+        TopLeft = tl;
+        TopRight = tr;
+        BottomLeft = bl;
+        BottomRight = br;
         corners = new()
         {
             bl,
@@ -39,19 +80,27 @@ public class StitchInfo
             tr,
             br
         };
-
-        //will hold more information such as stitch type, inc/dec etc
     }
 
     public void SetPosition(Vector3 myPos)
     {
-        _position = myPos;
+        Position = myPos;
     }
 
     public void SetSize(Vector2 mySize)
     {
         _height = mySize.y;
         _width = mySize.x;
+    }
+
+    public void SetStitchType(StitchType type)
+    {
+        _stitchType = type;
+    }
+
+    public void SetInactive()
+    {
+        _isInactive = true;
     }
 
     public void UpdateCorners(VerletNode myNode, int myCornerIndex)
@@ -61,180 +110,185 @@ public class StitchInfo
 
     public void RemoveStitch()
     {
+        if (stitchType == StitchType.DecreaseFirst || stitchType == StitchType.DecreaseMiddle ||
+            stitchType == StitchType.DecreaseLast)
+        {
+            RemoveDecrease(this);
+            return;
+        }
         if (isInactive)
         {
             return;
         }
+        
+        corners[0].RemoveShearEdge(true);
+        corners[1].RemoveShearEdge(false);
+        corners[0].RemoveBendEdge(true);
+        corners[0].RemoveBendEdge(false);
+        corners[1].RemoveBendEdge(false);
+        corners[3].RemoveBendEdge(true);
 
-        corners[1].RemoveShearEdge(false); //top left
-        corners[0].RemoveShearEdge(true); //bottom left
-
-        if (corners[3].ShearEdgeUp == null) // bottom right
+        if (StitchLeft == null)
         {
-            corners[3].RemoveStructuralEdge(true);
-            corners[3].RemoveBendEdge(true);
-            corners[3].NodeBelow?.RemoveBendEdge(true);
-
-            corners[3].SetNodeAbove(null);
-            corners[2].SetNodeBelow(null);
+            corners[0].RemoveStructuralEdge(true);
+            if (StitchBelow != null)
+            {
+                StitchBelow.corners[0].RemoveBendEdge(true);
+            }
         }
 
-        var verletNode = corners[0].NodeLeft; //bottom left
-        if (verletNode == null || verletNode.ShearEdgeUp == null)
-        {
-            corners[0].RemoveStructuralEdge(true); //bottom left
-            corners[0].RemoveBendEdge(true);
-            corners[0].NodeBelow?.RemoveBendEdge(true);
-
-            corners[0].SetNodeAbove(null);
-            corners[1].SetNodeBelow(null);
-        }
-
-        if (corners[1].ShearEdgeUp == null) //top left
+        if (StitchAbove==null)
         {
             corners[1].RemoveStructuralEdge(false);
-            corners[1].RemoveBendEdge(false);
-            var nodeLeft = corners[1].NodeLeft;
-            if (nodeLeft != null)
+            if (StitchLeft!=null)
             {
-                nodeLeft.RemoveBendEdge(false);
+                StitchLeft.corners[1].RemoveBendEdge(false);
             }
-
-            corners[1].SetNodeRight(null);
-            corners[2].SetNodeLeft(null);
         }
 
-        
-        if (corners[0].NodeBelow == null || corners[0].NodeBelow?.ShearEdgeUp == null) // Safely check ShearEdgeUp if NodeBelow is not null
+        if (StitchRight == null)
+        {
+            corners[3].RemoveStructuralEdge(true);
+            if (StitchBelow!=null)
+            {
+                StitchBelow.corners[3].RemoveBendEdge(true);
+            }
+        }
+
+        if (StitchBelow == null)
         {
             corners[0].RemoveStructuralEdge(false);
-            corners[0].RemoveBendEdge(false);
-
-            var nodeLeft = corners[0].NodeLeft;
-            if (nodeLeft != null)
+            if (StitchLeft != null)
             {
-                nodeLeft.RemoveBendEdge(false);
+                StitchLeft.corners[0].RemoveBendEdge(false);
             }
-
-            corners[0].SetNodeRight(null);
-            corners[3].SetNodeLeft(null);
         }
-
+        foreach (var c in corners)
+        {
+            if (c.Connection.Count == 0)
+            {
+                FabricManager.AllNodes.Remove(c);
+            }
+        }
         UpdateCorners(null, 0);
         UpdateCorners(null, 1);
         UpdateCorners(null, 2);
         UpdateCorners(null, 3);
-        _isInactive = true;
-    }
-
-    public void OverlapStitches(VerletNode startPos, StitchInfo myStitchInfo)
-    {
-        //overlap two stitches above (only first iteration)
-        if (startPos.NodeLeft != null)
+        
+        if (StitchAbove != null)
         {
-            var overlapStitchRight = myStitchInfo.corners[1].Parent;
-            var overlapStitchLeft = overlapStitchRight.corners[0].NodeLeft.Parent;
-            overlapStitchRight.corners[0].RemoveAllEdges();
-            var overlapLeft = overlapStitchRight.corners[0].NodeLeft;
-            var overlapRight = overlapStitchRight.corners[3];
-            VerletEdge.ConnectNodes(overlapLeft,overlapRight,overlapStitchRight.width);
-            overlapStitchRight.UpdateCorners(overlapLeft,0);
-            overlapLeft.Parent.UpdateCorners(overlapRight,3);
-            VerletEdge.ConnectNodes(overlapStitchLeft.corners[2],overlapStitchLeft.corners[3],overlapStitchLeft.height);
-            VerletEdge.ConnectNodes(overlapStitchRight.corners[0],overlapStitchRight.corners[1],overlapStitchRight.height);
+            StitchAbove.StitchBelow = null;
+        }
+
+        if (StitchRight != null)
+        {
+            StitchRight.StitchLeft = null;
         }
         
-        DecreaseColumn(startPos,myStitchInfo);
-
-    }
-    public void DecreaseColumn(VerletNode startPos, StitchInfo myStitchInfo) //merge column to the right
-    {
-        if (startPos.NodeLeft == null && startPos.NodeRight.NodeRight == null)
+        if (StitchBelow != null)
         {
-            return;
+            StitchBelow.StitchAbove = null;
         }
-        if (startPos.NodeLeft == null) //woah this is like binding off lol
+
+        if (StitchLeft != null)
         {
-            startPos.RemoveAllEdges();
-            startPos.NodeRight.SetNodeLeft(null);
-            if (startPos.NodeBelow !=null)
+            StitchLeft.StitchRight = null;
+        }
+
+        SetInactive();
+    }
+
+    private void RemoveDecrease(StitchInfo hoveredStitch)
+    {
+        var stitches = Decrease.GetDecreaseStitches(hoveredStitch);
+        var lastStitch = stitches.Last();
+        var firstStitch = stitches.First();
+        for (int i = 1; i < stitches.Count; i++)
+        {
+            var edge = lastStitch.corners[0].FindEdgeByNode(stitches[i].corners[1]);
+            if (edge != null)
             {
-                DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
+                VerletNode.RemoveEdge(edge);
             }
-            FabricManager.AllNodes.Remove(startPos);
-            FabricManager.AllStitches.Remove(myStitchInfo);
-            return;
-        }
-        
-        
-        var nodeLeft = startPos.NodeLeft;
-        
-        if (nodeLeft == null)
-        {
-            Debug.Log("nodeLeft is null!");
-        }
-        if (startPos.NodeRight == null)
-        {
-            Debug.Log("startPos.NodeRight is null!");
-        }
-        else if (startPos.NodeRight.NodeAbove == null)
-        {
-            Debug.Log("startPos.NodeRight.NodeAbove is null!");
-        }
-        
-        if (nodeLeft.NodeBelow == null)
-        {
-            Debug.Log("nodeLeft.NodeBelow is null!");
         }
 
-        if (startPos?.Parent == null)
+        for (int i = 0; i < stitches.Count - 1; i++)
         {
-            Debug.Log("startPos.Parent is null!");
+            var edge = lastStitch.corners[3].FindEdgeByNode(stitches[i].corners[2]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
         }
 
-        if (nodeLeft?.Parent == null)
+        var shearDown = lastStitch.corners[3].FindEdgeByNode(firstStitch.corners[1]);
+        if (shearDown != null)
         {
-            Debug.Log("nodeLeft.Parent is null!");
+            VerletNode.RemoveEdge(shearDown);
+        }
+        VerletNode.RemoveEdge(lastStitch.corners[0].ShearEdgeUp);
+        
+        
+
+        if (firstStitch.StitchLeft != null)
+        {
+            firstStitch.StitchLeft.StitchRight = null;
+        }
+        else
+        {
+            var edge = lastStitch.corners[0].FindEdgeByNode(firstStitch.corners[1]);
+            if (edge != null)
+            {
+                VerletNode.RemoveEdge(edge);
+            }
+            firstStitch.corners[0].RemoveBendEdge(true);
+
+            if (firstStitch.StitchBelow != null)
+            {
+                firstStitch.StitchBelow.corners[0].RemoveBendEdge(true);
+            }
+        }
+        if (lastStitch.StitchRight != null)
+        {
+            lastStitch.StitchRight.StitchLeft = null;
+        }
+        else
+        {
+            lastStitch.corners[3].RemoveStructuralEdge(true);
+            lastStitch.corners[3].RemoveBendEdge(true);
+            if (firstStitch.StitchBelow != null)
+            {
+                firstStitch.StitchBelow.corners[3].RemoveBendEdge(true);
+            }
         }
 
-// Early return if any of the required nodes are null
-        if (startPos.NodeRight == null || startPos.NodeRight.NodeAbove == null || startPos.Parent == null || nodeLeft.Parent == null)
+        if (firstStitch.StitchBelow != null)
         {
-            Debug.Log("One or more of the required nodes are null, aborting operation.");
-            return;
+            firstStitch.StitchBelow.StitchAbove = null;
+        }
+        else
+        {
+            lastStitch.corners[0].RemoveStructuralEdge(false);
         }
 
-        
-        startPos.RemoveAllEdges();
-        
-        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight, myStitchInfo.width);
-        nodeLeft.SetStructuralEdge(nodeLeft.Connection.Last(),false);
-        
-        VerletEdge.ConnectNodes(nodeLeft, startPos.NodeRight.NodeAbove,
-            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
-       nodeLeft.SetShearEdge(nodeLeft.Connection.Last(), true);
-        
-        VerletEdge.ConnectNodes(nodeLeft.NodeAbove, startPos.NodeRight,
-            Calculation.CalculateDiagonal(startPos.Parent.width, startPos.Parent.height));
-        nodeLeft.NodeAbove.SetShearEdge(nodeLeft.NodeAbove.Connection.Last(),false);
-        
-        nodeLeft.Parent.UpdateCorners(startPos.NodeRight, 3);
-        nodeLeft.Parent.UpdateCorners(startPos.NodeRight.NodeAbove,2);
-        nodeLeft.SetNodeRight(startPos.NodeRight);
-        startPos.NodeRight.SetNodeLeft(nodeLeft);
-        
-        if (startPos.NodeBelow !=null)
+        foreach (var s in stitches)
         {
-            /*await Task.Delay(10);*/
-            DecreaseColumn(startPos.NodeBelow, startPos.NodeBelow.Parent);
-            FabricManager.AllNodes.Remove(startPos);
-            FabricManager.AllStitches.Remove(myStitchInfo);
-        } 
-        FabricManager.AllNodes.Remove(startPos);
-        FabricManager.AllStitches.Remove(myStitchInfo);
+            s._isInactive = true;
+            if (s.StitchAbove != null)
+            {
+                s.StitchAbove.StitchBelow = null;
+            }
+            else
+            {
+                s.corners[1].RemoveStructuralEdge(false);
+                s.corners[1].RemoveBendEdge(false);
+                if (s.StitchLeft != null)
+                {
+                    s.StitchLeft.corners[1].RemoveBendEdge(false);
+                }
+            }
+        }
     }
-
-    
 }
 
 public class PanelInfo
@@ -255,11 +309,9 @@ public class PanelInfo
         _height = height;
         _isCircular = isCircular;
     }
-    
 
     public VerletNode GetNodeAt(int x, int y)
     {
         return _nodes[Calculation.GetIndexFromCoordinate(x, y, _width)];
     }
 }
-

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static Verlet.VerletNode.EdgeType;
@@ -76,53 +78,95 @@ namespace Verlet
             _connection.Add(e);
         }
 
-        public void SetNodeAbove(VerletNode n)
-        {
-            _nodeAbove = n;
-        }
-
-        public void SetNodeBelow(VerletNode n)
-        {
-            _nodeBelow = n;
-        }
-
-        public void SetNodeLeft(VerletNode n)
-        {
-            _nodeLeft = n;
-        }
-
-        public void SetNodeRight(VerletNode n)
-        {
-            _nodeRight = n;
-        }
-
         public void SetParentStitch(StitchInfo parent)
         {
             _parent = parent;
         }
 
-        public void SetBendEdge(VerletEdge edge, bool up)
+        public void SetBendEdge(bool up,VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
+
             if (up)
+            {
+                if (_bendEdgeVertical != null)
+                {
+                    Debug.LogWarning(
+                        "bend edge vertical was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _bendEdgeVertical = edge;
+            }
+
             else
+            {
+                if (_bendEdgeHorizontal != null)
+                {
+                    Debug.LogWarning(
+                        "bend edge horizontal was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _bendEdgeHorizontal = edge;
+            }
+                
         }
 
-        public void SetShearEdge(VerletEdge edge, bool up)
+        public void SetShearEdge(bool up, VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
             if (up)
+            {
+                if (_shearEdgeUp != null)
+                {
+                    Debug.LogWarning(
+                        "shear edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
+
                 _shearEdgeUp = edge;
+            }
             else
+            {
+                if (_shearEdgeDown != null)
+                {
+                    Debug.LogWarning(
+                        "shear edge down was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _shearEdgeDown = edge;
+            }
+                
         }
 
-        public void SetStructuralEdge(VerletEdge edge, bool up)
+        public void SetStructuralEdge(bool up, VerletEdge edge = null)
         {
+            if (edge == null)
+            {
+                edge = _connection.Last();
+            }
+
             if (up)
+            {
+                if (_edgeUp != null)
+                {
+                    Debug.LogWarning(
+                        "structural edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _edgeUp = edge;
+            }
+
             else
+            {
+                if (_edgeRight != null)
+                {
+                    Debug.LogWarning(
+                        "structural edge right was overwritten without removing the previous edge. this can cause duplicate edges");
+                }
                 _edgeRight = edge;
+            }
+                
         }
 
         public void RemoveBendEdge(bool up)
@@ -166,6 +210,40 @@ namespace Verlet
             {
                 edge.Other(this).Connection.Remove(edge);
                 _connection.Remove(edge);
+            }
+
+            _bendEdgeHorizontal = null;
+            _bendEdgeVertical = null;
+            _shearEdgeDown = null;
+            _shearEdgeUp = null;
+            _edgeUp = null;
+            _edgeRight = null;
+        }
+
+        public VerletEdge FindEdgeByNode(VerletNode other)
+        {
+            VerletEdge returnEdge = null;
+            foreach (var edge in _connection)
+            {
+                if (edge.a == this && edge.b == other)
+                {
+                    returnEdge = edge;
+                }
+                else if (edge.a == other && edge.b == this)
+                {
+                    returnEdge = edge;
+                }
+            }
+            if (returnEdge == null) Debug.Log("no edge between those two nodes!");
+            return returnEdge;
+        }
+
+        public static void RemoveEdge(VerletEdge edge)
+        {
+            if (edge.a != null && edge.b != null)
+            {
+                edge.a.Connection.Remove(edge);
+                edge.b.Connection.Remove(edge);
             }
         }
     }

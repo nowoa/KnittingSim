@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using UnityEngine;
 using Verlet;
 using static Verlet.VerletNode;
@@ -15,7 +16,9 @@ public static class NodeConnector
             
             var diagonalRightUpIndex = i + myWidth + 1;
             var upIndex = i + myWidth;
+            var downIndex = i - myWidth;
             var rightIndex = i + 1;
+            var leftIndex = i - 1;
             var isLastInRow = (i + 1) % myWidth == 0;
             var diagonalRightDownIndex = i - myWidth + 1;
             var bendEdgeRightIndex = i + 2;
@@ -25,44 +28,51 @@ public static class NodeConnector
             if (upIndex.IsInRangeOf(myNodes)) //structural vertical
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[upIndex],myStitchTemplate.height);
-                myNodes[i].SetNodeAbove(myNodes[upIndex]);
-                myNodes[upIndex].SetNodeBelow(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetStructuralEdge(true);
             }
 
             if (!isLastInRow) //structural horizontal
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[rightIndex],myStitchTemplate.width);
-                myNodes[i].SetNodeRight(myNodes[rightIndex]);
-                myNodes[rightIndex].SetNodeLeft(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetStructuralEdge(false);
             }
             
             if(!isLastInRow && diagonalRightDownIndex.IsInRangeOf(myNodes)) //shear down
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightDownIndex],diagonalLength);
-                myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetShearEdge(false);
             }
             
             if(bendEdgeRightIndex.IsInRangeOf(myNodes) && !isLastInRow && !isBeforeLastInRow) //bend horizontal
             {
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeRightIndex],myStitchTemplate.width*2);
-                myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),false);
+                myNodes[i].SetBendEdge(false);
             }
 
             if(bendEdgeUpIndex.IsInRangeOf(myNodes)) //bend vertical
             {
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeUpIndex],myStitchTemplate.height*2);
-                myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetBendEdge(true);
             }
             if(!isLastInRow && diagonalRightUpIndex.IsInRangeOf(myNodes)) //shear up
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[diagonalRightUpIndex],diagonalLength);
-                myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
+                myNodes[i].SetShearEdge(true);
                 var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                     myNodes[rightIndex]);
                 FabricManager.AllStitches.Add(parentStitch);
                 myNodes[i].SetParentStitch(parentStitch);
+                if (leftIndex.IsInRangeOf(myNodes)&& myNodes[leftIndex].Parent!=null)
+                {
+                    parentStitch.UpdateNeighborStitch(myNodes[leftIndex].Parent,"left");
+                    myNodes[leftIndex].Parent.UpdateNeighborStitch(parentStitch,"right");
+                }
+
+                if(downIndex.IsInRangeOf(myNodes)&& myNodes[downIndex].Parent!=null)
+                {
+                    parentStitch.UpdateNeighborStitch(myNodes[downIndex].Parent, "below");
+                    myNodes[downIndex].Parent.UpdateNeighborStitch(parentStitch,"above");
+                }
             }
              
             if (myIsCircular)
@@ -80,27 +90,25 @@ public static class NodeConnector
                 }
                 
                 VerletEdge.ConnectNodes(myNodes[i], myNodes[rightIndex],myStitchTemplate.width); //structural horizontal
-                myNodes[i].SetNodeRight(myNodes[rightIndex]);
-                myNodes[rightIndex].SetNodeLeft(myNodes[i]);
-                myNodes[i].SetStructuralEdge(myNodes[i].Connection.Last(), false);
+                myNodes[i].SetStructuralEdge(false);
 
                 if((bendEdgeRightIndex).IsInRangeOf(myNodes)) //bend horizontal
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[bendEdgeRightIndex],myStitchTemplate.width*2); 
-                    myNodes[i].SetBendEdge(myNodes[i].Connection.Last(),false);
+                    myNodes[i].SetBendEdge(false);
                 }
                     
                 if ((diagonalRightDownIndex).IsInRangeOf(myNodes)) //shear down
                 {
                     VerletEdge.ConnectNodes(myNodes[i],
                         myNodes[diagonalRightDownIndex],diagonalLength); 
-                    myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),false);
+                    myNodes[i].SetShearEdge(false);
                 }
 
                 if ((diagonalRightUpIndex).IsInRangeOf(myNodes)) //shear up
                 {
                     VerletEdge.ConnectNodes(myNodes[i], myNodes[diagonalRightUpIndex],diagonalLength);
-                    myNodes[i].SetShearEdge(myNodes[i].Connection.Last(),true);
+                    myNodes[i].SetShearEdge(true);
                     var parentStitch = new StitchInfo(myNodes[i], myNodes[upIndex], myNodes[diagonalRightUpIndex],
                         myNodes[rightIndex]);
                     FabricManager.AllStitches.Add(parentStitch);
