@@ -76,5 +76,6 @@ public class FabricMesh : MonoBehaviour
         }
 
         _mesh.SetVertices(vertexList);
+        _mesh.RecalculateNormals();
     }
 }
