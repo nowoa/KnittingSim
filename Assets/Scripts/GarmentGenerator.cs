@@ -9,6 +9,7 @@ public class GarmentGenerator : MonoBehaviour
     private FabricManager _fabricManager;
     private StitchTemplate _stitchTemplate = new();
     public StitchTemplate StitchTemplate => _stitchTemplate;
+    public FabricMesh fabricMesh;
 
     #region Parameters
 
@@ -165,6 +166,11 @@ public class GarmentGenerator : MonoBehaviour
         Generate();
         _fabricManager.MakePanel(panelName,width,height,isCircular);
         
+    }
+
+    private void Start()
+    {
+        fabricMesh = GameObject.FindObjectOfType<FabricMesh>();
     }
 
     [ContextMenu("stretch")]

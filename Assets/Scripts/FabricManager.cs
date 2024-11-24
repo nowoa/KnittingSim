@@ -238,7 +238,9 @@ public class FabricManager
                 stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
             }
         }
-        
+
+
+        _parent.fabricMesh.UpdatePositions();
     }
 
     public void DrawGizmos()

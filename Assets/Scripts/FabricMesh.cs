@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Verlet;
 
 public class FabricMesh : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class FabricMesh : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void Update() 
     {
         
     }
@@ -64,5 +65,16 @@ public class FabricMesh : MonoBehaviour
             renderMatrices.Add(mat);
         }
         Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
+    }
+
+    public void UpdatePositions()
+    {
+        var vertexList = new List<Vector3>();
+        foreach (var s in FabricManager.AllStitches)
+        {
+          vertexList.AddRange(new []{s.corners[0].Position,s.corners[1].Position,s.corners[2].Position,s.corners[3].Position});
+        }
+
+        _mesh.SetVertices(vertexList);
     }
 }
