@@ -46,6 +46,7 @@ namespace Verlet
         public VerletEdge EdgeUp => _edgeUp;
         public VerletEdge EdgeRight => _edgeRight;
         public StitchInfo Parent => _parent;
+        public Vector3 normal;
         public enum EdgeType
         {
             Structural,
@@ -58,6 +59,25 @@ namespace Verlet
         public Vector3 Position;
         public bool IsAnchored;
         public Vector3 AnchoredPos;
+
+        public void SetNode(VerletNode node, int position)
+        {
+            switch (position)
+            {
+                case 0:
+                    _nodeLeft = node;
+                    break;
+                case 1 :
+                    _nodeAbove = node;
+                    break;
+                case 2:
+                    _nodeRight = node;
+                    break;
+                case 3:
+                    _nodeBelow = node;
+                    break;
+            }
+        }
 
         public VerletNode(Vector3 p)
         {
@@ -245,6 +265,27 @@ namespace Verlet
                 edge.a.Connection.Remove(edge);
                 edge.b.Connection.Remove(edge);
             }
+        }
+
+        public void CalculateNormal()
+        {
+            Vector3 left;
+            Vector3 above;
+            Vector3 right;
+            Vector3 below;
+            //left
+            left = _nodeLeft == null ? Position : _nodeLeft.Position;
+            right = _nodeRight == null ? Position : _nodeRight.Position;
+            above = _nodeAbove == null ? Position : _nodeAbove.Position;
+            below = _nodeBelow == null ? Position : _nodeBelow.Position;
+            
+            //calc
+            Vector3 horizontal = left - right;
+            Vector3 vertical = above - below;
+            
+
+            normal = Vector3.Cross(horizontal, vertical).normalized;
+
         }
     }
 }

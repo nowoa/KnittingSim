@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using Verlet;
 
 public class FabricMesh : MonoBehaviour
@@ -30,19 +31,22 @@ public class FabricMesh : MonoBehaviour
         _mesh = new Mesh();
         _mesh.SetVertices(GetVerticesAndTriangles().vertices);
         _mesh.SetTriangles(GetVerticesAndTriangles().triangles,0);
-        _mesh.SetColors(GetVerticesAndTriangles().colors);
-        _mesh.RecalculateNormals();
+        _mesh.SetNormals(GetVerticesAndTriangles().normals);
 
         _meshFilter.sharedMesh = _mesh;
     }
 
-    private (List<Vector3> vertices, List<int> triangles, List<Color> colors) GetVerticesAndTriangles()
+    private (List<Vector3> vertices, List<int> triangles, List<Vector3> normals) GetVerticesAndTriangles()
     {
         Color color;
         var vertexIndex = 0;
         var vertexList = new List<Vector3>();
         var triangleList = new List<int>();
-        var colorList = new List<Color>();
+        var normalList = new List<Vector3>();
+        foreach (var n in FabricManager.AllNodes)
+        {
+            n.CalculateNormal();
+        }
         foreach (var s in FabricManager.AllStitches)
         {
             s.SetParentMesh(this);
@@ -50,15 +54,13 @@ public class FabricMesh : MonoBehaviour
             {
                 continue;
             }
-
-            color = s.Knit ? Color.blue : Color.red;
             vertexList.AddRange(new[] { s.corners[0].Position, s.corners[1].Position, s.corners[2].Position, s.corners[3].Position });
             triangleList.AddRange( new[] {vertexIndex, vertexIndex+1, vertexIndex +2, vertexIndex, vertexIndex+2, vertexIndex+3});
-            colorList.AddRange(new [] {color,color,color,color});
+            normalList.AddRange(new []{s.corners[0].normal,s.corners[1].normal,s.corners[2].normal,s.corners[3].normal});
             vertexIndex +=4;
         }
 
-        return (vertexList,triangleList, colorList);
+        return (vertexList,triangleList, normalList);
     }
     
     public void RenderNodes(Material material, Mesh mesh)
@@ -75,11 +77,17 @@ public class FabricMesh : MonoBehaviour
 
     public void UpdatePositions()
     {
+        
         if (_mesh == null)
         {
             return;
         }
         var vertexList = new List<Vector3>();
+        var normalList = new List<Vector3>();
+        foreach (var n in FabricManager.AllNodes)
+        {
+            n.CalculateNormal();
+        }
         foreach (var s in FabricManager.AllStitches)
         {
             if (s.isInactive)
@@ -87,9 +95,10 @@ public class FabricMesh : MonoBehaviour
                 continue;
             }
             vertexList.AddRange(new []{s.corners[0].Position,s.corners[1].Position,s.corners[2].Position,s.corners[3].Position});
+            normalList.AddRange(new []{s.corners[0].normal,s.corners[1].normal,s.corners[2].normal,s.corners[3].normal});
         }
 
         _mesh.SetVertices(vertexList);
-        _mesh.RecalculateNormals();
+        _mesh.SetNormals(normalList);
     }
 }
