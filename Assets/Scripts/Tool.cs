@@ -88,12 +88,14 @@ public class StitchBrush : Tool
         if (_knitBrush)
         {
             SetKnit(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
-            return;
+            FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh.UpdateMesh();
+            
         }
-        if (_purlBrush)
+        else if (_purlBrush)
         {
             SetPurl(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
-            return;
+            FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh.UpdateMesh();
+            
         }
         base.DefaultBehavior();
     }
@@ -311,6 +313,7 @@ public class Decreaser : Tool
         {
             Decrease.Main(stitchesToDecrease,rightDirection);
             FabricManager.InvokeUpdateSimulation();
+            FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh.UpdateMesh();
         }
         
     }
