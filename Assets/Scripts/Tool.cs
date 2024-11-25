@@ -81,6 +81,61 @@ public class Dragger : Tool
 
 public class StitchBrush : Tool
 {
+    private bool _knitBrush;
+    private bool _purlBrush;
+    public override void DefaultBehavior()
+    {
+        if (_knitBrush)
+        {
+            SetKnit(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
+            return;
+        }
+        if (_purlBrush)
+        {
+            SetPurl(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
+            return;
+        }
+        base.DefaultBehavior();
+    }
+
+    public override void MainAction()
+    {
+        _knitBrush = true;
+    }
+
+    public override void MainActionEnd()
+    {
+        _knitBrush = false;
+    }
+
+    public override void SecondaryAction()
+    {
+        _purlBrush = true;
+    }
+
+    public override void SecondaryActionEnd()
+    {
+        _purlBrush = false;
+    }
+
+    private void SetKnit(StitchInfo stitch)
+    {
+        if (stitch.Knit)
+        {
+            return;
+        }
+        stitch.Knit = true;
+    }
+
+    private void SetPurl(StitchInfo stitch)
+    {
+        if (!stitch.Knit)
+        {
+            return;
+        }
+
+        stitch.Knit = false;
+    }
 }
 
 public class Increaser : Tool
@@ -281,14 +336,13 @@ public class Knife : Tool
             if (cachedIndex != -1)
             {
                 Cut(cachedIndex);
+                FabricManager.AllStitches[cachedIndex].ParentMesh.UpdateMesh();
             }
         }
     }
 
     public override void MainAction()
     {
-        var cachedIndex = _mouseDragger.HoveredStitchIndex;
-        Cut(cachedIndex);
         isCutting = true;
     }
 

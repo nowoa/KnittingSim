@@ -27,13 +27,16 @@ public class StitchInfo
     private float _height;
     private float _width;
     private bool _isInactive = false;
+    private FabricMesh _parentMesh;
+
+    public FabricMesh ParentMesh => _parentMesh;
     public bool isInactive => _isInactive;
     public float height => _height;
     public float width => _width;
     
     private StitchType _stitchType = 0;
     public StitchType stitchType => _stitchType;
-    private bool knit = true;
+    public bool Knit = true;
 
     public enum StitchType
     {
@@ -101,6 +104,11 @@ public class StitchInfo
     public void SetInactive()
     {
         _isInactive = true;
+    }
+    
+    public void SetParentMesh(FabricMesh parentMesh)
+    {
+        _parentMesh = parentMesh;
     }
 
     public void UpdateCorners(VerletNode myNode, int myCornerIndex)

@@ -21,12 +21,10 @@ public class MouseDragger
     }
     
     private float _hoveredChildDepth;
-    private float _hoveredStitchDepth;
     public int HoveredChildIndex;
     public int HoveredStitchIndex;
     private Camera _camera;
     public int SelectedChildIndex =-1;
-    public int SelectedStitchIndex = -1;
     private bool _hover = true;
   
     
@@ -82,7 +80,6 @@ public class MouseDragger
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
             {
                 HoveredStitchIndex = i;
-                _hoveredStitchDepth = screenPoint.z;
                 shortestDistance = distanceToMouse;
 
             }

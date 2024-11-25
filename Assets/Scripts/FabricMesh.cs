@@ -21,13 +21,12 @@ public class FabricMesh : MonoBehaviour
         
     }
 
-    public void GenerateMesh()
+    public void UpdateMesh()
     {
         if (_mesh != null)
         {
             Destroy(_mesh);
         }
-        Debug.Log("generate mesh");
         _mesh = new Mesh();
         _mesh.SetVertices(GetVerticesAndTriangles().vertices);
         _mesh.SetTriangles(GetVerticesAndTriangles().triangles,0);
@@ -43,6 +42,7 @@ public class FabricMesh : MonoBehaviour
         var triangleList = new List<int>();
         foreach (var s in FabricManager.AllStitches)
         {
+            s.SetParentMesh(this);
             if (s.isInactive)
             {
                 continue;
@@ -76,7 +76,11 @@ public class FabricMesh : MonoBehaviour
         var vertexList = new List<Vector3>();
         foreach (var s in FabricManager.AllStitches)
         {
-          vertexList.AddRange(new []{s.corners[0].Position,s.corners[1].Position,s.corners[2].Position,s.corners[3].Position});
+            if (s.isInactive)
+            {
+                continue;
+            }
+            vertexList.AddRange(new []{s.corners[0].Position,s.corners[1].Position,s.corners[2].Position,s.corners[3].Position});
         }
 
         _mesh.SetVertices(vertexList);
