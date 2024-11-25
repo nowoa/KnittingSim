@@ -69,6 +69,10 @@ public class FabricMesh : MonoBehaviour
 
     public void UpdatePositions()
     {
+        if (_mesh == null)
+        {
+            return;
+        }
         var vertexList = new List<Vector3>();
         foreach (var s in FabricManager.AllStitches)
         {

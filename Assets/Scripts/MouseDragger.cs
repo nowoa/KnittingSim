@@ -27,6 +27,7 @@ public class MouseDragger
     private Camera _camera;
     public int SelectedChildIndex =-1;
     public int SelectedStitchIndex = -1;
+    private bool _hover = true;
   
     
     private MouseDragger()
@@ -63,7 +64,7 @@ public class MouseDragger
     public void UpdateHoverStitch()
     {
         var stitches = FabricManager.AllStitches;
-        if (SelectedStitchIndex != -1)
+        if (SelectedChildIndex != -1)
         {
             return;
         }
