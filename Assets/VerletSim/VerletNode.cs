@@ -1,12 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using static Verlet.VerletNode.EdgeType;
 
 
 namespace Verlet
@@ -267,24 +261,42 @@ namespace Verlet
             }
         }
 
+        private List<VerletEdge> GetEdgesOfType(List<VerletEdge> edges, VerletEdge.EdgeType targetType)
+        {
+            return edges.Where(edge => edge.edgeType == targetType).ToList();
+        }
         public void CalculateNormal()
         {
-            Vector3 left;
-            Vector3 above;
-            Vector3 right;
-            Vector3 below;
-            //left
-            left = _nodeLeft == null ? Position : _nodeLeft.Position;
-            right = _nodeRight == null ? Position : _nodeRight.Position;
-            above = _nodeAbove == null ? Position : _nodeAbove.Position;
-            below = _nodeBelow == null ? Position : _nodeBelow.Position;
-            
-            //calc
-            Vector3 horizontal = left - right;
-            Vector3 vertical = above - below;
-            
+            Vector3 edge1;
+            Vector3 edge2;
+            if (_edgeUp != null)
+            {
+                edge1 = _edgeUp.b.Position - _edgeUp.a.Position;
+            }
+            else
+            {
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                edge1 = edge[0].b.Position - edge[0].a.Position;
+            }
 
-            normal = Vector3.Cross(horizontal, vertical).normalized;
+            if (_edgeRight != null)
+            {
+                edge2 = _edgeRight.b.Position - _edgeRight.a.Position;
+            }
+            else
+            {
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                edge2 = edge[1].b.Position - edge[1].a.Position;
+            }
+
+            if (_edgeUp != null && _edgeRight == null &&
+                GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural).Count == 2)
+            {
+                edge1 = Position;
+                edge2 = _edgeUp.a.Position - _edgeUp.b.Position;
+            }
+            
+            normal = Vector3.Cross(edge1,edge2).normalized;
 
         }
     }

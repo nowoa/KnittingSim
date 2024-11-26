@@ -25,7 +25,6 @@ public class MouseDragger
     public int HoveredStitchIndex;
     private Camera _camera;
     public int SelectedChildIndex =-1;
-    private bool _hover = true;
   
     
     private MouseDragger()

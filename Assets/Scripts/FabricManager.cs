@@ -278,6 +278,7 @@ public class FabricManager
         {
             foreach (var node in _sim.Nodes)
             {
+                Gizmos.DrawLine(node.Position,node.Position+node.normal);
                 if (node.IsAnchored)
                 {
                     Gizmos.color = Color.green;

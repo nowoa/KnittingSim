@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using Verlet;
 
@@ -223,31 +225,37 @@ public static class Decrease
             (_firstDecrease.height + _lastDecrease.height) / 2);
         if (!_firstDone)
         {
+            //right structural
             _firstDecrease.SetStitchType(StitchInfo.StitchType.DecreaseFirst);
             _lastDecrease.SetStitchType(StitchInfo.StitchType.DecreaseLast);
-            VerletEdge.ConnectNodes(left, right, _lastDecrease.width);
+            VerletEdge.ConnectNodes(left, right, _lastDecrease.width, VerletEdge.EdgeType.Structural);
             left.RemoveStructuralEdge( false);
             left.SetStructuralEdge( false);
             
             _firstDecrease.UpdateCorners(right,3);
             _lastDecrease.UpdateCorners(left,0);
             
-            VerletEdge.ConnectNodes(left,_lastDecrease.corners[1],_lastDecrease.height);
+            //structural up
+            VerletEdge.ConnectNodes(left,_lastDecrease.corners[1],_lastDecrease.height, VerletEdge.EdgeType.Structural);
             /*left.SetStructuralEdge(true);*/
             
-            VerletEdge.ConnectNodes(left,_firstDecrease.corners[2],diagonalLength);
+            //shear up
+            VerletEdge.ConnectNodes(left,_firstDecrease.corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
             left.RemoveShearEdge(true);
             left.SetShearEdge(true);
             
-            VerletEdge.ConnectNodes(_firstDecrease.corners[1],right,diagonalLength);
+            //shear down
+            VerletEdge.ConnectNodes(_firstDecrease.corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
             _firstDecrease.corners[1].RemoveShearEdge(false);
             _firstDecrease.corners[1].SetShearEdge(false);
             
-            VerletEdge.ConnectNodes(left,_lastDecrease.corners[2],diagonalLength);
+            //shear up
+            VerletEdge.ConnectNodes(left,_lastDecrease.corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
             left.RemoveShearEdge(true);
             left.SetShearEdge(true);
             
-            VerletEdge.ConnectNodes(_lastDecrease.corners[1],right,diagonalLength);
+            //shear
+            VerletEdge.ConnectNodes(_lastDecrease.corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
             _lastDecrease.corners[1].RemoveShearEdge(false);
             _lastDecrease.corners[1].SetShearEdge(false);
 
@@ -263,14 +271,14 @@ public static class Decrease
         var diagonalLength = Calculation.CalculateDiagonal((myStitch.width + _lastDecrease.width) / 2,
             (myStitch.height + _lastDecrease.height) / 2);
         myStitch.SetStitchType(StitchInfo.StitchType.DecreaseMiddle);
-        VerletEdge.ConnectNodes(myStitch.corners[1],_firstDecrease.corners[0],myStitch.height);
-        VerletEdge.ConnectNodes(myStitch.corners[2],_lastDecrease.corners[3],myStitch.height);
+        VerletEdge.ConnectNodes(myStitch.corners[1],_firstDecrease.corners[0],myStitch.height, VerletEdge.EdgeType.Structural);
+        VerletEdge.ConnectNodes(myStitch.corners[2],_lastDecrease.corners[3],myStitch.height, VerletEdge.EdgeType.Structural);
         myStitch.UpdateCorners(_firstDecrease.corners[0],0);
         myStitch.UpdateCorners(_lastDecrease.corners[3],3);
-        VerletEdge.ConnectNodes(myStitch.corners[1],myStitch.corners[3],diagonalLength);
+        VerletEdge.ConnectNodes(myStitch.corners[1],myStitch.corners[3],diagonalLength, VerletEdge.EdgeType.Shear);
         myStitch.corners[1].RemoveShearEdge(false);
         myStitch.corners[1].SetShearEdge(false);
-        VerletEdge.ConnectNodes(myStitch.corners[0],myStitch.corners[2],diagonalLength);
+        VerletEdge.ConnectNodes(myStitch.corners[0],myStitch.corners[2],diagonalLength, VerletEdge.EdgeType.Shear);
     }
     
     private static void ConnectColumnsRecursive(StitchInfo left, StitchInfo right)
@@ -279,15 +287,15 @@ public static class Decrease
         var height = (left.height + right.height) / 2;
         var diagonal = Calculation.CalculateDiagonal(width, height);
 
-        VerletEdge.ConnectNodes(left.corners[0],right.corners[3],width);
+        VerletEdge.ConnectNodes(left.corners[0],right.corners[3],width, VerletEdge.EdgeType.Structural);
         left.corners[0].RemoveStructuralEdge(false);
         left.corners[0].SetStructuralEdge(false);
         
-        VerletEdge.ConnectNodes(left.StitchAbove.corners[0],right.corners[3],diagonal);
+        VerletEdge.ConnectNodes(left.StitchAbove.corners[0],right.corners[3],diagonal, VerletEdge.EdgeType.Shear);
         left.StitchAbove.corners[0].RemoveShearEdge(false);
         left.StitchAbove.corners[0].SetShearEdge(false);
         
-        VerletEdge.ConnectNodes(left.corners[0],right.StitchAbove.corners[3],diagonal);
+        VerletEdge.ConnectNodes(left.corners[0],right.StitchAbove.corners[3],diagonal, VerletEdge.EdgeType.Shear);
         left.corners[0].RemoveShearEdge(true);
         left.corners[0].SetShearEdge(true);
         

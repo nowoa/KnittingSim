@@ -38,7 +38,6 @@ public class FabricMesh : MonoBehaviour
 
     private (List<Vector3> vertices, List<int> triangles, List<Vector3> normals) GetVerticesAndTriangles()
     {
-        Color color;
         var vertexIndex = 0;
         var vertexList = new List<Vector3>();
         var triangleList = new List<int>();
