@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.Utilities;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -85,14 +86,14 @@ public class FabricMesh : MonoBehaviour
                     vertexIndex += 4;
                     break;
             }
-            /*if (s.Knit)
+            if (s.Knit)
             {
                 uvList.AddRange(new []{new Vector2(0.49f,0), new Vector2(0.49f,1), new Vector2(0,1), new Vector2(0,0)});
             }
             else
             {
                 uvList.AddRange(new []{new Vector2(1f,0), new Vector2(1f,1), new Vector2(0.51f,1), new Vector2(0.51f,0)});
-            }*/
+            }
         }
 
         return (vertexList,triangleList, normalList, uvList);
@@ -147,11 +148,33 @@ public class FabricMesh : MonoBehaviour
                 continue;
             }
             //TODO: update the vertex list taking into account decreased stitches having only 3 verts
-            vertexList.AddRange(new []{s.corners[0].Position,s.corners[1].Position,s.corners[2].Position,s.corners[3].Position});
-            normalList.AddRange(new []{s.corners[0].normal,s.corners[1].normal,s.corners[2].normal,s.corners[3].normal});
+            var corners = GetCorners(s);
+            vertexList.AddRange(corners.Select(item => item.Position));
+            normalList.AddRange(corners.Select(item => item.normal));
         }
 
         _mesh.SetVertices(vertexList);
         _mesh.SetNormals(normalList);
+    }
+
+    private VerletNode[] GetCorners(StitchInfo s)
+    {
+        var type = s.stitchType;
+        switch (type)
+        {
+            case StitchInfo.StitchType.normal:
+                return new[]
+                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3]};
+            case StitchInfo.StitchType.DecreaseFirst:
+                return new[] { s.corners[0], s.corners[1], s.corners[2] };
+            case StitchInfo.StitchType.DecreaseMiddle: 
+                return new[] { s.corners[0], s.corners[1], s.corners[2]};
+            case StitchInfo.StitchType.DecreaseLast:
+                return new[]
+                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3] };
+            default:
+                return new[]
+                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3] };
+        }
     }
 }

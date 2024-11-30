@@ -29,16 +29,12 @@ public static class NodeConnector
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[upIndex],myStitchTemplate.height, VerletEdge.EdgeType.Structural);
                 myNodes[i].SetStructuralEdge(true);
-                myNodes[i].SetNode(myNodes[upIndex],1);
-                myNodes[upIndex].SetNode(myNodes[i],3);
             }
 
             if (!isLastInRow) //structural horizontal
             {
                 VerletEdge.ConnectNodes(myNodes[i],myNodes[rightIndex],myStitchTemplate.width, VerletEdge.EdgeType.Structural);
                 myNodes[i].SetStructuralEdge(false);
-                myNodes[i].SetNode(myNodes[rightIndex],2);
-                myNodes[rightIndex].SetNode(myNodes[i],0);
             }
             
             if(!isLastInRow && diagonalRightDownIndex.IsInRangeOf(myNodes)) //shear down

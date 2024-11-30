@@ -10,10 +10,6 @@ namespace Verlet
         #region private variables
         
         private List<VerletEdge> _connection;
-        private VerletNode _nodeAbove;
-        private VerletNode _nodeBelow;
-        private VerletNode _nodeLeft;
-        private VerletNode _nodeRight;
         private VerletEdge _bendEdgeHorizontal;
         private VerletEdge _bendEdgeVertical;
         private VerletEdge _shearEdgeUp;
@@ -29,10 +25,6 @@ namespace Verlet
         #region access givers
 
         public List<VerletEdge> Connection => _connection;
-        public VerletNode NodeAbove => _nodeAbove;
-        public VerletNode NodeBelow => _nodeBelow;
-        public VerletNode NodeLeft => _nodeLeft;
-        public VerletNode NodeRight => _nodeRight;
         public VerletEdge BendEdgeHorizontal => _bendEdgeHorizontal;
         public VerletEdge BendEdgeVertical => _bendEdgeVertical;
         public VerletEdge ShearEdgeUp => _shearEdgeUp;
@@ -53,25 +45,6 @@ namespace Verlet
         public Vector3 Position;
         public bool IsAnchored;
         public Vector3 AnchoredPos;
-
-        public void SetNode(VerletNode node, int position)
-        {
-            switch (position)
-            {
-                case 0:
-                    _nodeLeft = node;
-                    break;
-                case 1 :
-                    _nodeAbove = node;
-                    break;
-                case 2:
-                    _nodeRight = node;
-                    break;
-                case 3:
-                    _nodeBelow = node;
-                    break;
-            }
-        }
 
         public VerletNode(Vector3 p)
         {
