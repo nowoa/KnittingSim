@@ -1,12 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using static Verlet.VerletNode.EdgeType;
 
 
 namespace Verlet
@@ -16,10 +10,6 @@ namespace Verlet
         #region private variables
         
         private List<VerletEdge> _connection;
-        private VerletNode _nodeAbove;
-        private VerletNode _nodeBelow;
-        private VerletNode _nodeLeft;
-        private VerletNode _nodeRight;
         private VerletEdge _bendEdgeHorizontal;
         private VerletEdge _bendEdgeVertical;
         private VerletEdge _shearEdgeUp;
@@ -35,10 +25,6 @@ namespace Verlet
         #region access givers
 
         public List<VerletEdge> Connection => _connection;
-        public VerletNode NodeAbove => _nodeAbove;
-        public VerletNode NodeBelow => _nodeBelow;
-        public VerletNode NodeLeft => _nodeLeft;
-        public VerletNode NodeRight => _nodeRight;
         public VerletEdge BendEdgeHorizontal => _bendEdgeHorizontal;
         public VerletEdge BendEdgeVertical => _bendEdgeVertical;
         public VerletEdge ShearEdgeUp => _shearEdgeUp;
@@ -46,6 +32,7 @@ namespace Verlet
         public VerletEdge EdgeUp => _edgeUp;
         public VerletEdge EdgeRight => _edgeRight;
         public StitchInfo Parent => _parent;
+        public Vector3 normal;
         public enum EdgeType
         {
             Structural,
@@ -94,8 +81,7 @@ namespace Verlet
             {
                 if (_bendEdgeVertical != null)
                 {
-                    Debug.LogWarning(
-                        "bend edge vertical was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveBendEdge(true);
                 }
                 _bendEdgeVertical = edge;
             }
@@ -104,8 +90,7 @@ namespace Verlet
             {
                 if (_bendEdgeHorizontal != null)
                 {
-                    Debug.LogWarning(
-                        "bend edge horizontal was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveBendEdge(false);
                 }
                 _bendEdgeHorizontal = edge;
             }
@@ -122,8 +107,7 @@ namespace Verlet
             {
                 if (_shearEdgeUp != null)
                 {
-                    Debug.LogWarning(
-                        "shear edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveShearEdge(true);
                 }
 
                 _shearEdgeUp = edge;
@@ -132,8 +116,7 @@ namespace Verlet
             {
                 if (_shearEdgeDown != null)
                 {
-                    Debug.LogWarning(
-                        "shear edge down was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveShearEdge(false);
                 }
                 _shearEdgeDown = edge;
             }
@@ -151,8 +134,7 @@ namespace Verlet
             {
                 if (_edgeUp != null)
                 {
-                    Debug.LogWarning(
-                        "structural edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveStructuralEdge(true);
                 }
                 _edgeUp = edge;
             }
@@ -161,8 +143,7 @@ namespace Verlet
             {
                 if (_edgeRight != null)
                 {
-                    Debug.LogWarning(
-                        "structural edge right was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveStructuralEdge(false);
                 }
                 _edgeRight = edge;
             }
@@ -245,6 +226,63 @@ namespace Verlet
                 edge.a.Connection.Remove(edge);
                 edge.b.Connection.Remove(edge);
             }
+        }
+
+        private List<VerletEdge> GetEdgesOfType(List<VerletEdge> edges, VerletEdge.EdgeType targetType)
+        {
+            return edges.Where(edge => edge.edgeType == targetType).ToList();
+        }
+        public void CalculateNormal()
+        {
+            VerletEdge edge1 = null;
+            VerletEdge edge2 = null;
+            bool upReverse = false;
+            bool rightReverse = false;
+
+            if (_edgeUp != null)
+            {
+                edge1 = _edgeUp;
+            }
+
+            if (_edgeRight != null)
+            {
+                edge2 = _edgeRight;
+            }
+
+            if (_edgeUp == null)
+            {
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                foreach (var e in edge)
+                {
+                    if (e.Other(this).EdgeUp == e)
+                    {
+                        edge1 = e;
+                        break;
+                    }
+                }
+
+                upReverse = true;
+            }
+
+            if (_edgeRight == null)
+            {
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                foreach (var e in edge)
+                {
+                    if (e.Other(this).EdgeRight == e)
+                    {
+                        edge2 = e;
+                        break;
+                    }
+                }
+
+                rightReverse = true;
+            }
+            Vector3 up = edge1 == null? Position :  upReverse? Position - edge1.Other(this).Position : edge1.Other(this).Position - Position;
+            Vector3 right = edge2 == null? Position : rightReverse? Position - edge2.Other(this).Position : edge2.Other(this).Position - Position;
+            
+            normal = Vector3.Cross(up,right).normalized;
+
         }
     }
 }

@@ -61,4 +61,10 @@ public class ToolBoxUI : MonoBehaviour
     {
         ToolManager.SetActiveTool(ToolManager.Knife);
     }
+
+    public void MeshSnapshot()
+    {
+        var meshScript = GameObject.FindObjectOfType<FabricMesh>();
+        meshScript.UpdateMesh();
+    }
 }

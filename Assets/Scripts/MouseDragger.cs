@@ -21,12 +21,10 @@ public class MouseDragger
     }
     
     private float _hoveredChildDepth;
-    private float _hoveredStitchDepth;
     public int HoveredChildIndex;
     public int HoveredStitchIndex;
     private Camera _camera;
     public int SelectedChildIndex =-1;
-    public int SelectedStitchIndex = -1;
   
     
     private MouseDragger()
@@ -63,7 +61,7 @@ public class MouseDragger
     public void UpdateHoverStitch()
     {
         var stitches = FabricManager.AllStitches;
-        if (SelectedStitchIndex != -1)
+        if (SelectedChildIndex != -1)
         {
             return;
         }
@@ -81,7 +79,6 @@ public class MouseDragger
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
             {
                 HoveredStitchIndex = i;
-                _hoveredStitchDepth = screenPoint.z;
                 shortestDistance = distanceToMouse;
 
             }

@@ -238,7 +238,9 @@ public class FabricManager
                 stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
             }
         }
-        
+
+
+        _parent.fabricMesh.UpdatePositions();
     }
 
     public void DrawGizmos()
@@ -260,7 +262,7 @@ public class FabricManager
         
         if (_mouseDragger.HoveredStitchIndex >0 && _mouseDragger.HoveredStitchIndex < AllStitches.Count)
         {
-            if (!AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
+            if (AllStitches[_mouseDragger.HoveredStitchIndex].IsActive)
             {
                 Gizmos.color=Color.red;
                 Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);
@@ -276,6 +278,7 @@ public class FabricManager
         {
             foreach (var node in _sim.Nodes)
             {
+                Gizmos.DrawLine(node.Position,node.Position+node.normal);
                 if (node.IsAnchored)
                 {
                     Gizmos.color = Color.green;
@@ -284,17 +287,5 @@ public class FabricManager
             }
         }
         
-    }
-
-    public void RenderNodes(Material material, Mesh mesh)
-    {
-        var rparams = new RenderParams(material);
-        List<Matrix4x4> renderMatrices = new();
-        foreach (var node in AllNodes)
-        {
-            Matrix4x4 mat = Matrix4x4.TRS(node.Position, Quaternion.identity, Vector3.one * 0.1f);
-            renderMatrices.Add(mat);
-        }
-        Graphics.RenderMeshInstanced(rparams, mesh, 0, renderMatrices);
     }
 }

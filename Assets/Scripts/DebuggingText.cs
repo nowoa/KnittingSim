@@ -10,8 +10,9 @@ public class DebuggingText : MonoBehaviour
     public GarmentGenerator GarmentGenerator;
     private int _nodeCount;
     private float _current = 0;
-    [FormerlySerializedAs("textField")] public TMP_Text fpsTextField;
+    public TMP_Text fpsTextField;
     public TMP_Text stitchTypeTextField;
+ public TMP_Text knitValueTextField;
     private int _frameCount;
 
     private float _timer;
@@ -41,6 +42,12 @@ public class DebuggingText : MonoBehaviour
         {
             stitchTypeTextField.text =
                 FabricManager.AllStitches[MouseDragger.Instance.HoveredStitchIndex].stitchType.ToString();
+        }
+        if (MouseDragger.Instance.HoveredStitchIndex >= 0 &&
+            MouseDragger.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        {
+            knitValueTextField.text =
+                FabricManager.AllStitches[MouseDragger.Instance.HoveredStitchIndex].Knit ? "knit" : "purl";
         }
     }
 

@@ -59,7 +59,7 @@ public class NodeDebuggerUI : MonoBehaviour
         }
 
         var stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
-        if (stitchInfo.isInactive)
+        if (stitchInfo.IsActive)
         {
             return;
         }

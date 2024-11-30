@@ -4,10 +4,22 @@ using UnityEngine;
 
 namespace Verlet
 {
-
+    
+    
+    
 
     public class VerletEdge
     {
+        public enum EdgeType
+        {
+            Structural,
+            Shear,
+            Bend,
+            Seam
+        }
+
+        public EdgeType edgeType;
+        
         public float Length => length;
 
         public VerletNode a, b;
@@ -21,11 +33,12 @@ namespace Verlet
 
         }
 
-        public VerletEdge(VerletNode a, VerletNode b, float len)
+        public VerletEdge(VerletNode a, VerletNode b, float len, EdgeType type)
         {
             this.a = a;
             this.b = b;
             this.length = len;
+            edgeType = type;
 
         }
 
@@ -48,9 +61,14 @@ namespace Verlet
             b.AddEdge(edge);
         }
 
-        public static void ConnectNodes(VerletNode a, VerletNode b, float length)
+        public static void ConnectNodes(VerletNode a, VerletNode b, float length, EdgeType type)
         {
-            VerletEdge edge = new VerletEdge(a, b, length);
+            /*if (a.FindEdgeByNode(b) != null)
+            {
+                Debug.LogWarning("there is already an edge between these nodes!");
+                return;
+            }*/
+            VerletEdge edge = new VerletEdge(a, b, length, type);
             a.AddEdge(edge);
             b.AddEdge(edge);
         }

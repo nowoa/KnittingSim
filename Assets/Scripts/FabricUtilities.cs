@@ -1,13 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Xml;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UI;
 using Verlet;
-using static Verlet.VerletNode;
 using Vector3 = UnityEngine.Vector3;
 
 public class StitchInfo
@@ -26,14 +20,18 @@ public class StitchInfo
 
     private float _height;
     private float _width;
-    private bool _isInactive = false;
-    public bool isInactive => _isInactive;
+    private float _elasticityFactor;
+    private bool _isActive = true;
+    private FabricMesh _parentMesh;
+
+    public FabricMesh ParentMesh => _parentMesh;
+    public bool IsActive => _isActive;
     public float height => _height;
     public float width => _width;
     
     private StitchType _stitchType = 0;
     public StitchType stitchType => _stitchType;
-    private bool knit = true;
+    public bool Knit = true;
 
     public enum StitchType
     {
@@ -100,12 +98,42 @@ public class StitchInfo
 
     public void SetInactive()
     {
-        _isInactive = true;
+        _isActive = false;
+    }
+
+    public void SetElasticityFactor(float value)
+    {
+        _elasticityFactor = value;
+        UpdateEdgeLength();
+    }
+    
+    public void SetParentMesh(FabricMesh parentMesh)
+    {
+        _parentMesh = parentMesh;
     }
 
     public void UpdateCorners(VerletNode myNode, int myCornerIndex)
     {
         corners[myCornerIndex] = myNode;
+    }
+
+    private void UpdateEdgeLength()
+    {
+        VerletEdge.ConnectNodes(corners[0], corners[3], width * _elasticityFactor, VerletEdge.EdgeType.Structural);
+        corners[0].SetStructuralEdge(false);
+        VerletEdge.ConnectNodes(corners[1], corners[2], width * _elasticityFactor,VerletEdge.EdgeType.Structural);
+        corners[1].SetStructuralEdge(false);
+        VerletEdge.ConnectNodes(corners[0],corners[2], Calculation.CalculateDiagonal(width * _elasticityFactor, height), VerletEdge.EdgeType.Shear);
+        corners[0].SetShearEdge(true);
+        VerletEdge.ConnectNodes(corners[1],corners[3], Calculation.CalculateDiagonal(width* _elasticityFactor, height), VerletEdge.EdgeType.Shear);
+        corners[1].SetShearEdge(false);
+        if (StitchRight != null)
+        {
+            VerletEdge.ConnectNodes(corners[0], StitchRight.corners[3], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
+            corners[0].SetBendEdge(false);
+            VerletEdge.ConnectNodes(corners[1], StitchRight.corners[2], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
+            corners[1].SetBendEdge(false);
+        }
     }
 
     public void RemoveStitch()
@@ -116,7 +144,7 @@ public class StitchInfo
             RemoveDecrease(this);
             return;
         }
-        if (isInactive)
+        if (!IsActive)
         {
             return;
         }
@@ -273,7 +301,7 @@ public class StitchInfo
 
         foreach (var s in stitches)
         {
-            s._isInactive = true;
+            s._isActive = false;
             if (s.StitchAbove != null)
             {
                 s.StitchAbove.StitchBelow = null;
@@ -288,6 +316,23 @@ public class StitchInfo
                 }
             }
         }
+    }
+
+    public int GetNeighborElasticity()
+    {
+        var elasticity = 0;
+        if (StitchLeft?.Knit != Knit)
+        {
+            elasticity++;
+        }
+
+        if (StitchRight?.Knit != 
+            Knit)
+        {
+            elasticity++;
+        }
+
+        return elasticity;
     }
 }
 
