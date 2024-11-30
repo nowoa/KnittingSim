@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Verlet
@@ -22,6 +23,7 @@ namespace Verlet
             for (int iter = 0; iter < iterations; iter++)
             {
                 Solve();
+                SolveSelfCollision();
             }
         }
 
@@ -73,18 +75,53 @@ namespace Verlet
             b.Position += f * 0.5f * delta;
         }
 
-        public void DrawGizmos(Color myColor)
+        void SolveSelfCollision()
         {
-            for (int i = 0, n = particles.Count; i < n; i++)
+            for (int i = 0; i < particles.Count; i++)
             {
-                var p = particles[i];
-                Gizmos.color = myColor;
-                p.Connection.ForEach(e =>
+                for (int j = i + 1; j < particles.Count; j++) // Avoid redundant checks
                 {
-                    var other = e.Other(p);
-                    Gizmos.DrawLine(p.Position, other.Position);
-                });
+                    var nodeA = particles[i];
+                    var nodeB = particles[j];
+
+                    /*if (nodeA.Connection.Select(item => item.Other(nodeA)).Contains(nodeB))
+                    {
+                        return;
+                    }*/
+
+                    // Calculate the distance between the nodes
+                    var delta = nodeA.Position - nodeB.Position;
+                    var distance = delta.magnitude;
+                    var minDistance = nodeA.MarbleRadius + nodeB.MarbleRadius;
+
+                    if (distance < minDistance)
+                    {
+                        // Calculate the amount to push outward
+                        float difference = minDistance - distance;
+
+                        // Normalize the delta vector to get the separation direction
+                        Vector3 direction = delta.normalized;
+
+                        // Push both nodes outward equally
+                        nodeA.Position += 0.5f * difference * direction;
+                        nodeB.Position -= 0.5f * difference * direction;
+                    }
+                }
             }
         }
+
+        public void DrawGizmos(Color myColor)
+            {
+                for (int i = 0, n = particles.Count; i < n; i++)
+                {
+                    var p = particles[i];
+                    Gizmos.color = myColor;
+                    p.Connection.ForEach(e =>
+                    {
+                        var other = e.Other(p);
+                        Gizmos.DrawLine(p.Position, other.Position);
+                    });
+                }
+            }
     }
 }

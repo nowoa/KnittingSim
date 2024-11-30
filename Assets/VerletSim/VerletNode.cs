@@ -18,6 +18,7 @@ namespace Verlet
         private VerletEdge _edgeRight;
         private StitchInfo _parent;
         private Vector3 Prev;
+        private float _marbleRadius;
         
 
         #endregion
@@ -33,6 +34,7 @@ namespace Verlet
         public VerletEdge EdgeRight => _edgeRight;
         public StitchInfo Parent => _parent;
         public Vector3 normal;
+        public float MarbleRadius => _marbleRadius;
         public enum EdgeType
         {
             Structural,
@@ -68,6 +70,12 @@ namespace Verlet
         public void SetParentStitch(StitchInfo parent)
         {
             _parent = parent;
+        }
+
+        public void SetMarbleRadius(Vector2 size)
+        {
+            var biggestSize = size.x > size.y ? size.x : size.y;
+            _marbleRadius = biggestSize * 0.5f;
         }
 
         public void SetBendEdge(bool up,VerletEdge edge = null)

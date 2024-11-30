@@ -89,6 +89,10 @@ public class StitchInfo
     {
         _height = mySize.y;
         _width = mySize.x;
+        foreach (var c in corners)
+        {
+            c.SetMarbleRadius(mySize);
+        }
     }
 
     public void SetStitchType(StitchType type)
