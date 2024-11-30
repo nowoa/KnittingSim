@@ -267,36 +267,54 @@ namespace Verlet
         }
         public void CalculateNormal()
         {
-            Vector3 edge1;
-            Vector3 edge2;
+            VerletEdge edge1 = null;
+            VerletEdge edge2 = null;
+            bool upReverse = false;
+            bool rightReverse = false;
+
             if (_edgeUp != null)
             {
-                edge1 = _edgeUp.b.Position - _edgeUp.a.Position;
-            }
-            else
-            {
-                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
-                edge1 = edge[0].b.Position - edge[0].a.Position;
+                edge1 = _edgeUp;
             }
 
             if (_edgeRight != null)
             {
-                edge2 = _edgeRight.b.Position - _edgeRight.a.Position;
-            }
-            else
-            {
-                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
-                edge2 = edge[1].b.Position - edge[1].a.Position;
+                edge2 = _edgeRight;
             }
 
-            if (_edgeUp != null && _edgeRight == null &&
-                GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural).Count == 2)
+            if (_edgeUp == null)
             {
-                edge1 = Position;
-                edge2 = _edgeUp.a.Position - _edgeUp.b.Position;
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                foreach (var e in edge)
+                {
+                    if (e.Other(this).EdgeUp == e)
+                    {
+                        edge1 = e;
+                        break;
+                    }
+                }
+
+                upReverse = true;
             }
+
+            if (_edgeRight == null)
+            {
+                var edge = GetEdgesOfType(_connection, VerletEdge.EdgeType.Structural);
+                foreach (var e in edge)
+                {
+                    if (e.Other(this).EdgeRight == e)
+                    {
+                        edge2 = e;
+                        break;
+                    }
+                }
+
+                rightReverse = true;
+            }
+            Vector3 up = edge1 == null? Position :  upReverse? Position - edge1.Other(this).Position : edge1.Other(this).Position - Position;
+            Vector3 right = edge2 == null? Position : rightReverse? Position - edge2.Other(this).Position : edge2.Other(this).Position - Position;
             
-            normal = Vector3.Cross(edge1,edge2).normalized;
+            normal = Vector3.Cross(up,right).normalized;
 
         }
     }

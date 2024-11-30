@@ -87,6 +87,10 @@ public class StitchBrush : Tool
     {
         if (_knitBrush)
         {
+            if (_mouseDragger.HoveredStitchIndex == -1)
+            {
+                return;
+            }
             SetKnit(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
             var parentMesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
             if (parentMesh != null)
@@ -96,6 +100,10 @@ public class StitchBrush : Tool
         }
         else if (_purlBrush)
         {
+            if (_mouseDragger.HoveredStitchIndex == -1)
+            {
+                return;
+            }
             SetPurl(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
             var parentMesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
             if (parentMesh != null)
