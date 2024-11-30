@@ -81,8 +81,7 @@ namespace Verlet
             {
                 if (_bendEdgeVertical != null)
                 {
-                    Debug.LogWarning(
-                        "bend edge vertical was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveBendEdge(true);
                 }
                 _bendEdgeVertical = edge;
             }
@@ -91,8 +90,7 @@ namespace Verlet
             {
                 if (_bendEdgeHorizontal != null)
                 {
-                    Debug.LogWarning(
-                        "bend edge horizontal was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveBendEdge(false);
                 }
                 _bendEdgeHorizontal = edge;
             }
@@ -109,8 +107,7 @@ namespace Verlet
             {
                 if (_shearEdgeUp != null)
                 {
-                    Debug.LogWarning(
-                        "shear edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveShearEdge(true);
                 }
 
                 _shearEdgeUp = edge;
@@ -119,8 +116,7 @@ namespace Verlet
             {
                 if (_shearEdgeDown != null)
                 {
-                    Debug.LogWarning(
-                        "shear edge down was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveShearEdge(false);
                 }
                 _shearEdgeDown = edge;
             }
@@ -138,8 +134,7 @@ namespace Verlet
             {
                 if (_edgeUp != null)
                 {
-                    Debug.LogWarning(
-                        "structural edge up was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveStructuralEdge(true);
                 }
                 _edgeUp = edge;
             }
@@ -148,8 +143,7 @@ namespace Verlet
             {
                 if (_edgeRight != null)
                 {
-                    Debug.LogWarning(
-                        "structural edge right was overwritten without removing the previous edge. this can cause duplicate edges");
+                    RemoveStructuralEdge(false);
                 }
                 _edgeRight = edge;
             }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using Verlet;
@@ -83,35 +84,21 @@ public class StitchBrush : Tool
 {
     private bool _knitBrush;
     private bool _purlBrush;
+
     public override void DefaultBehavior()
     {
+        base.DefaultBehavior();
+        if (_mouseDragger.HoveredStitchIndex == -1) return;
+
+        var stitch = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
         if (_knitBrush)
         {
-            if (_mouseDragger.HoveredStitchIndex == -1)
-            {
-                return;
-            }
-            SetKnit(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
-            var parentMesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
-            if (parentMesh != null)
-            {
-                parentMesh.UpdateMesh();
-            }
+            ApplyBrushAction(stitch, true);
         }
         else if (_purlBrush)
         {
-            if (_mouseDragger.HoveredStitchIndex == -1)
-            {
-                return;
-            }
-            SetPurl(FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex]);
-            var parentMesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
-            if (parentMesh != null)
-            {
-                parentMesh.UpdateMesh();
-            }
+            ApplyBrushAction(stitch, false);
         }
-        base.DefaultBehavior();
     }
 
     public override void MainAction()
@@ -134,23 +121,47 @@ public class StitchBrush : Tool
         _purlBrush = false;
     }
 
-    private void SetKnit(StitchInfo stitch)
+    private void ApplyBrushAction(StitchInfo stitch, bool isKnit)
     {
-        if (stitch.Knit)
-        {
-            return;
-        }
-        stitch.Knit = true;
+        if (stitch.Knit == isKnit) return;
+
+        stitch.Knit = isKnit;
+        ApplyElasticityToNeighbors(stitch);
+        UpdateParentMesh(stitch);
     }
 
-    private void SetPurl(StitchInfo stitch)
+    private void ApplyElasticityToNeighbors(StitchInfo stitch)
     {
-        if (!stitch.Knit)
-        {
-            return;
-        }
+        ApplyElasticity(stitch);
+        ApplyElasticity(stitch.StitchRight);
+        ApplyElasticity(stitch.StitchLeft);
+    }
 
-        stitch.Knit = false;
+    private void ApplyElasticity(StitchInfo stitch)
+    {
+        if (stitch == null) return;
+
+        switch (stitch.GetNeighborElasticity())
+        {
+            case 0:
+                stitch.SetElasticityFactor(1f);
+                break;
+            case 1:
+                stitch.SetElasticityFactor(0.9f);
+                break;
+            case 2:
+                stitch.SetElasticityFactor(0.8f);
+                break;
+        }
+    }
+
+    private void UpdateParentMesh(StitchInfo stitch)
+    {
+        var parentMesh = stitch.ParentMesh;
+        if (parentMesh != null)
+        {
+            parentMesh.UpdateMesh();
+        }
     }
 }
 

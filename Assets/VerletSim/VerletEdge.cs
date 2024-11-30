@@ -63,6 +63,11 @@ namespace Verlet
 
         public static void ConnectNodes(VerletNode a, VerletNode b, float length, EdgeType type)
         {
+            /*if (a.FindEdgeByNode(b) != null)
+            {
+                Debug.LogWarning("there is already an edge between these nodes!");
+                return;
+            }*/
             VerletEdge edge = new VerletEdge(a, b, length, type);
             a.AddEdge(edge);
             b.AddEdge(edge);

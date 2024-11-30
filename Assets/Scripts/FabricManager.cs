@@ -262,7 +262,7 @@ public class FabricManager
         
         if (_mouseDragger.HoveredStitchIndex >0 && _mouseDragger.HoveredStitchIndex < AllStitches.Count)
         {
-            if (!AllStitches[_mouseDragger.HoveredStitchIndex].isInactive)
+            if (AllStitches[_mouseDragger.HoveredStitchIndex].IsActive)
             {
                 Gizmos.color=Color.red;
                 Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);

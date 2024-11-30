@@ -54,7 +54,7 @@ public class FabricMesh : MonoBehaviour
         foreach (var s in FabricManager.AllStitches)
         {
             s.SetParentMesh(this);
-            if (s.isInactive)
+            if (!s.IsActive)
             {
                 continue;
             }
@@ -143,7 +143,7 @@ public class FabricMesh : MonoBehaviour
         }
         foreach (var s in FabricManager.AllStitches)
         {
-            if (s.isInactive)
+            if (!s.IsActive)
             {
                 continue;
             }
