@@ -91,21 +91,23 @@ namespace Verlet
 
                     // Calculate the distance between the nodes
                     var delta = nodeA.Position - nodeB.Position;
-                    var distance = delta.magnitude;
-                    var minDistance = nodeA.MarbleRadius + nodeB.MarbleRadius;
-
-                    if (distance < minDistance)
+                    var distanceSqrd = delta.sqrMagnitude;
+                    var minDistanceSqrd = Mathf.Pow(nodeA.MarbleRadius,2) + Mathf.Pow(nodeB.MarbleRadius,2);
+                    if (distanceSqrd > minDistanceSqrd)
                     {
-                        // Calculate the amount to push outward
-                        float difference = minDistance - distance;
-
-                        // Normalize the delta vector to get the separation direction
-                        Vector3 direction = delta.normalized;
-
-                        // Push both nodes outward equally
-                        nodeA.Position += 0.5f * difference * direction;
-                        nodeB.Position -= 0.5f * difference * direction;
+                        continue;
                     }
+                    
+                    // Calculate the amount to push outward
+                    float difference = Mathf.Sqrt(distanceSqrd) - Mathf.Sqrt(minDistanceSqrd);
+
+                    // Normalize the delta vector to get the separation direction
+                    Vector3 direction = delta.normalized;
+
+                    // Push both nodes outward equally
+                    nodeA.Position += 0.5f * difference * direction;
+                    nodeB.Position -= 0.5f * difference * direction;
+                    
                 }
             }
         }

@@ -4004,8 +4004,8 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   pattern: {fileID: 0}
   panelName: 
-  width: 10
-  height: 30
+  width: 5
+  height: 5
   isCircular: 0
   bodyWidth: 10
   bodyHeight: 10
