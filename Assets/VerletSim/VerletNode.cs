@@ -19,6 +19,10 @@ namespace Verlet
         private StitchInfo _parent;
         private Vector3 Prev;
         private float _marbleRadius;
+        public VerletNode left;
+        public VerletNode up;
+        public VerletNode right;
+        public VerletNode down;
         
 
         #endregion
@@ -74,8 +78,8 @@ namespace Verlet
 
         public void SetMarbleRadius(Vector2 size)
         {
-            var biggestSize = size.x > size.y ? size.x : size.y;
-            _marbleRadius = biggestSize * 0.5f;
+            var smallest = size.x < size.y ? size.x : size.y;
+            _marbleRadius = smallest * 1.1f;
         }
 
         public void SetBendEdge(bool up,VerletEdge edge = null)

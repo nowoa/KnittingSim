@@ -69,6 +69,12 @@ public static class NodeConnector
                     parentStitch.UpdateNeighborStitch(myNodes[downIndex].Parent, "below");
                     myNodes[downIndex].Parent.UpdateNeighborStitch(parentStitch,"above");
                 }
+
+                myNodes[i].right = myNodes[rightIndex];
+                myNodes[i].up = myNodes[upIndex];
+                myNodes[rightIndex].left = myNodes[i];
+                myNodes[upIndex].down = myNodes[i];
+
             }
              
             if (myIsCircular)

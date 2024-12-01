@@ -20,11 +20,13 @@ namespace Verlet
         {
             var time = dt / iterations;
             Step(dt);
+            
             for (int iter = 0; iter < iterations; iter++)
             {
                 Solve();
-                SolveSelfCollision();
             }
+            SolveSelfCollisionExpensive();
+            
         }
 
         void Step(float deltaTime)
@@ -75,7 +77,7 @@ namespace Verlet
             b.Position += f * 0.5f * delta;
         }
 
-        void SolveSelfCollision()
+        void SolveSelfCollisionExpensive()
         {
             for (int i = 0; i < particles.Count; i++)
             {
@@ -84,30 +86,62 @@ namespace Verlet
                     var nodeA = particles[i];
                     var nodeB = particles[j];
 
-                    /*if (nodeA.Connection.Select(item => item.Other(nodeA)).Contains(nodeB))
-                    {
-                        return;
-                    }*/
-
-                    // Calculate the distance between the nodes
-                    var delta = nodeA.Position - nodeB.Position;
-                    var distanceSqrd = delta.sqrMagnitude;
-                    var minDistanceSqrd = Mathf.Pow(nodeA.MarbleRadius,2) + Mathf.Pow(nodeB.MarbleRadius,2);
-                    if (distanceSqrd > minDistanceSqrd)
+                    if (nodeA.EdgeUp?.Other(nodeA) == nodeB ||
+                        nodeA.EdgeRight?.Other(nodeA) == nodeB ||
+                        nodeA.ShearEdgeDown?.Other(nodeA) == nodeB ||
+                        nodeA.ShearEdgeUp?.Other(nodeA) == nodeB)
                     {
                         continue;
                     }
                     
-                    // Calculate the amount to push outward
-                    float difference = Mathf.Sqrt(distanceSqrd) - Mathf.Sqrt(minDistanceSqrd);
-
-                    // Normalize the delta vector to get the separation direction
-                    Vector3 direction = delta.normalized;
-
-                    // Push both nodes outward equally
-                    nodeA.Position += 0.5f * difference * direction;
-                    nodeB.Position -= 0.5f * difference * direction;
                     
+                    // Calculate the distance between the nodes
+                    var delta = nodeA.Position - nodeB.Position;
+                    var distance = delta.magnitude;
+                    var minDistance = nodeA.MarbleRadius + nodeB.MarbleRadius;
+
+                    if (distance < minDistance)
+                    {
+                        // Calculate the amount to push outward
+                        float difference = minDistance - distance;
+
+                        // Normalize the delta vector to get the separation direction
+                        Vector3 direction = delta.normalized;
+
+                        // Push both nodes outward equally
+                        nodeA.Position += 0.5f * difference * direction;
+                        nodeB.Position -= 0.5f * difference * direction;
+                    }
+                }
+            }
+        }
+        
+        void SolveSelfCollisionCheap()
+        {
+            for (int i = 0; i < particles.Count; i++)
+            {
+                for (int j = i + 1; j < particles.Count; j++) // Avoid redundant checks
+                {
+                    var nodeA = particles[i];
+                    var nodeB = particles[j];
+                    
+                    // Calculate the distance between the nodes
+                    var delta = nodeA.Position - nodeB.Position;
+                    var distance = delta.magnitude;
+                    var minDistance = nodeA.MarbleRadius/2 + nodeB.MarbleRadius/2;
+
+                    if (distance < minDistance)
+                    {
+                        // Calculate the amount to push outward
+                        float difference = minDistance - distance;
+
+                        // Normalize the delta vector to get the separation direction
+                        Vector3 direction = delta.normalized;
+
+                        // Push both nodes outward equally
+                        nodeA.Position += 0.5f * difference * direction;
+                        nodeB.Position -= 0.5f * difference * direction;
+                    }
                 }
             }
         }
