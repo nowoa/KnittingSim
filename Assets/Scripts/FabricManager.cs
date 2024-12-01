@@ -83,7 +83,7 @@ public class FabricManager
         {
             for (int x = 0; x < myDimensions.x; x++)
             {
-                VerletNode node = new VerletNode(new Vector2(x,y));
+                VerletNode node = new VerletNode(new Vector2(_parent.StitchTemplate.width * x,_parent.StitchTemplate.height * y));
                 nodes.Add(node);
             }
         }

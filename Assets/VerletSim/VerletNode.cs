@@ -79,7 +79,7 @@ namespace Verlet
         public void SetMarbleRadius(Vector2 size)
         {
             var smallest = size.x < size.y ? size.x : size.y;
-            _marbleRadius = smallest * 1.1f;
+            _marbleRadius = smallest * 1.2f;
         }
 
         public void SetBendEdge(bool up,VerletEdge edge = null)

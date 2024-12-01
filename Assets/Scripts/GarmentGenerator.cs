@@ -13,9 +13,6 @@ public class GarmentGenerator : MonoBehaviour
 
     #region Parameters
 
-    public Material material;
-    public Mesh mesh;
-    public Pattern pattern;
     public string panelName;
     public  int width = 10;
     public  int height = 10;
