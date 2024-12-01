@@ -36,6 +36,7 @@ public class FabricMesh : MonoBehaviour
         _mesh.SetTriangles(GetMeshInfo().triangles,0);
         _mesh.SetNormals(GetMeshInfo().normals);
         _mesh.SetUVs(0,GetMeshInfo().uvs);
+        
 
         _meshFilter.sharedMesh = _mesh;
     }

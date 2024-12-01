@@ -4,7 +4,6 @@ using Verlet;
 
 public static class NodeConnector
 {
-    //TO DO: restructure connections to all use the same directionality (e.g. up and right)
     public static void ConnectNodes(List<VerletNode> myNodes, int myWidth, bool myIsCircular, StitchTemplate myStitchTemplate)
     {
         var diagonalLength = CalculateDiagonal(myStitchTemplate);
@@ -70,6 +69,12 @@ public static class NodeConnector
                     parentStitch.UpdateNeighborStitch(myNodes[downIndex].Parent, "below");
                     myNodes[downIndex].Parent.UpdateNeighborStitch(parentStitch,"above");
                 }
+
+                myNodes[i].right = myNodes[rightIndex];
+                myNodes[i].up = myNodes[upIndex];
+                myNodes[rightIndex].left = myNodes[i];
+                myNodes[upIndex].down = myNodes[i];
+
             }
              
             if (myIsCircular)

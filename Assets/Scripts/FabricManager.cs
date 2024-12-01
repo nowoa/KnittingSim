@@ -83,7 +83,7 @@ public class FabricManager
         {
             for (int x = 0; x < myDimensions.x; x++)
             {
-                VerletNode node = new VerletNode(Random.insideUnitSphere);
+                VerletNode node = new VerletNode(new Vector2(x,y));
                 nodes.Add(node);
             }
         }
