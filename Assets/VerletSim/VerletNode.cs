@@ -23,7 +23,7 @@ namespace Verlet
         public VerletNode up;
         public VerletNode right;
         public VerletNode down;
-        
+        private float _marbleSize;        
 
         #endregion
 
@@ -79,7 +79,9 @@ namespace Verlet
         public void SetMarbleRadius(Vector2 size)
         {
             var smallest = size.x < size.y ? size.x : size.y;
-            _marbleRadius = smallest * 1.2f;
+            
+            _marbleSize= 1f;
+            _marbleRadius = smallest * _marbleSize;
         }
 
         public void SetBendEdge(bool up,VerletEdge edge = null)

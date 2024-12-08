@@ -233,9 +233,9 @@ public class FabricManager
         //update stitch position
         foreach (var stitch in AllStitches)
         {
-            if (stitch.corners.Any(item => item != null))
+            if (stitch.Corners.Any(item => item != null))
             {
-                stitch.SetPosition(Calculation.GetStitchPosition(stitch.corners));
+                stitch.SetPosition(Calculation.GetStitchPosition(stitch.Corners));
             }
         }
 
@@ -265,13 +265,13 @@ public class FabricManager
             if (AllStitches[_mouseDragger.HoveredStitchIndex].IsActive)
             {
                 Gizmos.color=Color.red;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[0].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[0].Position, 0.05f);
                 Gizmos.color=Color.yellow;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[1].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[1].Position, 0.05f);
                 Gizmos.color=Color.green;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[2].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[2].Position, 0.05f);
                 Gizmos.color=Color.blue;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].corners[3].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[3].Position, 0.05f);
             }
         }
         if (_sim != null)

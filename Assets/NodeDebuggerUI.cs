@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -59,20 +60,27 @@ public class NodeDebuggerUI : MonoBehaviour
         }
 
         var stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
-        if (stitchInfo.IsActive)
+        if (!stitchInfo.IsActive)
         {
             return;
         }
 
         if (NodeDebugger)
         {
-            _node.GetComponent<Image>().color = stitchInfo.corners[CornerIndex] == null ? Color.red : Color.green;
-            _structuralUp.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].EdgeUp == null ? Color.red : Color.green;
-            _structuralRight.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].EdgeRight == null ? Color.red : Color.green;
-            _shearUp.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].ShearEdgeUp == null ? Color.red : Color.green;
-            _shearDown.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].ShearEdgeDown == null ? Color.red : Color.green;
-            _bendUp.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].BendEdgeVertical == null ? Color.red : Color.green;
-            _bendRight.GetComponent<Image>().color = stitchInfo.corners[CornerIndex].BendEdgeHorizontal == null ? Color.red : Color.green;
+            if (stitchInfo?.Corners[CornerIndex] == null)
+            {
+                _node.GetComponent<Image>().color = Color.red;
+                return;
+            }
+
+            _node.GetComponent<Image>().color = Color.green;
+
+            _structuralUp.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].EdgeUp == null ? Color.red : Color.green;
+            _structuralRight.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].EdgeRight == null ? Color.red : Color.green;
+            _shearUp.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].ShearEdgeUp == null ? Color.red : Color.green;
+            _shearDown.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].ShearEdgeDown == null ? Color.red : Color.green;
+            _bendUp.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].BendEdgeVertical == null ? Color.red : Color.green;
+            _bendRight.GetComponent<Image>().color = stitchInfo.Corners[CornerIndex].BendEdgeHorizontal == null ? Color.red : Color.green;
         }
 
         if (StitchGridDebugger)

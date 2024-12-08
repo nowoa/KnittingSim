@@ -86,13 +86,25 @@ namespace Verlet
                     var nodeA = particles[i];
                     var nodeB = particles[j];
 
+                    /*if (nodeA.Parent?.stitchType is StitchInfo.StitchType.DecreaseFirst
+                        or StitchInfo.StitchType.DecreaseMiddle or StitchInfo.StitchType.DecreaseLast)
+                    {
+                        continue;
+                    }*/
+
+                    if (nodeA.Connection.Count != 12)
+                    {
+                        continue;
+                    }
+
                     if (nodeA.EdgeUp?.Other(nodeA) == nodeB ||
                         nodeA.EdgeRight?.Other(nodeA) == nodeB ||
                         nodeA.ShearEdgeDown?.Other(nodeA) == nodeB ||
                         nodeA.ShearEdgeUp?.Other(nodeA) == nodeB)
-                    {
+
+            {
                         continue;
-                    }
+            }
                     
                     
                     // Calculate the distance between the nodes

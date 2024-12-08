@@ -239,12 +239,12 @@ public class Decreaser : Tool
                 stitchesToDecrease.Add(stitchInfo);
             }
         }
-        if (stitchInfo.corners[0] == stitchesToDecrease.Last().corners[3])
+        if (stitchInfo.Corners[0] == stitchesToDecrease.Last().Corners[3])
         {
             AddOrRemoveDecrease(stitchInfo, true);
         }
         
-        if (stitchInfo.corners[3] == stitchesToDecrease.Last().corners[0])
+        if (stitchInfo.Corners[3] == stitchesToDecrease.Last().Corners[0])
         {
             AddOrRemoveDecrease(stitchInfo,false);
         }
@@ -338,7 +338,12 @@ public class Decreaser : Tool
         {
             Decrease.Main(stitchesToDecrease,rightDirection);
             FabricManager.InvokeUpdateSimulation();
-            FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh.UpdateMesh();
+            var mesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
+            if (mesh != null)
+            {
+                mesh.UpdateMesh();
+            }
+            
         }
         
     }
@@ -363,8 +368,13 @@ public class Knife : Tool
             var cachedIndex = _mouseDragger.HoveredStitchIndex;
             if (cachedIndex != -1)
             {
+                var mesh = FabricManager.AllStitches[cachedIndex].ParentMesh;
                 Cut(cachedIndex);
-                FabricManager.AllStitches[cachedIndex].ParentMesh.UpdateMesh();
+                if (mesh != null)
+                {
+                    mesh.UpdateMesh();
+                }
+                
             }
         }
     }

@@ -62,7 +62,7 @@ public class StitchInfo
         }
     }
     
-    public List<VerletNode> corners { get; }
+    public List<VerletNode> Corners { get; }
 
     // Constructor to initialize the position
     public StitchInfo(VerletNode bl, VerletNode tl, VerletNode tr, VerletNode br)
@@ -71,7 +71,7 @@ public class StitchInfo
         TopRight = tr;
         BottomLeft = bl;
         BottomRight = br;
-        corners = new()
+        Corners = new()
         {
             bl,
             tl,
@@ -89,7 +89,7 @@ public class StitchInfo
     {
         _height = mySize.y;
         _width = mySize.x;
-        foreach (var c in corners)
+        foreach (var c in Corners)
         {
             c.SetMarbleRadius(mySize);
         }
@@ -118,25 +118,25 @@ public class StitchInfo
 
     public void UpdateCorners(VerletNode myNode, int myCornerIndex)
     {
-        corners[myCornerIndex] = myNode;
+        Corners[myCornerIndex] = myNode;
     }
 
     private void UpdateEdgeLength()
     {
-        VerletEdge.ConnectNodes(corners[0], corners[3], width * _elasticityFactor, VerletEdge.EdgeType.Structural);
-        corners[0].SetStructuralEdge(false);
-        VerletEdge.ConnectNodes(corners[1], corners[2], width * _elasticityFactor,VerletEdge.EdgeType.Structural);
-        corners[1].SetStructuralEdge(false);
-        VerletEdge.ConnectNodes(corners[0],corners[2], Calculation.CalculateDiagonal(width * _elasticityFactor, height), VerletEdge.EdgeType.Shear);
-        corners[0].SetShearEdge(true);
-        VerletEdge.ConnectNodes(corners[1],corners[3], Calculation.CalculateDiagonal(width* _elasticityFactor, height), VerletEdge.EdgeType.Shear);
-        corners[1].SetShearEdge(false);
+        VerletEdge.ConnectNodes(Corners[0], Corners[3], width * _elasticityFactor, VerletEdge.EdgeType.Structural);
+        Corners[0].SetStructuralEdge(false);
+        VerletEdge.ConnectNodes(Corners[1], Corners[2], width * _elasticityFactor,VerletEdge.EdgeType.Structural);
+        Corners[1].SetStructuralEdge(false);
+        VerletEdge.ConnectNodes(Corners[0],Corners[2], Calculation.CalculateDiagonal(width * _elasticityFactor, height), VerletEdge.EdgeType.Shear);
+        Corners[0].SetShearEdge(true);
+        VerletEdge.ConnectNodes(Corners[1],Corners[3], Calculation.CalculateDiagonal(width* _elasticityFactor, height), VerletEdge.EdgeType.Shear);
+        Corners[1].SetShearEdge(false);
         if (StitchRight != null)
         {
-            VerletEdge.ConnectNodes(corners[0], StitchRight.corners[3], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
-            corners[0].SetBendEdge(false);
-            VerletEdge.ConnectNodes(corners[1], StitchRight.corners[2], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
-            corners[1].SetBendEdge(false);
+            VerletEdge.ConnectNodes(Corners[0], StitchRight.Corners[3], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
+            Corners[0].SetBendEdge(false);
+            VerletEdge.ConnectNodes(Corners[1], StitchRight.Corners[2], width*_elasticityFactor*2, VerletEdge.EdgeType.Bend);
+            Corners[1].SetBendEdge(false);
         }
     }
 
@@ -153,49 +153,49 @@ public class StitchInfo
             return;
         }
         
-        corners[0].RemoveShearEdge(true);
-        corners[1].RemoveShearEdge(false);
-        corners[0].RemoveBendEdge(true);
-        corners[0].RemoveBendEdge(false);
-        corners[1].RemoveBendEdge(false);
-        corners[3].RemoveBendEdge(true);
+        Corners[0].RemoveShearEdge(true);
+        Corners[1].RemoveShearEdge(false);
+        Corners[0].RemoveBendEdge(true);
+        Corners[0].RemoveBendEdge(false);
+        Corners[1].RemoveBendEdge(false);
+        Corners[3].RemoveBendEdge(true);
 
         if (StitchLeft == null)
         {
-            corners[0].RemoveStructuralEdge(true);
+            Corners[0].RemoveStructuralEdge(true);
             if (StitchBelow != null)
             {
-                StitchBelow.corners[0].RemoveBendEdge(true);
+                StitchBelow.Corners[0].RemoveBendEdge(true);
             }
         }
 
         if (StitchAbove==null)
         {
-            corners[1].RemoveStructuralEdge(false);
+            Corners[1].RemoveStructuralEdge(false);
             if (StitchLeft!=null)
             {
-                StitchLeft.corners[1].RemoveBendEdge(false);
+                StitchLeft.Corners[1].RemoveBendEdge(false);
             }
         }
 
         if (StitchRight == null)
         {
-            corners[3].RemoveStructuralEdge(true);
+            Corners[3].RemoveStructuralEdge(true);
             if (StitchBelow!=null)
             {
-                StitchBelow.corners[3].RemoveBendEdge(true);
+                StitchBelow.Corners[3].RemoveBendEdge(true);
             }
         }
 
         if (StitchBelow == null)
         {
-            corners[0].RemoveStructuralEdge(false);
+            Corners[0].RemoveStructuralEdge(false);
             if (StitchLeft != null)
             {
-                StitchLeft.corners[0].RemoveBendEdge(false);
+                StitchLeft.Corners[0].RemoveBendEdge(false);
             }
         }
-        foreach (var c in corners)
+        foreach (var c in Corners)
         {
             if (c.Connection.Count == 0)
             {
@@ -237,7 +237,7 @@ public class StitchInfo
         var firstStitch = stitches.First();
         for (int i = 1; i < stitches.Count; i++)
         {
-            var edge = lastStitch.corners[0].FindEdgeByNode(stitches[i].corners[1]);
+            var edge = lastStitch.Corners[0].FindEdgeByNode(stitches[i].Corners[1]);
             if (edge != null)
             {
                 VerletNode.RemoveEdge(edge);
@@ -246,19 +246,19 @@ public class StitchInfo
 
         for (int i = 0; i < stitches.Count - 1; i++)
         {
-            var edge = lastStitch.corners[3].FindEdgeByNode(stitches[i].corners[2]);
+            var edge = lastStitch.Corners[3].FindEdgeByNode(stitches[i].Corners[2]);
             if (edge != null)
             {
                 VerletNode.RemoveEdge(edge);
             }
         }
 
-        var shearDown = lastStitch.corners[3].FindEdgeByNode(firstStitch.corners[1]);
+        var shearDown = lastStitch.Corners[3].FindEdgeByNode(firstStitch.Corners[1]);
         if (shearDown != null)
         {
             VerletNode.RemoveEdge(shearDown);
         }
-        VerletNode.RemoveEdge(lastStitch.corners[0].ShearEdgeUp);
+        VerletNode.RemoveEdge(lastStitch.Corners[0].ShearEdgeUp);
         
         
 
@@ -268,16 +268,16 @@ public class StitchInfo
         }
         else
         {
-            var edge = lastStitch.corners[0].FindEdgeByNode(firstStitch.corners[1]);
+            var edge = lastStitch.Corners[0].FindEdgeByNode(firstStitch.Corners[1]);
             if (edge != null)
             {
                 VerletNode.RemoveEdge(edge);
             }
-            firstStitch.corners[0].RemoveBendEdge(true);
+            firstStitch.Corners[0].RemoveBendEdge(true);
 
             if (firstStitch.StitchBelow != null)
             {
-                firstStitch.StitchBelow.corners[0].RemoveBendEdge(true);
+                firstStitch.StitchBelow.Corners[0].RemoveBendEdge(true);
             }
         }
         if (lastStitch.StitchRight != null)
@@ -286,11 +286,11 @@ public class StitchInfo
         }
         else
         {
-            lastStitch.corners[3].RemoveStructuralEdge(true);
-            lastStitch.corners[3].RemoveBendEdge(true);
+            lastStitch.Corners[3].RemoveStructuralEdge(true);
+            lastStitch.Corners[3].RemoveBendEdge(true);
             if (firstStitch.StitchBelow != null)
             {
-                firstStitch.StitchBelow.corners[3].RemoveBendEdge(true);
+                firstStitch.StitchBelow.Corners[3].RemoveBendEdge(true);
             }
         }
 
@@ -300,7 +300,7 @@ public class StitchInfo
         }
         else
         {
-            lastStitch.corners[0].RemoveStructuralEdge(false);
+            lastStitch.Corners[0].RemoveStructuralEdge(false);
         }
 
         foreach (var s in stitches)
@@ -312,11 +312,11 @@ public class StitchInfo
             }
             else
             {
-                s.corners[1].RemoveStructuralEdge(false);
-                s.corners[1].RemoveBendEdge(false);
+                s.Corners[1].RemoveStructuralEdge(false);
+                s.Corners[1].RemoveBendEdge(false);
                 if (s.StitchLeft != null)
                 {
-                    s.StitchLeft.corners[1].RemoveBendEdge(false);
+                    s.StitchLeft.Corners[1].RemoveBendEdge(false);
                 }
             }
         }

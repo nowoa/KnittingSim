@@ -102,18 +102,18 @@ public class FabricMesh : MonoBehaviour
 
     private (Vector3[] vertices, int[] triangles, Vector3[] normals) MeshInfoNormal(StitchInfo s, int vertexIndex)
     {
-        var vertices = new[] {s.corners[0].Position, s.corners[1].Position, s.corners[2].Position, s.corners[3].Position};
+        var vertices = new[] {s.Corners[0].Position, s.Corners[1].Position, s.Corners[2].Position, s.Corners[3].Position};
         var triangles = new[]
             { vertexIndex, vertexIndex + 1, vertexIndex + 2, vertexIndex, vertexIndex + 2, vertexIndex + 3 };
-        var normals = new[] { s.corners[0].normal, s.corners[1].normal, s.corners[2].normal, s.corners[3].normal };
+        var normals = new[] { s.Corners[0].normal, s.Corners[1].normal, s.Corners[2].normal, s.Corners[3].normal };
         return (vertices, triangles, normals);
     }
 
     private (Vector3[] vertices, int[] triangles, Vector3[] normals) MeshInfoDecrease(StitchInfo s, int vertexIndex)
     {
-        var vertices = new[] { s.corners[0].Position, s.corners[1].Position, s.corners[2].Position };
+        var vertices = new[] { s.Corners[0].Position, s.Corners[1].Position, s.Corners[2].Position };
         var triangles = new[] { vertexIndex, vertexIndex + 1, vertexIndex + 2 };
-        var normals = new[] { s.corners[0].normal, s.corners[1].normal, s.corners[2].normal };
+        var normals = new[] { s.Corners[0].normal, s.Corners[1].normal, s.Corners[2].normal };
         return (vertices, triangles, normals);
     }
     
@@ -165,17 +165,17 @@ public class FabricMesh : MonoBehaviour
         {
             case StitchInfo.StitchType.normal:
                 return new[]
-                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3]};
+                    { s.Corners[0], s.Corners[1], s.Corners[2], s.Corners[3]};
             case StitchInfo.StitchType.DecreaseFirst:
-                return new[] { s.corners[0], s.corners[1], s.corners[2] };
+                return new[] { s.Corners[0], s.Corners[1], s.Corners[2] };
             case StitchInfo.StitchType.DecreaseMiddle: 
-                return new[] { s.corners[0], s.corners[1], s.corners[2]};
+                return new[] { s.Corners[0], s.Corners[1], s.Corners[2]};
             case StitchInfo.StitchType.DecreaseLast:
                 return new[]
-                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3] };
+                    { s.Corners[0], s.Corners[1], s.Corners[2], s.Corners[3] };
             default:
                 return new[]
-                    { s.corners[0], s.corners[1], s.corners[2], s.corners[3] };
+                    { s.Corners[0], s.Corners[1], s.Corners[2], s.Corners[3] };
         }
     }
 }
