@@ -92,7 +92,7 @@ namespace Verlet
                         continue;
                     }*/
 
-                    if (nodeA.Connection.Count != 12)
+                    if (nodeA.Connection.Count > 12)
                     {
                         continue;
                     }
