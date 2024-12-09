@@ -2,8 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using Sirenix.Utilities.Editor;
+using UnityEditor;
 using UnityEngine;
 using Verlet;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class MouseDragger
 {
@@ -57,30 +62,40 @@ public class MouseDragger
             }
         }
     }
-
     public void UpdateHoverStitch()
     {
         var stitches = FabricManager.AllStitches;
+
+        // Return early if a child is selected
         if (SelectedChildIndex != -1)
         {
             return;
         }
 
         HoveredStitchIndex = -1;
-        const float selectionRadius = 0.05f;
         Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
-        float shortestDistance = float.MaxValue;
-        for (var i = 0; i < stitches.Count; i++)
-        {
-            var c = stitches[i];
-            Vector3 screenPoint = _camera.WorldToScreenPoint(c.Position);
-            Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
-            var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
-            if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
-            {
-                HoveredStitchIndex = i;
-                shortestDistance = distanceToMouse;
 
+        for (var index = 0; index < stitches.Count; index++)
+        {
+            var s = stitches[index];
+
+            // Normalize corner positions and calculate bounding box
+
+            var cornerScreenPos = s.Corners.Select(item => _camera.WorldToScreenPoint(item.Position));
+            var cornerPosNormalized = cornerScreenPos.Select(item => NormalizePixelCoords(item));
+            var posNormalized = cornerPosNormalized as Vector3[] ?? cornerPosNormalized.ToArray();
+            
+            float minX = posNormalized.Min(corner => corner.x);
+            float maxX = posNormalized.Max(corner => corner.x);
+            float minY = posNormalized.Min(corner => corner.y);
+            float maxY = posNormalized.Max(corner => corner.y);
+
+            // Check if the mouse is inside the bounding box
+            if (normalizedMousePos.x >= minX && normalizedMousePos.x <= maxX &&
+                normalizedMousePos.y >= minY && normalizedMousePos.y <= maxY)
+            {
+                HoveredStitchIndex = index;
+                break; // Exit the loop as soon as we find the hovered stitch
             }
         }
     }

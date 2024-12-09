@@ -227,7 +227,7 @@ public class StitchInfo
             StitchLeft.StitchRight = null;
         }
 
-        SetInactive();
+        FabricManager.AllStitches.Remove(this);
     }
 
     private void RemoveDecrease(StitchInfo hoveredStitch)
