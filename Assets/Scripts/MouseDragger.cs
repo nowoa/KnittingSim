@@ -64,58 +64,89 @@ public class MouseDragger
     }
     
     public void UpdateHoverStitch()
+{
+    var stitches = FabricManager.AllStitches;
+
+    // Return early if a child is selected
+    if (SelectedChildIndex != -1)
     {
-        var stitches = FabricManager.AllStitches;
+        return;
+    }
 
-        // Return early if a child is selected
-        if (SelectedChildIndex != -1)
+    HoveredStitchIndex = -1;
+    HoveredChildIndex = -1;
+    float closestStitchDistance = float.MaxValue; // Track the closest stitch
+    Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
+
+    for (var index = 0; index < stitches.Count; index++)
+    {
+        var s = stitches[index];
+
+        // Normalize corner positions and calculate bounding box
+        var cornerScreenPos = s.Corners.Select(item => _camera.WorldToScreenPoint(item.Position));
+        var cornerPosNormalized = cornerScreenPos.Select(item => NormalizePixelCoords(item));
+        var posNormalized = cornerPosNormalized as Vector3[] ?? cornerPosNormalized.ToArray();
+
+        float minX = posNormalized.Min(corner => corner.x);
+        float maxX = posNormalized.Max(corner => corner.x);
+        float minY = posNormalized.Min(corner => corner.y);
+        float maxY = posNormalized.Max(corner => corner.y);
+
+        // Check if the mouse is inside the bounding box
+        if (normalizedMousePos.x >= minX && normalizedMousePos.x <= maxX &&
+            normalizedMousePos.y >= minY && normalizedMousePos.y <= maxY)
         {
-            return;
-        }
+            float shortestDistance = float.MaxValue;
+            int closestChildIndex = -1;
+            float hoveredChildDepth = 0;
 
-        HoveredStitchIndex = -1;
-        HoveredChildIndex = -1;
-        Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
-
-        for (var index = 0; index < stitches.Count; index++)
-        {
-            var s = stitches[index];
-
-            // Normalize corner positions and calculate bounding box
-
-            var cornerScreenPos = s.Corners.Select(item => _camera.WorldToScreenPoint(item.Position));
-            var cornerPosNormalized = cornerScreenPos.Select(item => NormalizePixelCoords(item));
-            var posNormalized = cornerPosNormalized as Vector3[] ?? cornerPosNormalized.ToArray();
-            
-            float minX = posNormalized.Min(corner => corner.x);
-            float maxX = posNormalized.Max(corner => corner.x);
-            float minY = posNormalized.Min(corner => corner.y);
-            float maxY = posNormalized.Max(corner => corner.y);
-
-            // Check if the mouse is inside the bounding box
-            if (normalizedMousePos.x >= minX && normalizedMousePos.x <= maxX &&
-                normalizedMousePos.y >= minY && normalizedMousePos.y <= maxY)
+            for (int i = 0; i < posNormalized.Length; i++)
             {
-                HoveredStitchIndex = index;
-                
-                float shortestDistance = float.MaxValue;
-
-                for (int i = 0; i < posNormalized.Length; i++)
+                var screenPoint = _camera.WorldToScreenPoint(s.Position);
+                float distance = ((Vector2)NormalizePixelCoords(screenPoint) - normalizedMousePos).magnitude;
+                if (distance < shortestDistance)
                 {
-                    float distance = ((Vector2)posNormalized[i] - normalizedMousePos).magnitude;
-                    if (distance < shortestDistance)
-                    {
-                        shortestDistance = distance;
-                        HoveredChildIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
-                        _hoveredChildDepth = posNormalized[i].z;
-                    }
+                    shortestDistance = distance;
+                    closestChildIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
+                    hoveredChildDepth = posNormalized[i].z;
                 }
-                
-                break; // Exit the loop as soon as we find the hovered stitch
+            }
+
+            // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
+            if (shortestDistance < closestStitchDistance)
+            {
+                closestStitchDistance = shortestDistance;
+                HoveredStitchIndex = index;
+                HoveredChildIndex = closestChildIndex;
+                _hoveredChildDepth = hoveredChildDepth;
             }
         }
+    }
+}
+    
+    bool IsPointInQuadrilateral(Vector2 point, Vector2[] quadCorners)
+    {
+        if (quadCorners.Length != 4)
+            throw new ArgumentException("The input must contain exactly 4 corners.");
+
+        // Ensure the corners are in order (clockwise or counterclockwise)
+        for (int i = 0; i < quadCorners.Length; i++)
+        {
+            Vector2 a = quadCorners[i];
+            Vector2 b = quadCorners[(i + 1) % quadCorners.Length]; // Next corner (wrap around)
         
-        
+            // Cross product to determine if the point is on the same side for all edges
+            Vector2 edge = b - a;
+            Vector2 toPoint = point - a;
+
+            float cross = edge.x * toPoint.y - edge.y * toPoint.x;
+            if (cross < 0) // Change to > 0 for counterclockwise order
+            {
+                return false; // Point is outside this edge
+            }
+        }
+
+        return true; // Point is inside all edges
     }
 
     public void UpdateSelected()
