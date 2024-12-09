@@ -15,10 +15,6 @@ public abstract class Tool
     public virtual void DefaultBehavior()
     {
         //hovering
-        if (FabricManager.AllNodes != null)
-        {
-            _mouseDragger.UpdateHover(FabricManager.AllNodes);
-        }
 
         if (FabricManager.AllStitches != null)
         {

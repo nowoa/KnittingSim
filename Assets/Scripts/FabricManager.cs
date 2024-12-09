@@ -16,7 +16,6 @@ public class FabricManager
     private List<StitchInfo> _stitchInfos;
     private VerletSimulator _sim;
     private VerletSimulator _simConnected;
-    public static int NodeCount;
     private List<VerletNode> _anchoredNodes = new();
     private string _panelName;
     private bool _isCircular;
@@ -134,8 +133,6 @@ public class FabricManager
         {
             nodesToSimulate.AddRange(myPanelInfo.Nodes);
         }
-
-        NodeCount = nodesToSimulate.Count;
         AllNodes = nodesToSimulate;
         return nodesToSimulate;
     }

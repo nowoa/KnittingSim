@@ -16,16 +16,11 @@ public class DebuggingText : MonoBehaviour
     private int _frameCount;
 
     private float _timer;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
     {
-        _nodeCount = FabricManager.NodeCount;
+        _nodeCount = FabricManager.AllNodes.Count;
         _frameCount += 1;
         _timer += Time.deltaTime;
         if (_timer > 1)
