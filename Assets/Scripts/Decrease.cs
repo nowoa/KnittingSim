@@ -5,33 +5,41 @@ using Verlet;
 
 public static class Decrease
 {
-    private static StitchInfo _firstDecrease;
     private static bool _firstDone;
-    private static StitchInfo _lastDecrease;
-    private static bool _direction;
-    private static List<StitchInfo> _stitchesToDecrease;
-    public static void Main(List<StitchInfo> myStitches, bool myDirection)
+    private static List<DecreaseInfo> _allDecreases;
+    
+    public static void Main(DecreaseInfo decreaseInfo, bool check = false)
     {
-        InitialiseDecrease(myStitches, myDirection);
-        if (!myDirection) 
+        _allDecreases = new List<DecreaseInfo>();
+        if (!decreaseInfo.Direction) 
         {
             //TO DO: if going left, decrease logic needs to be inverted
+            //... or the list just has to be inverted?
             return;
         }
-        if (CheckForDecreases())
+        // get list of decreases to perform
+        _allDecreases.Add(decreaseInfo);
+        CheckForDecreases(decreaseInfo);
+        _allDecreases.Reverse();
+        foreach (var d in _allDecreases)
         {
-            return;
+            ExecuteDecrease(d);
         }
-        var toRemove = new List<StitchInfo>(GetColumnsToRemove(myStitches));
+    }
+
+    private static void ExecuteDecrease(DecreaseInfo decreaseInfo)
+    {
+        _firstDone = false;
+        var toRemove = new List<StitchInfo>(GetColumnsToRemove(decreaseInfo));
         RemoveColumns(toRemove);
-        ConnectAllStitches(myStitches);
+        ConnectAllStitches(decreaseInfo);
             
         FabricManager.InvokeUpdateSimulation();
     }
 
-    static bool CheckForDecreases()
+    static void CheckForDecreases(DecreaseInfo originalDecrease)
     {
-        var (checkFirst,checkLast) = TryReturnDecreasePair(_firstDecrease, _lastDecrease);
+        var (checkFirst,checkLast) = TryReturnDecreasePair(originalDecrease.FirstStitch, originalDecrease.LastStitch);
 
         if (!checkFirst.type.HasValue)
         {
@@ -51,7 +59,6 @@ public static class Decrease
                     Debug.Log("dec started above last");
                     break;
             }
-            return true;
         }
             
         if (!checkLast.type.HasValue)
@@ -64,10 +71,10 @@ public static class Decrease
             {
                 case StitchInfo.StitchType.DecreaseFirst:
                     Debug.Log("dec ended above first");
-                    List<StitchInfo> decreaseBelow;
-                    decreaseBelow = new List<StitchInfo>(GetStitchesBetween(checkFirst.stitch,
-                        GetDecreaseStitches(checkLast.stitch).Last()));
-                    Main(decreaseBelow, _direction);
+                    var newDec = new DecreaseInfo(checkFirst.stitch, checkLast.stitch, originalDecrease.Direction);
+                    _allDecreases.Add(newDec);
+                    CheckForDecreases(newDec);
+                    
                     break;
                 case StitchInfo.StitchType.DecreaseMiddle:
                     Debug.Log("dec ended above middle");
@@ -76,11 +83,7 @@ public static class Decrease
                     Debug.Log("dec ended above last");
                     break;
             }
-
-            return true;
         }
-
-        return false;
     }
 
     static ((StitchInfo stitch, StitchInfo.StitchType? type) first, (StitchInfo stitch, StitchInfo.StitchType? type) last) 
@@ -116,17 +119,10 @@ public static class Decrease
         return ((null, null), (null, null));
     }
 
-    private static void InitialiseDecrease(List<StitchInfo> myStitches, bool myDirection)
-    {
-        _firstDecrease = myStitches.First();
-        _firstDone = false;
-        _lastDecrease = myStitches.Last();
-        _direction = myDirection;
-    }
 
-    static List<StitchInfo> GetColumnsToRemove(List<StitchInfo> myStitches)
+    static List<StitchInfo> GetColumnsToRemove(DecreaseInfo decreaseInfo)
     {
-        var columnsToRemove = new List<StitchInfo>(myStitches);
+        var columnsToRemove = new List<StitchInfo>(GetStitchesBetween(decreaseInfo.FirstStitch, decreaseInfo.LastStitch));
         if (columnsToRemove.Last().stitchType == StitchInfo.StitchType.DecreaseLast)
         {
             while (columnsToRemove.Last().stitchType != StitchInfo.StitchType.DecreaseFirst)
@@ -182,9 +178,14 @@ public static class Decrease
 
     private static void RemoveColumnRecursive(StitchInfo myStitch, bool remove = false) 
     {
-        
+        if (myStitch.StitchBelow!=null && myStitch.StitchBelow.stitchType is StitchInfo.StitchType.DecreaseFirst
+            or StitchInfo.StitchType.DecreaseMiddle or StitchInfo.StitchType.DecreaseLast)
+        {
+            FabricManager.AllStitches.Remove(myStitch.Corners[3].Parent);
+            return;
+        }
         myStitch.Corners[3].RemoveAllEdges();
-        if (myStitch.StitchBelow != null)
+        if (myStitch.StitchBelow != null )
         {
             RemoveColumnRecursive(myStitch.StitchBelow, true); 
         }
@@ -195,84 +196,90 @@ public static class Decrease
         }
     }
         
-    private static void ConnectAllStitches(List<StitchInfo> stitches)
+    private static void ConnectAllStitches(DecreaseInfo decreaseInfo)
     {
-        for (int i = 0; i < stitches.Count - 1; i++)
+        var currentStitch = decreaseInfo.FirstStitch;
+        for (int i = 0; i < decreaseInfo.Size - 1; i++)
         {
-            ConnectStitch(stitches[i]);
+            currentStitch = decreaseInfo.Direction ? currentStitch.StitchRight : currentStitch.StitchLeft;
+            ConnectStitch(currentStitch, decreaseInfo);
         }
     }
-    private static void ConnectStitch(StitchInfo stitch)
+    private static void ConnectStitch(StitchInfo stitch, DecreaseInfo decreaseInfo)
     {
         if (!_firstDone)
         {
-            ConnectOuterStitches();
+            ConnectOuterStitches(decreaseInfo);
             _firstDone = true;
         }
         else
         {
-            ConnectInnerStitches(stitch);
+            ConnectInnerStitches(stitch, decreaseInfo);
         }
     }
 
-    private static void ConnectOuterStitches()
+    private static void ConnectOuterStitches(DecreaseInfo decrease)
     {
-        var left = _firstDecrease.Corners[0];
-        var right = _lastDecrease.Corners[3];
-        var diagonalLength = Calculation.CalculateDiagonal((_firstDecrease.width + _lastDecrease.width) / 2,
-            (_firstDecrease.height + _lastDecrease.height) / 2);
+        var left = decrease.FirstStitch.Corners[0];
+        var right = decrease.LastStitch.Corners[3];
+        var first = decrease.FirstStitch;
+        var last = decrease.LastStitch;
+        var diagonalLength = Calculation.CalculateDiagonal((first.width + last.width) / 2,
+            (first.height + last.height) / 2);
         if (!_firstDone)
         {
             //right structural
-            _firstDecrease.SetStitchType(StitchInfo.StitchType.DecreaseFirst);
-            _lastDecrease.SetStitchType(StitchInfo.StitchType.DecreaseLast);
-            VerletEdge.ConnectNodes(left, right, _lastDecrease.width, VerletEdge.EdgeType.Structural);
+            first.SetStitchType(StitchInfo.StitchType.DecreaseFirst);
+            last.SetStitchType(StitchInfo.StitchType.DecreaseLast);
+            VerletEdge.ConnectNodes(left, right, last.width, VerletEdge.EdgeType.Structural);
             left.RemoveStructuralEdge( false);
             left.SetStructuralEdge( false);
             
-            _firstDecrease.UpdateCorners(right,3);
-            _lastDecrease.UpdateCorners(left,0);
+            first.UpdateCorners(right,3);
+            last.UpdateCorners(left,0);
             
             //structural up
-            VerletEdge.ConnectNodes(left,_lastDecrease.Corners[1],_lastDecrease.height, VerletEdge.EdgeType.Structural);
+            VerletEdge.ConnectNodes(left,last.Corners[1],last.height, VerletEdge.EdgeType.Structural);
             /*left.SetStructuralEdge(true);*/
             
             //shear up
-            VerletEdge.ConnectNodes(left,_firstDecrease.Corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
+            VerletEdge.ConnectNodes(left,first.Corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
             left.RemoveShearEdge(true);
             left.SetShearEdge(true);
             
             //shear down
-            VerletEdge.ConnectNodes(_firstDecrease.Corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
-            _firstDecrease.Corners[1].RemoveShearEdge(false);
-            _firstDecrease.Corners[1].SetShearEdge(false);
+            VerletEdge.ConnectNodes(first.Corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
+            first.Corners[1].RemoveShearEdge(false);
+            first.Corners[1].SetShearEdge(false);
             
             //shear up
-            VerletEdge.ConnectNodes(left,_lastDecrease.Corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
+            VerletEdge.ConnectNodes(left,last.Corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
             left.RemoveShearEdge(true);
             left.SetShearEdge(true);
             
             //shear
-            VerletEdge.ConnectNodes(_lastDecrease.Corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
-            _lastDecrease.Corners[1].RemoveShearEdge(false);
-            _lastDecrease.Corners[1].SetShearEdge(false);
+            VerletEdge.ConnectNodes(last.Corners[1],right,diagonalLength,VerletEdge.EdgeType.Shear);
+            last.Corners[1].RemoveShearEdge(false);
+            last.Corners[1].SetShearEdge(false);
 
-            if (_firstDecrease.StitchBelow != null && _lastDecrease.StitchBelow!=null)
+            if (first.StitchBelow != null && last.StitchBelow!=null)
             {
-                ConnectColumnsRecursive(_firstDecrease.StitchBelow, _lastDecrease.StitchBelow);
+                ConnectColumnsRecursive(first.StitchBelow, last.StitchBelow);
             }
         }
     }
 
-    private static void ConnectInnerStitches(StitchInfo myStitch)
+    private static void ConnectInnerStitches(StitchInfo myStitch, DecreaseInfo decrease)
     {
-        var diagonalLength = Calculation.CalculateDiagonal((myStitch.width + _lastDecrease.width) / 2,
-            (myStitch.height + _lastDecrease.height) / 2);
+        var first = decrease.FirstStitch;
+        var last = decrease.LastStitch;
+        var diagonalLength = Calculation.CalculateDiagonal((myStitch.width + last.width) / 2,
+            (myStitch.height + last.height) / 2);
         myStitch.SetStitchType(StitchInfo.StitchType.DecreaseMiddle);
-        VerletEdge.ConnectNodes(myStitch.Corners[1],_firstDecrease.Corners[0],myStitch.height, VerletEdge.EdgeType.Structural);
-        VerletEdge.ConnectNodes(myStitch.Corners[2],_lastDecrease.Corners[3],myStitch.height, VerletEdge.EdgeType.Structural);
-        myStitch.UpdateCorners(_firstDecrease.Corners[0],0);
-        myStitch.UpdateCorners(_lastDecrease.Corners[3],3);
+        VerletEdge.ConnectNodes(myStitch.Corners[1],first.Corners[0],myStitch.height, VerletEdge.EdgeType.Structural);
+        VerletEdge.ConnectNodes(myStitch.Corners[2],last.Corners[3],myStitch.height, VerletEdge.EdgeType.Structural);
+        myStitch.UpdateCorners(first.Corners[0],0);
+        myStitch.UpdateCorners(last.Corners[3],3);
         VerletEdge.ConnectNodes(myStitch.Corners[1],myStitch.Corners[3],diagonalLength, VerletEdge.EdgeType.Shear);
         myStitch.Corners[1].RemoveShearEdge(false);
         myStitch.Corners[1].SetShearEdge(false);
@@ -320,5 +327,34 @@ public static class Decrease
         {
             left.UpdateNeighborStitch(null, "right");
         }
+    }
+}
+
+public struct DecreaseInfo
+{
+    public StitchInfo FirstStitch;
+    public StitchInfo LastStitch;
+    public int Size;
+    public bool Direction;
+
+    public DecreaseInfo(StitchInfo firstStitch, StitchInfo lastStitch, bool direction) : this()
+    {
+        FirstStitch = firstStitch;
+        Direction = direction;
+        LastStitch = lastStitch;
+        GetSize();
+    }
+
+    void GetSize()
+    {
+        var currentStitch = FirstStitch;
+        var length = 1;
+        while (currentStitch != LastStitch)
+        {
+            currentStitch = Direction ? currentStitch.StitchRight : currentStitch.StitchLeft;
+            length++;
+        }
+
+        Size = length;
     }
 }

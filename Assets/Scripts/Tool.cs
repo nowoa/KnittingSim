@@ -332,7 +332,8 @@ public class Decreaser : Tool
         toolActivated = false;
         if (stitchesToDecrease.Count >= 2)
         {
-            Decrease.Main(stitchesToDecrease,rightDirection);
+            var decrease = new DecreaseInfo(stitchesToDecrease.First(), stitchesToDecrease.Last(), rightDirection);
+            Decrease.Main(decrease);
             FabricManager.InvokeUpdateSimulation();
             var mesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
             if (mesh != null)
