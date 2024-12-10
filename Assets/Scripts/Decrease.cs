@@ -65,7 +65,7 @@ public static class Decrease
             switch (checkLast.type.Value)
             {
                 case StitchInfo.StitchType.DecreaseFirst:
-                    var newDec = new DecreaseInfo(checkFirst.stitch, checkLast.stitch, originalDecrease.Direction);
+                    var newDec = new DecreaseInfo(checkFirst.stitch, GetDecreaseStitches(checkLast.stitch).Last(), originalDecrease.Direction);
                     _allDecreases.Add(newDec);
                     CheckForDecreases(newDec);
                     
@@ -173,7 +173,9 @@ public static class Decrease
         if (myStitch.StitchBelow!=null && myStitch.StitchBelow.stitchType is StitchInfo.StitchType.DecreaseFirst
             or StitchInfo.StitchType.DecreaseMiddle or StitchInfo.StitchType.DecreaseLast)
         {
+            myStitch.Corners[3].RemoveAllEdges();
             FabricManager.AllStitches.Remove(myStitch.Corners[3].Parent);
+            
             return;
         }
         myStitch.Corners[3].RemoveAllEdges();
@@ -193,7 +195,6 @@ public static class Decrease
         var currentStitch = decreaseInfo.FirstStitch;
         for (int i = 0; i < decreaseInfo.Size - 1; i++)
         {
-            
             ConnectStitch(currentStitch, decreaseInfo);
             currentStitch = decreaseInfo.Direction ? currentStitch.StitchRight : currentStitch.StitchLeft;
         }
