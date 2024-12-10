@@ -29,12 +29,12 @@ public static class Decrease
 
     private static void ExecuteDecrease(DecreaseInfo decreaseInfo)
     {
-        _firstDone = false;
         var toRemove = new List<StitchInfo>(GetColumnsToRemove(decreaseInfo));
         RemoveColumns(toRemove);
         ConnectAllStitches(decreaseInfo);
             
         FabricManager.InvokeUpdateSimulation();
+        _firstDone = false;
     }
 
     static void CheckForDecreases(DecreaseInfo originalDecrease)
@@ -42,45 +42,37 @@ public static class Decrease
         var (checkFirst,checkLast) = TryReturnDecreasePair(originalDecrease.FirstStitch, originalDecrease.LastStitch);
 
         if (!checkFirst.type.HasValue)
-        {
-            Debug.Log("first null");
+        { 
         }
         else
         {
             switch (checkFirst.type.Value)
             {
                 case StitchInfo.StitchType.DecreaseFirst:
-                    Debug.Log("dec started above first");
                     break;
                 case StitchInfo.StitchType.DecreaseMiddle:
-                    Debug.Log("dec started above middle");
                     break;
                 case StitchInfo.StitchType.DecreaseLast:
-                    Debug.Log("dec started above last");
                     break;
             }
         }
             
         if (!checkLast.type.HasValue)
         {
-            Debug.Log("last null");
         }
         else
         {
             switch (checkLast.type.Value)
             {
                 case StitchInfo.StitchType.DecreaseFirst:
-                    Debug.Log("dec ended above first");
                     var newDec = new DecreaseInfo(checkFirst.stitch, checkLast.stitch, originalDecrease.Direction);
                     _allDecreases.Add(newDec);
                     CheckForDecreases(newDec);
                     
                     break;
                 case StitchInfo.StitchType.DecreaseMiddle:
-                    Debug.Log("dec ended above middle");
                     break;
                 case StitchInfo.StitchType.DecreaseLast:
-                    Debug.Log("dec ended above last");
                     break;
             }
         }
@@ -201,8 +193,9 @@ public static class Decrease
         var currentStitch = decreaseInfo.FirstStitch;
         for (int i = 0; i < decreaseInfo.Size - 1; i++)
         {
-            currentStitch = decreaseInfo.Direction ? currentStitch.StitchRight : currentStitch.StitchLeft;
+            
             ConnectStitch(currentStitch, decreaseInfo);
+            currentStitch = decreaseInfo.Direction ? currentStitch.StitchRight : currentStitch.StitchLeft;
         }
     }
     private static void ConnectStitch(StitchInfo stitch, DecreaseInfo decreaseInfo)
@@ -271,6 +264,7 @@ public static class Decrease
 
     private static void ConnectInnerStitches(StitchInfo myStitch, DecreaseInfo decrease)
     {
+        Debug.Log("connect inner stitches");
         var first = decrease.FirstStitch;
         var last = decrease.LastStitch;
         var diagonalLength = Calculation.CalculateDiagonal((myStitch.width + last.width) / 2,
