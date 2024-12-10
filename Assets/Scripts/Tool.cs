@@ -53,7 +53,29 @@ public class Dragger : Tool
         if (_mouseDragger.SelectedChildIndex >= 0 && _mouseDragger.SelectedChildIndex < FabricManager.AllNodes.Count)
         {
             Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
+            Debug.Log("left neighbor type:  " +
+                      FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Parent.StitchLeft.stitchType);
+            Debug.Log("right neighbor type:  " +
+                      FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Parent.StitchRight.stitchType);
+            Debug.Log("above neighbor type:  " +
+                      FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Parent.StitchAbove.stitchType);
+            Debug.Log("below neighbor type:  " +
+                      FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Parent.StitchBelow.stitchType);
         }
+
+        /*if (_mouseDragger.HoveredStitchIndex != -1)
+        {
+            if (FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners.Contains(null))
+            {
+                Debug.Log("one or more corners missing");
+            }
+
+            foreach (var c in FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners)
+            {
+                Debug.Log(c.Position);
+            }
+            
+        }*/
     }
 
     public override void MainActionEnd()

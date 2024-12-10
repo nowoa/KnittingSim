@@ -259,8 +259,7 @@ public class FabricManager
         
         if (_mouseDragger.HoveredStitchIndex >0 && _mouseDragger.HoveredStitchIndex < AllStitches.Count)
         {
-            if (AllStitches[_mouseDragger.HoveredStitchIndex].IsActive)
-            {
+            
                 Gizmos.color=Color.red;
                 Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[0].Position, 0.05f);
                 Gizmos.color=Color.yellow;
@@ -269,7 +268,13 @@ public class FabricManager
                 Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[2].Position, 0.05f);
                 Gizmos.color=Color.blue;
                 Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[3].Position, 0.05f);
-            }
+
+                if (AllStitches[_mouseDragger.HoveredStitchIndex].StitchRight!=null)
+                {
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].StitchRight.Position, 0.1f);
+                }
+            
         }
         if (_sim != null)
         {
