@@ -97,29 +97,33 @@ public class MouseDragger
             normalizedMousePos.y >= minY && normalizedMousePos.y <= maxY)
         {
             float shortestDistance = float.MaxValue;
-            int closestChildIndex = -1;
-            float hoveredChildDepth = 0;
-
-            for (int i = 0; i < posNormalized.Length; i++)
+            float shortestDistanceC = float.MaxValue;
+            
+            var screenPoint = _camera.WorldToScreenPoint(s.Position);
+            float distance = ((Vector2)NormalizePixelCoords(screenPoint) - normalizedMousePos).magnitude;
+            if (distance < shortestDistance)
             {
-                var screenPoint = _camera.WorldToScreenPoint(s.Position);
-                float distance = ((Vector2)NormalizePixelCoords(screenPoint) - normalizedMousePos).magnitude;
-                if (distance < shortestDistance)
-                {
-                    shortestDistance = distance;
-                    closestChildIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
-                    hoveredChildDepth = posNormalized[i].z;
-                }
+                shortestDistance = distance;
             }
-
             // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
             if (shortestDistance < closestStitchDistance)
             {
                 closestStitchDistance = shortestDistance;
                 HoveredStitchIndex = index;
-                HoveredChildIndex = closestChildIndex;
-                _hoveredChildDepth = hoveredChildDepth;
             }
+
+            for (int i = 0; i < posNormalized.Length; i++)
+            {
+                float distanceC = ((Vector2)posNormalized[i] - normalizedMousePos).magnitude;
+                if (distanceC < shortestDistanceC)
+                {
+                    shortestDistanceC = distanceC;
+                    HoveredChildIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
+                    _hoveredChildDepth = posNormalized[i].z;
+                }
+            }
+
+            
         }
     }
 }
