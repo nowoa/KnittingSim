@@ -314,7 +314,7 @@ public static class Decrease
         FabricManager.AllStitches.Remove(right);
         if (left.Corners[2] != left.StitchRight.Corners[1])
         {
-            left.UpdateNeighborStitch(left.StitchRight.StitchRight,"right");
+            left.UpdateNeighborStitch(left.Corners[3].Parent,"right");
             left.StitchRight.UpdateNeighborStitch(left,"left");
         }
         else
