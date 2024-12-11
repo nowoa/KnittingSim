@@ -90,11 +90,6 @@ namespace Verlet
                         continue;
                     }
 
-                    if (nodeA.Connection.Select(item => item.edgeType).Contains(VerletEdge.EdgeType.Seam))
-                    {
-                        continue;
-                    }*/
-
                     if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count> 8))
                     {
                         continue;

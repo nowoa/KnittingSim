@@ -37,11 +37,9 @@ namespace DefaultNamespace
 
         private static void MakeSeam(VerletNode one, VerletNode two)
         {
-            VerletEdge.ConnectNodes(one, two, 0.1f, VerletEdge.EdgeType.Seam);
+            VerletEdge.ConnectNodes(one, two, 0.01f, VerletEdge.EdgeType.Seam);
             one.isSeam = true;
-            two.isSeam = true;
-            one.SetMarbleRadius(new Vector2(0,0));
-            two.SetMarbleRadius(new Vector2(0,0));
+            /*two.isSeam = true;*/
         }
 
     }
