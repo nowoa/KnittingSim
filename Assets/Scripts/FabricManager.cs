@@ -10,7 +10,7 @@ public class FabricManager
 {
     private GarmentGenerator _parent;
     private Camera _camera;
-    private MouseDragger _mouseDragger = MouseDragger.Instance;
+    private MouseHover _mouseHover = MouseHover.Instance;
     private readonly Dictionary<string, PanelInfo> _panelDictionary = new();
     private readonly Dictionary<string, List<VerletNode>> _seamDictionary = new();
     private List<StitchInfo> _stitchInfos;
@@ -153,8 +153,8 @@ public class FabricManager
 
     private void GetConnectedNodes()
     {
-        if (_mouseDragger.SelectedChildIndex == -1) return;
-        var centralNode = AllNodes[_mouseDragger.SelectedChildIndex];
+        if (_mouseHover.SelectedNodeIndex == -1) return;
+        var centralNode = AllNodes[_mouseHover.SelectedNodeIndex];
         var connectedNodes = new HashSet<VerletNode>();
         AddConnectedNodes(centralNode, connectedNodes, 3);
         _simConnected = new VerletSimulator(connectedNodes.ToList());
@@ -203,10 +203,10 @@ public class FabricManager
 
     public void FixedUpdate()
     {
-        if (_mouseDragger.SelectedChildIndex != -1)
+        if (_mouseHover.SelectedNodeIndex != -1)
         {
-            AllNodes[_mouseDragger.SelectedChildIndex].Position = _mouseDragger.GetTargetPos();
-            AllNodes[_mouseDragger.SelectedChildIndex].AnchoredPos = _mouseDragger.GetTargetPos();
+            AllNodes[_mouseHover.SelectedNodeIndex].Position = _mouseHover.GetTargetPos();
+            AllNodes[_mouseHover.SelectedNodeIndex].AnchoredPos = _mouseHover.GetTargetPos();
         }
 
         /*if (_simConnected != null)
@@ -252,23 +252,23 @@ public class FabricManager
             _simConnected.DrawGizmos(Color.magenta);
         }
 
-        if (_mouseDragger.HoveredChildIndex != -1)
+        if (_mouseHover.HoveredNodeIndex != -1)
         {
-            Gizmos.DrawSphere(AllNodes[_mouseDragger.HoveredChildIndex].Position, 0.1f);
+            Gizmos.DrawSphere(AllNodes[_mouseHover.HoveredNodeIndex].Position, 0.1f);
         }
         
-        if (_mouseDragger.HoveredStitchIndex >0 && _mouseDragger.HoveredStitchIndex < AllStitches.Count)
+        if (_mouseHover.HoveredStitchIndex >0 && _mouseHover.HoveredStitchIndex < AllStitches.Count)
         {
-            if (AllStitches[_mouseDragger.HoveredStitchIndex].IsActive)
+            if (AllStitches[_mouseHover.HoveredStitchIndex].IsActive)
             {
                 Gizmos.color=Color.red;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[0].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseHover.HoveredStitchIndex].Corners[0].Position, 0.05f);
                 Gizmos.color=Color.yellow;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[1].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseHover.HoveredStitchIndex].Corners[1].Position, 0.05f);
                 Gizmos.color=Color.green;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[2].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseHover.HoveredStitchIndex].Corners[2].Position, 0.05f);
                 Gizmos.color=Color.blue;
-                Gizmos.DrawSphere(AllStitches[_mouseDragger.HoveredStitchIndex].Corners[3].Position, 0.05f);
+                Gizmos.DrawSphere(AllStitches[_mouseHover.HoveredStitchIndex].Corners[3].Position, 0.05f);
             }
         }
         if (_sim != null)

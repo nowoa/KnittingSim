@@ -42,6 +42,10 @@ public class InputHandler : MonoBehaviour
         {
             //middle mouse
         }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            ToolManager.OnSpecialAction();
+        }
 
         else
         {

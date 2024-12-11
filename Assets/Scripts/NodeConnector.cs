@@ -6,10 +6,10 @@ public static class NodeConnector
 {
     public static void ConnectNodes(List<VerletNode> myNodes, int myWidth, bool myIsCircular, StitchTemplate myStitchTemplate)
     {
-        var diagonalLength = CalculateDiagonal(myStitchTemplate);
+        var diagonalLength = Calculation.CalculateDiagonal(myStitchTemplate.width, myStitchTemplate.height);
         for (int i = 0; i < myNodes.Count; i++)
         {
-            
+            myNodes[i].id = i;
             var diagonalRightUpIndex = i + myWidth + 1;
             var upIndex = i + myWidth;
             var downIndex = i - myWidth;
@@ -122,10 +122,6 @@ public static class NodeConnector
         }
     }
 
-    private static float CalculateDiagonal(StitchTemplate myStitchTemplate)
-    {
-        return Mathf.Sqrt(Mathf.Pow(myStitchTemplate.width, 2) + Mathf.Pow(myStitchTemplate.height, 2));
-    }
     public static void ConnectSeams(List<VerletNode> seam1, List<VerletNode> seam2)
     {
         if (seam1.Count != seam2.Count)

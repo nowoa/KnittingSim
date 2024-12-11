@@ -9,7 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, -0.1f, 0);
+        private Vector3 _gravity = new Vector3(0, -0f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -85,13 +85,15 @@ namespace Verlet
                 {
                     var nodeA = particles[i];
                     var nodeB = particles[j];
-
-                    /*if (nodeA.Parent?.stitchType is StitchInfo.StitchType.DecreaseFirst
-                        or StitchInfo.StitchType.DecreaseMiddle or StitchInfo.StitchType.DecreaseLast)
+                    if (nodeA.isSeam || nodeB.isSeam)
                     {
                         continue;
-                    }*/
+                    }
 
+                    if (nodeA.Connection.Select(item => item.edgeType).Contains(VerletEdge.EdgeType.Seam))
+                    {
+                        continue;
+                    }
                     if (nodeA.Connection.Count > 12)
                     {
                         continue;
@@ -101,11 +103,12 @@ namespace Verlet
                         nodeA.EdgeRight?.Other(nodeA) == nodeB ||
                         nodeA.ShearEdgeDown?.Other(nodeA) == nodeB ||
                         nodeA.ShearEdgeUp?.Other(nodeA) == nodeB)
+                    {
 
-            {
+                        
                         continue;
-            }
-                    
+                    }
+
                     
                     // Calculate the distance between the nodes
                     var delta = nodeA.Position - nodeB.Position;

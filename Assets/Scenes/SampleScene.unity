@@ -4001,8 +4001,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fabricMesh: {fileID: 0}
   panelName: 
-  width: 20
-  height: 20
+  width: 10
+  height: 10
   isCircular: 0
   bodyWidth: 10
   bodyHeight: 10

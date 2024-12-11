@@ -10,40 +10,40 @@ using Verlet;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
-public class MouseDragger
+public class MouseHover
 {
-    private static MouseDragger _instance;
-    public static MouseDragger Instance
+    private static MouseHover _instance;
+    public static MouseHover Instance
     {
         get
         {
             if (_instance == null)
             {
-                _instance = new MouseDragger();
+                _instance = new MouseHover();
             }
             return _instance;
         }
     }
     
     private float _hoveredChildDepth;
-    public int HoveredChildIndex;
+    public int HoveredNodeIndex;
     public int HoveredStitchIndex;
     private Camera _camera;
-    public int SelectedChildIndex =-1;
+    public int SelectedNodeIndex =-1;
   
     
-    private MouseDragger()
+    private MouseHover()
     {
         _camera = Camera.main;
     }
     public void UpdateHoverOld(List<VerletNode> myChildren) // change to take transform instead of verletnode so its reusable
     {
-        if (SelectedChildIndex != -1)
+        if (SelectedNodeIndex != -1)
         {
             return;
         }
 
-        HoveredChildIndex = -1;
+        HoveredNodeIndex = -1;
         const float selectionRadius = 0.025f;
         Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
         float shortestDistance = float.MaxValue;
@@ -55,7 +55,7 @@ public class MouseDragger
             var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
             if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
             {
-                HoveredChildIndex = i;
+                HoveredNodeIndex = i;
                 _hoveredChildDepth = screenPoint.z;
                 shortestDistance = distanceToMouse;
 
@@ -68,13 +68,13 @@ public class MouseDragger
     var stitches = FabricManager.AllStitches;
 
     // Return early if a child is selected
-    if (SelectedChildIndex != -1)
+    if (SelectedNodeIndex != -1)
     {
         return;
     }
 
     HoveredStitchIndex = -1;
-    HoveredChildIndex = -1;
+    HoveredNodeIndex = -1;
     float closestStitchDistance = float.MaxValue; // Track the closest stitch
     Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
 
@@ -118,7 +118,7 @@ public class MouseDragger
                 if (distanceC < shortestDistanceC)
                 {
                     shortestDistanceC = distanceC;
-                    HoveredChildIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
+                    HoveredNodeIndex = FabricManager.AllNodes.IndexOf(s.Corners[i]);
                     _hoveredChildDepth = posNormalized[i].z;
                 }
             }
@@ -155,7 +155,7 @@ public class MouseDragger
 
     public void UpdateSelected()
     {
-        SelectedChildIndex = HoveredChildIndex;
+        SelectedNodeIndex = HoveredNodeIndex;
     }
     
     private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)

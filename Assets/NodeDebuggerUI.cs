@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class NodeDebuggerUI : MonoBehaviour
 {
-    private MouseDragger _mouseDragger;
+    private MouseHover _mouseHover;
     private GameObject _node;
     private GameObject _structuralUp;
     private GameObject _structuralRight;
@@ -36,7 +36,7 @@ public class NodeDebuggerUI : MonoBehaviour
             _shearUp = transform.Find("ShearUp")?.gameObject;
             _shearDown = transform.Find("ShearDown")?.gameObject;
         }
-        _mouseDragger = MouseDragger.Instance;
+        _mouseHover = MouseHover.Instance;
         if (StitchGridDebugger)
         {
             _stitchLeft = transform.Find("StitchLeft").gameObject;
@@ -54,12 +54,12 @@ public class NodeDebuggerUI : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (_mouseDragger.HoveredStitchIndex < 0 || _mouseDragger.HoveredStitchIndex >= FabricManager.AllStitches.Count)
+        if (_mouseHover.HoveredStitchIndex < 0 || _mouseHover.HoveredStitchIndex >= FabricManager.AllStitches.Count)
         {
             return;
         }
 
-        var stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+        var stitchInfo = FabricManager.AllStitches[_mouseHover.HoveredStitchIndex];
         if (!stitchInfo.IsActive)
         {
             return;

@@ -32,17 +32,17 @@ public class DebuggingText : MonoBehaviour
             
         }
 
-        if (MouseDragger.Instance.HoveredStitchIndex >= 0 &&
-            MouseDragger.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        if (MouseHover.Instance.HoveredStitchIndex >= 0 &&
+            MouseHover.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
         {
             stitchTypeTextField.text =
-                FabricManager.AllStitches[MouseDragger.Instance.HoveredStitchIndex].stitchType.ToString();
+                FabricManager.AllStitches[MouseHover.Instance.HoveredStitchIndex].stitchType.ToString();
         }
-        if (MouseDragger.Instance.HoveredStitchIndex >= 0 &&
-            MouseDragger.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        if (MouseHover.Instance.HoveredStitchIndex >= 0 &&
+            MouseHover.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
         {
             knitValueTextField.text =
-                FabricManager.AllStitches[MouseDragger.Instance.HoveredStitchIndex].Knit ? "knit" : "purl";
+                FabricManager.AllStitches[MouseHover.Instance.HoveredStitchIndex].Knit ? "knit" : "purl";
         }
     }
 

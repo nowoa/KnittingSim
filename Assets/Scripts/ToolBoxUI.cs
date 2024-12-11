@@ -52,9 +52,9 @@ public class ToolBoxUI : MonoBehaviour
         ToolManager.SetActiveTool(ToolManager.PanelStamp);
     }
 
-    public void SeamMaker()
+    public void SeamTool()
     {
-        ToolManager.SetActiveTool(ToolManager.SeamMaker);
+        ToolManager.SetActiveTool(ToolManager.SeamTool);
     }
 
     public void Knife()

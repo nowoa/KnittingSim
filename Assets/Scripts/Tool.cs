@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using DefaultNamespace;
 using Unity.VisualScripting;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
@@ -9,7 +10,7 @@ using Verlet;
 
 public abstract class Tool
 {
-    protected MouseDragger _mouseDragger = MouseDragger.Instance;
+    protected MouseHover MouseHover = MouseHover.Instance;
     public static VerletNode closestNode;
 
     public virtual void DefaultBehavior()
@@ -18,7 +19,7 @@ public abstract class Tool
 
         if (FabricManager.AllStitches != null)
         {
-            _mouseDragger.UpdateHoverStitch();
+            MouseHover.UpdateHoverStitch();
         }
         
         
@@ -43,27 +44,32 @@ public abstract class Tool
     {
         Debug.Log("No secondary action end implemented");
     }
+
+    public virtual void SpecialAction()
+    {
+        Debug.Log("No special action implemented");
+    }
 }
 
 public class Dragger : Tool
 {
     public override void MainAction()
     {
-        _mouseDragger.UpdateSelected();
-        if (_mouseDragger.SelectedChildIndex >= 0 && _mouseDragger.SelectedChildIndex < FabricManager.AllNodes.Count)
+        MouseHover.UpdateSelected();
+        if (MouseHover.SelectedNodeIndex >= 0 && MouseHover.SelectedNodeIndex < FabricManager.AllNodes.Count)
         {
-            Debug.Log(FabricManager.AllNodes[_mouseDragger.SelectedChildIndex].Connection.Count.ToString());
+            Debug.Log(FabricManager.AllNodes[MouseHover.SelectedNodeIndex].Connection.Count.ToString());
         }
     }
 
     public override void MainActionEnd()
     {
-        _mouseDragger.SelectedChildIndex = -1;
+        MouseHover.SelectedNodeIndex = -1;
     }
 
     public override void SecondaryAction()
     {
-        var cachedIndex = _mouseDragger.HoveredChildIndex;
+        var cachedIndex = MouseHover.HoveredNodeIndex;
         if (cachedIndex == -1)
         {
             return;
@@ -71,7 +77,7 @@ public class Dragger : Tool
         var cachedHoveredNode = FabricManager.AllNodes[cachedIndex];
 
         cachedHoveredNode.IsAnchored = !cachedHoveredNode.IsAnchored;
-        cachedHoveredNode.AnchoredPos = _mouseDragger.GetTargetPos();
+        cachedHoveredNode.AnchoredPos = MouseHover.GetTargetPos();
 
     }
 }
@@ -84,9 +90,9 @@ public class StitchBrush : Tool
     public override void DefaultBehavior()
     {
         base.DefaultBehavior();
-        if (_mouseDragger.HoveredStitchIndex == -1) return;
+        if (MouseHover.HoveredStitchIndex == -1) return;
 
-        var stitch = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+        var stitch = FabricManager.AllStitches[MouseHover.HoveredStitchIndex];
         if (_knitBrush)
         {
             ApplyBrushAction(stitch, true);
@@ -185,9 +191,9 @@ public class Decreaser : Tool
         }
 
         StitchInfo stitchInfo = null;
-        if (_mouseDragger.HoveredStitchIndex >= 0 && _mouseDragger.HoveredStitchIndex < FabricManager.AllStitches.Count)
+        if (MouseHover.HoveredStitchIndex >= 0 && MouseHover.HoveredStitchIndex < FabricManager.AllStitches.Count)
         {
-            stitchInfo = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex];
+            stitchInfo = FabricManager.AllStitches[MouseHover.HoveredStitchIndex];
         }
 
         if (stitchInfo == null)
@@ -195,14 +201,9 @@ public class Decreaser : Tool
             return;
         }
 
-        if (!HasStitchInfoChanged(stitchInfo))
+        if (ToolUtils.AreEqual(previousStitchInfo,stitchInfo))
         {
             return; 
-        }
-        
-        bool HasStitchInfoChanged(StitchInfo currentStitchInfo)
-        {
-            return previousStitchInfo != currentStitchInfo;
         }
 
         hasExecutedThisFrame = false;
@@ -335,7 +336,7 @@ public class Decreaser : Tool
             var decrease = new DecreaseInfo(stitchesToDecrease.First(), stitchesToDecrease.Last(), rightDirection);
             Decrease.Main(decrease);
             FabricManager.InvokeUpdateSimulation();
-            var mesh = FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].ParentMesh;
+            var mesh = FabricManager.AllStitches[MouseHover.HoveredStitchIndex].ParentMesh;
             if (mesh != null)
             {
                 mesh.UpdateMesh();
@@ -350,8 +351,89 @@ public class PanelStamp : Tool
 {
 }
 
-public class SeamMaker : Tool
+public class SeamTool : Tool
 {
+    private VerletNode prevNode;
+    private bool seamToolActive;
+    private bool isFirstSeam;
+    private List<VerletNode> seam1;
+    private List<VerletNode> seam2;
+    public override void DefaultBehavior()
+    {
+        base.DefaultBehavior();
+        if (!seamToolActive)
+        {
+            return;
+        }
+
+        VerletNode node;
+
+        if (MouseHover.HoveredNodeIndex!=-1)
+        {
+            node = FabricManager.AllNodes[MouseHover.HoveredNodeIndex];
+        }
+        else return;
+
+        if (ToolUtils.AreEqual(prevNode, node))
+        {
+            return; 
+        }
+        
+        prevNode = node;
+        
+        AddOrRemoveNodeToSeam(node);
+
+    }
+
+    private void AddOrRemoveNodeToSeam(VerletNode myNode)
+    {
+        if (isFirstSeam)
+        {
+            if (!seam1.Contains(myNode))
+            {
+                seam1.Add(myNode);
+                Debug.Log("node added to seam1");
+            }
+        }
+        else
+        {
+            if (!seam2.Contains(myNode))
+            {
+                seam2.Add(myNode);
+                Debug.Log("node added to seam2");
+            }
+        }
+    }
+
+    public override void MainAction()
+    {
+        seamToolActive = true;
+        isFirstSeam = true;
+        seam1 = new();
+    }
+
+    public override void MainActionEnd()
+    {
+        seamToolActive = false;
+    }
+
+    public override void SecondaryAction()
+    {
+        seamToolActive = true;
+        isFirstSeam = false;
+        seam2 = new();
+    }
+
+    public override void SecondaryActionEnd()
+    {
+        seamToolActive = false;
+    }
+
+    public override void SpecialAction()
+    {
+        Debug.Log("special action");
+        SeamMaker.ConnectSeams(seam1,seam2);
+    }
 }
 
 public class Knife : Tool
@@ -362,7 +444,7 @@ public class Knife : Tool
         base.DefaultBehavior();
         if (isCutting)
         {
-            var cachedIndex = _mouseDragger.HoveredStitchIndex;
+            var cachedIndex = MouseHover.HoveredStitchIndex;
             if (cachedIndex != -1)
             {
                 var mesh = FabricManager.AllStitches[cachedIndex].ParentMesh;
@@ -408,7 +490,7 @@ public static class ToolManager
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
-    public static Tool SeamMaker = new SeamMaker();
+    public static Tool SeamTool = new SeamTool();
     public static Tool Knife = new Knife();
 
     static ToolManager()
@@ -445,4 +527,18 @@ public static class ToolManager
     {
         _activeTool.SecondaryActionEnd();
     }
+
+    public static void OnSpecialAction()
+    {
+        _activeTool.SpecialAction();
+    }
 }
+
+public static class ToolUtils
+{
+    public static bool AreEqual<T>(T prev, T check) 
+    {
+        return Equals(prev, check);
+    }
+}
+

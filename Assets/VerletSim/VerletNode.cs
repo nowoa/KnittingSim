@@ -1,5 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
+using DefaultNamespace;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 
@@ -51,6 +55,8 @@ namespace Verlet
         public Vector3 Position;
         public bool IsAnchored;
         public Vector3 AnchoredPos;
+        public int id;
+        public bool isSeam = false;
 
         public VerletNode(Vector3 p)
         {
@@ -296,7 +302,50 @@ namespace Verlet
             Vector3 right = edge2 == null? Position : rightReverse? Position - edge2.Other(this).Position : edge2.Other(this).Position - Position;
             
             normal = Vector3.Cross(up,right).normalized;
-
         }
+
+        public void MergeInto(VerletNode other)
+        {
+            /*var node = new VerletNode(Position);
+            List<VerletNode> others = new List<VerletNode>(_connection.Select(item => item.Other(this)));
+            List<VerletNode> others2 = new List<VerletNode>(other.Connection.Select(item => item.Other(other)));
+
+            List<VerletEdge> edgesToCopy = new List<VerletEdge>(_connection);
+            List<VerletEdge> edgesToCopy2 = new List<VerletEdge>();
+            foreach (var e in other.Connection)
+            {
+                if (!edgesToCopy.Select(item => item.Other(this)).Contains(e.Other(other)))
+                {
+                    edgesToCopy2.Add(e);
+                }
+            }
+
+            foreach (var e in edgesToCopy)
+            {
+                VerletEdge.ConnectNodes(node, e.Other(this), e.Length, e.edgeType);
+            }
+
+            foreach (var e in edgesToCopy2)
+            {
+                VerletEdge.ConnectNodes(node, e.Other(other), e.Length, e.edgeType);
+            }*/
+            List<VerletEdge> toCopy = new List<VerletEdge>();
+            foreach (var e in other.Connection)
+            {
+                if (!_connection.Select(item => item.Other(this)).Contains(e.Other(other)))
+                {
+                    toCopy.Add(e);
+                }
+            }
+
+            foreach (var e in toCopy)
+            {
+                VerletEdge.ConnectNodes(this, e.Other(other), e.Length, e.edgeType);
+            }
+            other.RemoveAllEdges();
+            FabricManager.AllNodes.Remove(other);
+        }
+        
+        
     }
 }
