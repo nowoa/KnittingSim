@@ -25,6 +25,7 @@ public static class Decrease
         {
             ExecuteDecrease(d);
         }
+        Debug.Log(_allDecreases.Count);
     }
 
     private static void ExecuteDecrease(DecreaseInfo decreaseInfo)
@@ -169,20 +170,19 @@ public static class Decrease
     }
 
     private static void RemoveColumnRecursive(StitchInfo myStitch, bool remove = false) 
-    {
-        if (myStitch.StitchBelow!=null && myStitch.StitchBelow.stitchType is StitchInfo.StitchType.DecreaseFirst
-            or StitchInfo.StitchType.DecreaseMiddle or StitchInfo.StitchType.DecreaseLast)
-        {
-            myStitch.Corners[3].RemoveAllEdges();
-            FabricManager.AllStitches.Remove(myStitch.Corners[3].Parent);
-            
-            return;
-        }
+    {  
         myStitch.Corners[3].RemoveAllEdges();
+        FabricManager.AllNodes.Remove(myStitch.Corners[3]);
         if (myStitch.StitchBelow != null )
         {
+            if (myStitch.StitchBelow.Corners[0].Parent.stitchType == StitchInfo.StitchType.DecreaseFirst)
+            {
+                Debug.Log("stopped because decrease was reached");
+                return;
+            }
             RemoveColumnRecursive(myStitch.StitchBelow, true); 
         }
+        
         FabricManager.AllNodes.Remove(myStitch.Corners[3]);
         if (remove)
         {
@@ -222,21 +222,19 @@ public static class Decrease
             (first.height + last.height) / 2);
         if (!_firstDone)
         {
-            //right structural
             first.SetStitchType(StitchInfo.StitchType.DecreaseFirst);
             last.SetStitchType(StitchInfo.StitchType.DecreaseLast);
+            
             VerletEdge.ConnectNodes(left, right, last.width, VerletEdge.EdgeType.Structural);
+            
             left.RemoveStructuralEdge( false);
             left.SetStructuralEdge( false);
             
             first.UpdateCorners(right,3);
             last.UpdateCorners(left,0);
             
-            //structural up
             VerletEdge.ConnectNodes(left,last.Corners[1],last.height, VerletEdge.EdgeType.Structural);
-            /*left.SetStructuralEdge(true);*/
             
-            //shear up
             VerletEdge.ConnectNodes(left,first.Corners[2],diagonalLength,VerletEdge.EdgeType.Shear);
             left.RemoveShearEdge(true);
             left.SetShearEdge(true);
@@ -312,15 +310,16 @@ public static class Decrease
 
     static void SetColumnInactive(StitchInfo left, StitchInfo right)
     {
-        right.SetInactive();
-        if (left.Corners[3].Parent != null)
+        /*right.SetInactive();*/
+        FabricManager.AllStitches.Remove(right);
+        if (left.Corners[2] != left.StitchRight.Corners[1])
         {
             left.UpdateNeighborStitch(left.Corners[3].Parent,"right");
             left.StitchRight.UpdateNeighborStitch(left,"left");
         }
         else
         {
-            left.UpdateNeighborStitch(null, "right");
+            /*left.UpdateNeighborStitch(null, "right");*/
         }
     }
 }

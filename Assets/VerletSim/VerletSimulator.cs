@@ -9,7 +9,7 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, -0f, 0);
+        private Vector3 _gravity = new Vector3(0, 0f, 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -93,8 +93,9 @@ namespace Verlet
                     if (nodeA.Connection.Select(item => item.edgeType).Contains(VerletEdge.EdgeType.Seam))
                     {
                         continue;
-                    }
-                    if (nodeA.Connection.Count > 12)
+                    }*/
+
+                    if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count> 8))
                     {
                         continue;
                     }
@@ -172,6 +173,7 @@ namespace Verlet
                         var other = e.Other(p);
                         Gizmos.DrawLine(p.Position, other.Position);
                     });
+                    Gizmos.DrawSphere(p.Position,0.1f);
                 }
             }
     }

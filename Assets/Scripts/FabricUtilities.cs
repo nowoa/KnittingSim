@@ -140,6 +140,7 @@ public class StitchInfo
         }
     }
 
+
     public void RemoveStitch()
     {
         if (stitchType == StitchType.DecreaseFirst || stitchType == StitchType.DecreaseMiddle ||

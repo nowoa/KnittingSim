@@ -60,6 +60,20 @@ public class Dragger : Tool
         {
             Debug.Log(FabricManager.AllNodes[MouseHover.SelectedNodeIndex].Connection.Count.ToString());
         }
+
+        /*if (_mouseDragger.HoveredStitchIndex != -1)
+        {
+            if (FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners.Contains(null))
+            {
+                Debug.Log("one or more corners missing");
+            }
+
+            foreach (var c in FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners)
+            {
+                Debug.Log(c.Position);
+            }
+            
+        }*/
     }
 
     public override void MainActionEnd()
