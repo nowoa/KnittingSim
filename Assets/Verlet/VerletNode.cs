@@ -1,0 +1,60 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Transactions;
+using DefaultNamespace;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+
+
+namespace Verlet
+{
+    public class VerletNode
+    {
+        #region Simulation
+
+        public Vector3 Position;
+        private Vector3 Prev;
+        private List<VerletEdge> _connection;
+        public List<VerletEdge> Connection => _connection;
+        
+        public VerletNode(Vector3 p)
+        {
+            Position = Prev = p;
+            _connection = new List<VerletEdge>();
+        }
+
+        public void Step()
+        {
+            var v = Position - Prev;
+            var next = Position + (v*0.9f);
+            Prev = Position;
+            Position = next;
+        }
+        
+        public void AddEdge(VerletEdge e)
+        {
+            _connection.Add(e);
+        }
+
+        #endregion
+        
+        private Stitch _parentStitch;
+        private List<VerletNode> _neighbors;
+
+        public void RemoveNode()
+        {
+            
+        }
+
+        public List<VerletEdge> GetEdgesOfType(VerletEdge.EdgeType myType)
+        {
+            return null;
+        }
+
+        public VerletEdge GetEdgeByNode(VerletNode other)
+        {
+            return null;
+        }
+    }
+}

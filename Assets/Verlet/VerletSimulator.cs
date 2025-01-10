@@ -9,7 +9,8 @@ namespace Verlet
     {
         private List<VerletNode> particles;
         public List<VerletNode> Nodes => particles;
-        private Vector3 _gravity = new Vector3(0, 0f, 0);
+        private static float gravity = Game.gravityFactor;
+        private Vector3 _gravity = new Vector3(0, gravity , 0);
 
         public VerletSimulator(List<VerletNode> particles)
         {
@@ -18,15 +19,12 @@ namespace Verlet
 
         public void Simulate(int iterations, float dt)
         {
-            var time = dt / iterations;
             Step(dt);
-            
             for (int iter = 0; iter < iterations; iter++)
             {
                 Solve();
             }
             SolveSelfCollisionExpensive();
-            
         }
 
         void Step(float deltaTime)
@@ -79,7 +77,7 @@ namespace Verlet
 
         void SolveSelfCollisionExpensive()
         {
-            for (int i = 0; i < particles.Count; i++)
+            /*for (int i = 0; i < particles.Count; i++)
             {
                 for (int j = i + 1; j < particles.Count; j++) // Avoid redundant checks
                 {
@@ -124,37 +122,7 @@ namespace Verlet
                         nodeB.Position -= 0.5f * difference * direction;
                     }
                 }
-            }
-        }
-        
-        void SolveSelfCollisionCheap()
-        {
-            for (int i = 0; i < particles.Count; i++)
-            {
-                for (int j = i + 1; j < particles.Count; j++) // Avoid redundant checks
-                {
-                    var nodeA = particles[i];
-                    var nodeB = particles[j];
-                    
-                    // Calculate the distance between the nodes
-                    var delta = nodeA.Position - nodeB.Position;
-                    var distance = delta.magnitude;
-                    var minDistance = nodeA.MarbleRadius/2 + nodeB.MarbleRadius/2;
-
-                    if (distance < minDistance)
-                    {
-                        // Calculate the amount to push outward
-                        float difference = minDistance - distance;
-
-                        // Normalize the delta vector to get the separation direction
-                        Vector3 direction = delta.normalized;
-
-                        // Push both nodes outward equally
-                        nodeA.Position += 0.5f * difference * direction;
-                        nodeB.Position -= 0.5f * difference * direction;
-                    }
-                }
-            }
+            }*/
         }
 
         public void DrawGizmos(Color myColor)

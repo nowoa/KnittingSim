@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace Verlet
 {
-    
-    
-    
 
     public class VerletEdge
     {
+        private float _length;
+        public float Length => _length;
+        public VerletNode a, b;
         public enum EdgeType
         {
             Structural,
@@ -20,24 +20,11 @@ namespace Verlet
 
         public EdgeType edgeType;
         
-        public float Length => length;
-
-        public VerletNode a, b;
-        private float length;
-
-        public VerletEdge(VerletNode a, VerletNode b)
-        {
-            this.a = a;
-            this.b = b;
-            this.length = (a.Position - b.Position).magnitude;
-
-        }
-
         public VerletEdge(VerletNode a, VerletNode b, float len, EdgeType type)
         {
             this.a = a;
             this.b = b;
-            this.length = len;
+            _length = len;
             edgeType = type;
 
         }
@@ -53,24 +40,25 @@ namespace Verlet
                 return a;
             }
         }
-
-        public static void ConnectNodes(VerletNode a, VerletNode b)
-        {
-            VerletEdge edge = new VerletEdge(a, b);
-            a.AddEdge(edge);
-            b.AddEdge(edge);
-        }
-
+        
         public static void ConnectNodes(VerletNode a, VerletNode b, float length, EdgeType type)
         {
-            /*if (a.FindEdgeByNode(b) != null)
+            if (a.GetEdgeByNode(b) != null)
             {
                 Debug.LogWarning("there is already an edge between these nodes!");
                 return;
-            }*/
+            }
             VerletEdge edge = new VerletEdge(a, b, length, type);
             a.AddEdge(edge);
             b.AddEdge(edge);
         }
+
+        public void RemoveEdge()
+        {
+            a.Connection.Remove(this);
+            b.Connection.Remove(this);
+            //make sure there are no connections to this edge anywhere (e.g. being referenced by the structural edge variable on a node or something)
+        }
+        
     }
 }
