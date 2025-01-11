@@ -1,7 +1,3 @@
-namespace Tools
+public class PanelStamp : Tool
 {
-    public class PanelStamp
-    {
-        
-    }
 }

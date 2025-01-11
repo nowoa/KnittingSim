@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -115,7 +116,7 @@ public class GarmentGenerator : MonoBehaviour
         for (int i = _fabricManager.GetPanelInfo(cp).Width; i > 0; i--)
         {
             _fabricManager.AnchorNode(_fabricManager.GetPanelInfo(cp).Nodes[^i],new Vector3(0,_fabricManager.GetPanelInfo(cp).Height*_stitchTemplate.height,0) );
-        }*/
+        }#1#
     }
     
     [ContextMenu("make ruffle")]
@@ -126,12 +127,12 @@ public class GarmentGenerator : MonoBehaviour
         _fabricManager.MakePanel("longPanel",60,10,false);
         _fabricManager.CreateSeam("shortPanel", "shortPanelSeam", new Vector2Int(0,0), new Vector2Int(29,0),60);
         _fabricManager.CreateSeam("longPanel", "longPanelSeam", new Vector2Int(0,0), new Vector2Int(59,0),60);
-        /*_fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),30);*/
+        /*_fabricManager.CreateSeam("shortPanel","shortPanelAnchored",new Vector2Int(0,9), new Vector2Int(29,9),30);#1#
         _fabricManager.ConnectSeams("shortPanelSeam", "longPanelSeam");
         /*foreach (var node in _fabricManager.GetSeam("shortPanelAnchored"))
         {
             _fabricManager.AnchorNode(node,new Vector3(0,0,0));
-        }*/
+        }#1#
     }
 
     [ContextMenu("make scrunchie")]
@@ -154,7 +155,7 @@ public class GarmentGenerator : MonoBehaviour
         /*
         _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[0],new Vector3(0,0,0));
         _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[1],new Vector3(0,0,0));
-        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[2],new Vector3(0,0,0));*/
+        _fabricManager.AnchorNode(_fabricManager.GetSeam("hairTieToRuffles")[2],new Vector3(0,0,0));#1#
     }
     
     [ContextMenu("Make panel")]
@@ -199,3 +200,4 @@ public class GarmentGenerator : MonoBehaviour
     {
     }
 }
+*/

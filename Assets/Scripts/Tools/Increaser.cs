@@ -1,7 +1,4 @@
-namespace Tools
+public class Increaser : Tool
 {
-    public class Increaser
-    {
-        
-    }
+    
 }

@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,15 +9,21 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 using Verlet;
 
-public class FabricMesh : MonoBehaviour
+public class FabricMeshOld : MonoBehaviour
 {
     private Mesh _mesh;
-    private FabricMesh _fabricMesh;
+    private FabricMeshOld _fabricMesh;
     private MeshFilter _meshFilter;
     void Start()
     {
-        _fabricMesh = gameObject.GetComponent<FabricMesh>();
+        _fabricMesh = gameObject.GetComponent<FabricMeshOld>();
         _meshFilter = gameObject.GetComponent<MeshFilter>();
+    }
+
+    // Update is called once per frame
+    void Update() 
+    {
+        
     }
 
     public void UpdateMesh()
@@ -26,17 +33,16 @@ public class FabricMesh : MonoBehaviour
             Destroy(_mesh);
         }
         _mesh = new Mesh();
-        
-        /*_mesh.SetVertices(GetMeshInfo().vertices);
+        _mesh.SetVertices(GetMeshInfo().vertices);
         _mesh.SetTriangles(GetMeshInfo().triangles,0);
         _mesh.SetNormals(GetMeshInfo().normals);
-        _mesh.SetUVs(0,GetMeshInfo().uvs);*/
+        _mesh.SetUVs(0,GetMeshInfo().uvs);
         
 
         _meshFilter.sharedMesh = _mesh;
     }
 
-    /*private (List<Vector3> vertices, List<int> triangles, List<Vector3> normals, List<Vector2> uvs) GetMeshInfo()
+    private (List<Vector3> vertices, List<int> triangles, List<Vector3> normals, List<Vector2> uvs) GetMeshInfo()
     {
         var vertexIndex = 0;
         var vertexList = new List<Vector3>();
@@ -49,7 +55,7 @@ public class FabricMesh : MonoBehaviour
         }
         foreach (var s in FabricManager.AllStitches)
         {
-            s.SetParentMesh(this);
+            /*s.SetParentMesh(this);#1#
             if (!s.IsActive)
             {
                 continue;
@@ -172,5 +178,6 @@ public class FabricMesh : MonoBehaviour
                 return new[]
                     { s.Corners[0], s.Corners[1], s.Corners[2], s.Corners[3] };
         }
-    }*/
+    }
 }
+*/

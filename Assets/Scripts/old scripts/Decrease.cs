@@ -1,3 +1,4 @@
+/*
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -310,7 +311,7 @@ public static class Decrease
 
     static void SetColumnInactive(StitchInfo left, StitchInfo right)
     {
-        /*right.SetInactive();*/
+        /*right.SetInactive();#1#
         FabricManager.AllStitches.Remove(right);
         if (left.Corners[2] != left.StitchRight.Corners[1])
         {
@@ -319,7 +320,7 @@ public static class Decrease
         }
         else
         {
-            /*left.UpdateNeighborStitch(null, "right");*/
+            /*left.UpdateNeighborStitch(null, "right");#1#
         }
     }
 }
@@ -352,3 +353,4 @@ public struct DecreaseInfo
         Size = length;
     }
 }
+*/

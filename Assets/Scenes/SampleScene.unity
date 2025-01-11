@@ -467,7 +467,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 139983726}
         m_TargetAssemblyTypeName: ToolBoxUI, Assembly-CSharp
-        m_MethodName: SeamMaker
+        m_MethodName: SeamTool
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

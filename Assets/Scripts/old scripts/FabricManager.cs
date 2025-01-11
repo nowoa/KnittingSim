@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -212,7 +212,7 @@ public class FabricManager
         /*if (_simConnected != null)
         {
             _simConnected.Simulate(3, Time.fixedDeltaTime);
-        }*/
+        }#1#
 
         if (_sim != null)
         {
@@ -237,7 +237,7 @@ public class FabricManager
         }
 
 
-        _parent.fabricMesh.UpdatePositions();
+        /*_parent.fabricMesh.UpdatePositions();#1#
     }
 
     public void DrawGizmos()
@@ -290,4 +290,4 @@ public class FabricManager
         }
         
     }
-}
+}*/

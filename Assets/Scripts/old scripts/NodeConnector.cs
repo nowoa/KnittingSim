@@ -6,7 +6,7 @@ public static class NodeConnector
 {
     public static void ConnectNodes(List<VerletNode> myNodes, int myWidth, bool myIsCircular, StitchTemplate myStitchTemplate)
     {
-        var diagonalLength = Calculation.CalculateDiagonal(myStitchTemplate.width, myStitchTemplate.height);
+        var diagonalLength = Util.CalculateDiagonal(myStitchTemplate.width, myStitchTemplate.height);
         for (int i = 0; i < myNodes.Count; i++)
         {
             myNodes[i].id = i;

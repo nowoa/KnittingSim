@@ -1,3 +1,4 @@
+/*
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,7 +9,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using Verlet;
 
-public abstract class Tool
+public abstract class ToolOld
 {
     protected MouseHover MouseHover = MouseHover.Instance;
     public static VerletNode closestNode;
@@ -73,7 +74,7 @@ public class Dragger : Tool
                 Debug.Log(c.Position);
             }
             
-        }*/
+        }#1#
     }
 
     public override void MainActionEnd()
@@ -555,4 +556,5 @@ public static class ToolUtils
         return Equals(prev, check);
     }
 }
+*/
 

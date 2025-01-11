@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verlet;
@@ -364,4 +364,4 @@ public class PanelInfo
     {
         return _nodes[Calculation.GetIndexFromCoordinate(x, y, _width)];
     }
-}
+}*/
