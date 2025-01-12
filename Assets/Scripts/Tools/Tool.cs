@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using DefaultNamespace;
 using Unity.VisualScripting;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
@@ -46,18 +45,18 @@ public abstract class Tool
 
 public static class ToolManager
 {
-    private static Tool _activeTool;
+    private static Tool _activeTool;/*
     public static Tool Dragger = new Dragger();
     public static Tool StitchBrush = new StitchBrush();
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
     public static Tool SeamTool = new SeamTool();
-    public static Tool Knife = new Knife();
+    public static Tool Knife = new Knife();*/
 
     static ToolManager()
-    {
-        _activeTool = Dragger;
+    {/*
+        _activeTool = Dragger;*/
     }
 
     public static void SetActiveTool(Tool myTool)

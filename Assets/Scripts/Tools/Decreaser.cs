@@ -1,4 +1,5 @@
 
+/*
 public class Decreaser : Tool
 {
     private List<StitchInfo> stitchesToDecrease;
@@ -172,4 +173,4 @@ public class Decreaser : Tool
         }
         
     }
-}
+}*/

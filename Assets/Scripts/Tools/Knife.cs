@@ -1,4 +1,4 @@
-public class Knife : Tool
+/*public class Knife : Tool
 {
     private bool isCutting;
     public override void DefaultBehavior()
@@ -34,7 +34,7 @@ public class Knife : Tool
         }
 
         FabricManager.AllStitches[myIndex].RemoveStitch();
-        //TO DO: if node doesnt have any edges anymore, remove node
+        //TODO: if node doesnt have any edges anymore, remove node
         FabricManager.InvokeUpdateSimulation();
     }
 
@@ -42,4 +42,4 @@ public class Knife : Tool
     {
         isCutting = false;
     }
-}
+}*/

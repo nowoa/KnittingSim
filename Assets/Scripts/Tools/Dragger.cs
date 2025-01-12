@@ -1,3 +1,4 @@
+/*
 public class Dragger : Tool
 {
     public override void MainAction()
@@ -20,7 +21,7 @@ public class Dragger : Tool
                 Debug.Log(c.Position);
             }
 
-        }*/
+        }#1#
     }
 
     public override void MainActionEnd()
@@ -42,3 +43,4 @@ public class Dragger : Tool
 
     }
 }
+*/

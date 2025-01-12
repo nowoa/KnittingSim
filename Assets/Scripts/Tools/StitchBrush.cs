@@ -1,4 +1,4 @@
-public class StitchBrush : Tool
+/*public class StitchBrush : Tool
 {
     private bool _knitBrush;
     private bool _purlBrush;
@@ -81,4 +81,4 @@ public class StitchBrush : Tool
             parentMesh.UpdateMesh();
         }
     }
-}
+}*/

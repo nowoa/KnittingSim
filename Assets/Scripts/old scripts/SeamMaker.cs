@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verlet;
@@ -39,8 +39,8 @@ namespace DefaultNamespace
         {
             VerletEdge.ConnectNodes(one, two, 0.01f, VerletEdge.EdgeType.Seam);
             one.isSeam = true;
-            /*two.isSeam = true;*/
+            /*two.isSeam = true;#1#
         }
 
     }
-}
+}*/

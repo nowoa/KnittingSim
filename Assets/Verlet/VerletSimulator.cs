@@ -7,7 +7,7 @@ namespace Verlet
     {
         private List<VerletNode> _nodes;
         public List<VerletNode> Nodes => _nodes;
-        private Vector3 _gravity = new Vector3(0, Game.gravityFactor, 0);
+        private Vector3 _gravity = new Vector3(0, GameManager.GravityFactor, 0);
 
         public VerletSimulator(List<VerletNode> nodes)
         {

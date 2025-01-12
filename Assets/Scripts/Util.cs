@@ -13,4 +13,9 @@ public static class Util
     {
         return (Mathf.Sqrt(Mathf.Pow(width, 2) + Mathf.Pow(height, 2)));
     }
+    
+    public static bool IsInRangeOf<T>(this int index, IList<T> list)
+    {
+        return index > -1 && index < list.Count;
+    }
 }

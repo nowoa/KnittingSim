@@ -1,4 +1,4 @@
-public class SeamTool : Tool
+/*public class SeamTool : Tool
 {
     private VerletNode prevNode;
     private bool seamToolActive;
@@ -81,4 +81,4 @@ public class SeamTool : Tool
         Debug.Log("special action");
         SeamMaker.ConnectSeams(seam1,seam2);
     }
-}
+}*/

@@ -14,7 +14,7 @@ public static class Decrease
         _allDecreases = new List<DecreaseInfo>();
         if (!decreaseInfo.Direction) 
         {
-            //TO DO: if going left, decrease logic needs to be inverted
+            //TODO: if going left, decrease logic needs to be inverted
             //... or the list just has to be inverted?
             return;
         }

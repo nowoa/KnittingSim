@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using DefaultNamespace;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -40,7 +39,27 @@ namespace Verlet
         #endregion
         
         private Stitch _parentStitch;
-        private List<VerletNode> _neighbors;
+        private VerletNode[] _neighbors = new VerletNode[4];
+
+        public enum Neighbor
+        {
+            up, 
+            right,
+            down,
+            left
+        }
+
+        public void SetNeighborNode(Neighbor myNeighbor, VerletNode myNode)
+        {
+            if (_neighbors[(int)myNeighbor] != null)
+            {
+                Debug.LogWarning("neighbor is already assigned.");
+                return;
+            }
+
+            _neighbors[(int)myNeighbor] = myNode;
+        }
+        
 
         public void RemoveNode()
         {
