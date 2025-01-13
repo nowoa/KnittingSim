@@ -28,5 +28,13 @@ public class Project
         _nodes.AddRange(_panels[myName].Nodes);
         Simulator = new VerletSimulator(_nodes);
     }
+
+    public void UpdatePanels()
+    {
+        foreach (var pair in _panels)
+        {
+            pair.Value.UpdateStitchPosition();
+        }
+    }
 }
 

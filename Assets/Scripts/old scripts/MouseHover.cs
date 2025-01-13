@@ -13,18 +13,6 @@ using Vector3 = UnityEngine.Vector3;
 
 public class MouseHover
 {
-    private static MouseHover _instance;
-    public static MouseHover Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new MouseHover();
-            }
-            return _instance;
-        }
-    }
     
     private float _hoveredChildDepth;
     public int HoveredNodeIndex;
@@ -32,37 +20,6 @@ public class MouseHover
     private Camera _camera;
     public int SelectedNodeIndex =-1;
   
-    
-    private MouseHover()
-    {
-        _camera = Camera.main;
-    }
-    public void UpdateHoverOld(List<VerletNode> myChildren) // change to take transform instead of verletnode so its reusable
-    {
-        if (SelectedNodeIndex != -1)
-        {
-            return;
-        }
-
-        HoveredNodeIndex = -1;
-        const float selectionRadius = 0.025f;
-        Vector2 normalizedMousePos = NormalizePixelCoords(Input.mousePosition);
-        float shortestDistance = float.MaxValue;
-        for (var i = 0; i < myChildren.Count; i++)
-        {
-            var c = myChildren[i];
-            Vector3 screenPoint = _camera.WorldToScreenPoint(c.Position);
-            Vector2 normalizedChildPos = NormalizePixelCoords(screenPoint);
-            var distanceToMouse = (normalizedChildPos - normalizedMousePos).magnitude;
-            if (distanceToMouse<selectionRadius && distanceToMouse< shortestDistance)
-            {
-                HoveredNodeIndex = i;
-                _hoveredChildDepth = screenPoint.z;
-                shortestDistance = distanceToMouse;
-
-            }
-        }
-    }
     
     public void UpdateHoverStitch()
 {

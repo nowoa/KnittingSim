@@ -50,5 +50,13 @@ public class Panel
     {
         
     }
+
+    public void UpdateStitchPosition()
+    {
+        foreach (var s in Stitches)
+        {
+            s.UpdatePosition();
+        }
+    }
 }
 
