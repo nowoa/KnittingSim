@@ -73,28 +73,31 @@ public class NodeConnector //handles connecting the nodes to create a panel
                 break;
             
             case (int)Neighbor.Right: // create edge
-                if (IsLastInRow(origin, myPanel.Width)) return;
+                if (IsLastInRow(origin, myPanel.Width) && !myPanel.IsCircular) return; // if flat, return. if circular, connect to next node (makes spiral)
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.width,VerletEdge.EdgeType.Structural);
                 nodeA.SetNeighborNode(VerletNode.Neighbor.right,nodeB);
                 break;
             
             case (int)Neighbor.Left: // set neighbor
-                if (IsLastInRow(target, myPanel.Width)) return;
+                if (IsLastInRow(target, myPanel.Width) && !myPanel.IsCircular) return;
                 nodeA.SetNeighborNode(VerletNode.Neighbor.left,nodeB);
                 break;
             
             case (int)Neighbor.DownRight: // create edge
-                if (IsLastInRow(origin, myPanel.Width)) return;
+                if (IsLastInRow(origin, myPanel.Width) && !myPanel.IsCircular) return;
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.diagonal,VerletEdge.EdgeType.Shear);
                 break;
             
             case (int)Neighbor.UpRight: // create edge
-                if (IsLastInRow(origin, myPanel.Width)) return;
+                if (IsLastInRow(origin, myPanel.Width) && !myPanel.IsCircular) return;
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.diagonal,VerletEdge.EdgeType.Shear);
                 break;
             
             case (int)Neighbor.BendRight: // create edge
-                if (IsLastInRow(origin, myPanel.Width) || IsBeforeLastInRow(origin, myPanel.Width)) return;
+                if (IsLastInRow(origin, myPanel.Width) || IsBeforeLastInRow(origin, myPanel.Width))
+                {
+                    if (!myPanel.IsCircular) return;
+                }
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.width*2,VerletEdge.EdgeType.Bend);
                 break;
             
