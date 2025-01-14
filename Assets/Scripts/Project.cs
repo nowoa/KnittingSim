@@ -19,6 +19,7 @@ public class Project
     {
         var gameObject = new GameObject();
         gameObject.AddComponent<FabricMesh>();
+        Simulator = new VerletSimulator(_nodes);
     }
 
     public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge)
@@ -26,7 +27,6 @@ public class Project
         _panels.Add(myName,new Panel());
         _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge);
         _nodes.AddRange(_panels[myName].Nodes);
-        Simulator = new VerletSimulator(_nodes);
     }
 
     public void UpdatePanels()

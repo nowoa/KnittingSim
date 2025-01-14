@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
     public static GameManager Instance => _instance;
-    public static Hover Hover;
+    /*public static Hover Hover;*/
     public static Camera camera;
     public static float GravityFactor = -0.0f;
     public static int Iterations = 2;
@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (Project == null) return;
-        if (Project.Simulator==null) return;
         Project.Simulator.DrawGizmos(Color.white);
     }
 
@@ -37,7 +36,6 @@ public class GameManager : MonoBehaviour
     private void Simulate()
     {
         if (Project == null) return;
-        if (Project.Simulator == null) return;
         Project.Simulator.Simulate(Iterations,Time.fixedDeltaTime);
     }
 
