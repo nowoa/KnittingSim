@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Verlet;
+using static Verlet.VerletNode.Neighbor;
 
 public class NodeConnector //handles connecting the nodes to create a panel
 {
@@ -19,6 +21,13 @@ public class NodeConnector //handles connecting the nodes to create a panel
             {
                 TryConnectNodes(i, neighborIndices[n], n, dimensions, myPanel);
             }
+
+            if (neighborIndices[(int)Neighbor.UpRight].IsInRangeOf(myPanel.Nodes))
+            {
+                CreateParentStitch(i, neighborIndices, myPanel);
+            }
+            
+            
         }
     }
 
@@ -65,22 +74,22 @@ public class NodeConnector //handles connecting the nodes to create a panel
         {
             case (int)Neighbor.Up: // create edge
                 VerletEdge.ConnectNodes(nodeA,nodeB, myDimensions.height, VerletEdge.EdgeType.Structural);
-                nodeA.SetNeighborNode(VerletNode.Neighbor.up,nodeB);
+                nodeA.SetNeighborNode(up,nodeB);
                 break;
             
             case (int)Neighbor.Down: // set neighbor
-                nodeA.SetNeighborNode(VerletNode.Neighbor.down,nodeB);
+                nodeA.SetNeighborNode(down,nodeB);
                 break;
             
             case (int)Neighbor.Right: // create edge
                 if (IsLastInRow(origin, myPanel.Width) && !myPanel.IsCircular) return; // if flat, return. if circular, connect to next node (makes spiral)
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.width,VerletEdge.EdgeType.Structural);
-                nodeA.SetNeighborNode(VerletNode.Neighbor.right,nodeB);
+                nodeA.SetNeighborNode(right,nodeB);
                 break;
             
             case (int)Neighbor.Left: // set neighbor
                 if (IsLastInRow(target, myPanel.Width) && !myPanel.IsCircular) return;
-                nodeA.SetNeighborNode(VerletNode.Neighbor.left,nodeB);
+                nodeA.SetNeighborNode(left,nodeB);
                 break;
             
             case (int)Neighbor.DownRight: // create edge
@@ -105,5 +114,20 @@ public class NodeConnector //handles connecting the nodes to create a panel
                 VerletEdge.ConnectNodes(nodeA,nodeB,myDimensions.height*2,VerletEdge.EdgeType.Bend);
                 break;
         }
+    }
+
+    private static VerletNode[] GetStitchCorners(int i, int[] indices, Panel myPanel)
+    {
+        var botLeft = myPanel.Nodes[i];
+        var topLeft = myPanel.Nodes[indices[(int)Neighbor.Up]];
+        var topRight = myPanel.Nodes[indices[(int)Neighbor.UpRight]];
+        var botRight = myPanel.Nodes[indices[(int)Neighbor.Right]];
+        return new[] { botLeft, topLeft, topRight, botRight };
+    }
+    
+    private static void CreateParentStitch(int i, int[] indices, Panel myPanel)
+    {
+        var corners = GetStitchCorners(i, indices, myPanel);
+        myPanel.Stitches.Add(new Stitch(corners));
     }
 }

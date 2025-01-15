@@ -12,6 +12,14 @@ public class Stitch
     public Vector3 Position { get; private set; }
     private List<Stitch> _neighbors;
 
+    public Stitch(VerletNode[] myCorners)
+    {
+        _corners[0] = myCorners[0];
+        _corners[1] = myCorners[1];
+        _corners[2] = myCorners[2];
+        _corners[3] = myCorners[3];
+    }
+
     enum stitchType
     {
         normal,

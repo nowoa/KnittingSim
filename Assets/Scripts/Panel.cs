@@ -5,7 +5,7 @@ using Verlet;
 
 public class Panel
 {
-    public List<Stitch> Stitches { get; private set; } //set in connector right after initializing
+    public List<Stitch> Stitches { get; private set; } = new List<Stitch>(); //set in connector right after initializing
     public List<VerletNode> Nodes { get; private set; }
     public bool IsCircular { get; private set; }
     public int Width { get; private set; }

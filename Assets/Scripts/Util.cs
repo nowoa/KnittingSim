@@ -22,16 +22,17 @@ public static class Util
 
     public static Vector3 AveragePosition(Vector3[] vectors)
     {
-        float x = 0;
-        float y = 0;
-        float z = 0;
+        Vector3 vector = new();
         foreach (var v in vectors)
         {
-            x += v.x;
-            y += v.y;
-            z += v.z;
+            vector += v;
         }
 
-        return new Vector3(x / vectors.Length, y / vectors.Length, z / vectors.Length);
+        return new Vector3(vector.x / vectors.Length, vector.y / vectors.Length, vector.z / vectors.Length);
+    }
+
+    public static bool IsEven(this int i)
+    {
+        return i % 2 == 0;
     }
 }

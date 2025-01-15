@@ -8,17 +8,22 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
     public static GameManager Instance => _instance;
-    /*public static Hover Hover;*/
-    public static Camera camera;
+    public Camera Camera;
+    public static Hover Hover;
     public static float GravityFactor = -0.0f;
     public static int Iterations = 2;
     public Project Project;
 
-    private void Start()
+    private void Awake()
     {
         _instance = this;
-        camera = Camera.main;
+        Camera = Camera.main;
+        Hover = new Hover();
         Project = new Project();
+    }
+
+    private void Start()
+    {
     }
 
     private void OnDrawGizmos()
@@ -42,5 +47,16 @@ public class GameManager : MonoBehaviour
     private void UpdateProject()
     {
         Project.UpdatePanels();
+    }
+
+    private void OnGUI()
+    {
+        
+        foreach (var p in Project.GetPanels())
+        {
+            var BBValue = Hover.PanelBoundingBox(p);
+            Rect boundingBox = Rect.MinMaxRect(BBValue.xMin,BBValue.yMin,BBValue.xMax,BBValue.yMax);
+            GUI.Box(boundingBox, "bounding box");
+        }
     }
 }

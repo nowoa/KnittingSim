@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Android;
 using Verlet;
@@ -35,6 +36,11 @@ public class Project
         {
             pair.Value.UpdateStitchPosition();
         }
+    }
+
+    public List<Panel> GetPanels()
+    {
+        return _panels.Values.ToList();
     }
 }
 

@@ -59,6 +59,11 @@ namespace Verlet
 
             _neighbors[(int)myNeighbor] = myNode;
         }
+
+        public VerletNode GetNeighbor(Neighbor myNeighbor)
+        {
+            return _neighbors[(int)myNeighbor];
+        }
         
 
         public void RemoveNode()
