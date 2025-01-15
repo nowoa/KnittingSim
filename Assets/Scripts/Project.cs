@@ -26,7 +26,7 @@ public class Project
     public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge)
     {
         _panels.Add(myName,new Panel());
-        _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge);
+        _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge,myName);
         _nodes.AddRange(_panels[myName].Nodes);
     }
 
@@ -41,6 +41,11 @@ public class Project
     public List<Panel> GetPanels()
     {
         return _panels.Values.ToList();
+    }
+
+    public void CheckBoundingBox()
+    {
+        
     }
 }
 

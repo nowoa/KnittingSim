@@ -13,6 +13,7 @@ namespace Verlet
         #region Simulation
 
         public Vector3 Position;
+        public int id;
         private Vector3 Prev;
         private List<VerletEdge> _connection;
         public List<VerletEdge> Connection => _connection;

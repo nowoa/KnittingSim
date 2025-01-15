@@ -30,12 +30,19 @@ public class GameManager : MonoBehaviour
     {
         if (Project == null) return;
         Project.Simulator.DrawGizmos(Color.white);
+        
+        if (Hover.HoveredStitch==null) return;
+        Gizmos.color = Color.black;
+        Gizmos.DrawCube(Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawSphere(Hover.HoveredNode.Position,0.1f);
     }
 
     private void FixedUpdate()
     {
         Simulate();
         UpdateProject();
+        CheckBoundingBox();
     }
 
     private void Simulate()
@@ -51,12 +58,18 @@ public class GameManager : MonoBehaviour
 
     private void OnGUI()
     {
-        
         foreach (var p in Project.GetPanels())
         {
-            var BBValue = Hover.PanelBoundingBox(p);
-            Rect boundingBox = Rect.MinMaxRect(BBValue.xMin,BBValue.yMin,BBValue.xMax,BBValue.yMax);
-            GUI.Box(boundingBox, "bounding box");
+            var BBValue = Hover.IMGUIBoundingBox(p);
+            Rect boundingBox = Rect.MinMaxRect(BBValue.Min.x,BBValue.Min.y,BBValue.Max.x,BBValue.Max.y);
+            GUI.Box(boundingBox, p.Name+ " bounding box");/*
+            Rect test = Rect.MinMaxRect(0, 0, Screen.width, Screen.height);
+            GUI.Box(test, "test");*/
         }
+    }
+
+    private void CheckBoundingBox()
+    {
+        Hover.UpdateHover(Project.GetPanels());
     }
 }

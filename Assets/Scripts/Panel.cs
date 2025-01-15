@@ -12,14 +12,16 @@ public class Panel
     public int Height { get; private set; }
     public int HorizontalGauge { get; private set; }
     public int VerticalGauge { get; private set; }
+    public string Name { get; private set; }
 
-    public void CreatePanel(Vector2Int dimensions, bool myIsCircular, Vector2Int myGauge)
+    public void CreatePanel(Vector2Int dimensions, bool myIsCircular, Vector2Int myGauge, string myName)
     {
         Width = dimensions.x +1; //size in nodes, not stitches
         Height = dimensions.y +1;
         HorizontalGauge = myGauge.x;
         VerticalGauge = myGauge.y;
         IsCircular = myIsCircular;
+        Name = myName;
         
         Nodes = GenerateNodes(new Vector2Int(Width,Height));
         NodeConnector.ConnectNodes(this);

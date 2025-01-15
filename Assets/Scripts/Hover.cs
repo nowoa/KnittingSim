@@ -15,9 +15,36 @@ public class Hover
     public VerletNode SelectedNode;
 
 
-    public (float xMin, float yMin, float xMax, float yMax) PanelBoundingBox(Panel myPanel)
+
+    public void UpdateHover(List<Panel> myPanels)
+    {
+        HoveredStitch = null;
+        HoveredNode = null;
+        List<Panel> panelsToCheck = new List<Panel>();
+        foreach (var p in myPanels)
+        {
+            
+            if (CheckPanelBoundingBox(p))
+            {
+                panelsToCheck.Add(p);
+            }
+        }
+        foreach (var p in panelsToCheck)
+        {
+            Debug.Log(p.Name);
+            TrySetHoveredStitch(p.Stitches);
+        }
+    }
+
+    private bool CheckPanelBoundingBox(Panel myPanel)
+    {
+        return InsideBoundingBox(PanelBoundingBox(myPanel), Input.mousePosition);
+    }
+    
+    public (Vector2 Min, Vector2 Max) PanelBoundingBox(Panel myPanel)
     {
         int interval = Mathf.FloorToInt(myPanel.Width/2)-1;
+        if (interval <= 0) interval = 1;
         while (interval > 5) //at least check 1/nth of nodes (n=5)
         {
             Mathf.FloorToInt(interval /= 2);
@@ -34,27 +61,33 @@ public class Hover
             nodesCondensed[i] = screenPointNodes[i*interval];
         }
         var boundingBox = BoundingBox(nodesCondensed);
-        Debug.Log(boundingBox);
-        float widthError = (boundingBox.X.max - boundingBox.X.min) * errorMargin;
-        float heightError = (boundingBox.Y.max - boundingBox.Y.min) * errorMargin;
         
-        return (boundingBox.X.min - widthError, Screen.height - boundingBox.Y.max - heightError, boundingBox.X.max + widthError, Screen.height -boundingBox.Y.min + heightError);
+        float widthError = (boundingBox.Max.x - boundingBox.Min.x) * errorMargin;
+        float heightError = (boundingBox.Max.y - boundingBox.Min.y) * errorMargin;
+        
+        return (new Vector2(boundingBox.Min.x - widthError,  boundingBox.Min.y - heightError),
+            new Vector2(boundingBox.Max.x + widthError, boundingBox.Max.y + heightError));
 
     }
     
-    public void UpdateHoverStitch(List<Stitch> myStitches)
+    public (Vector2 Min, Vector2 Max) IMGUIBoundingBox(Panel myPanel)
     {
+        var boundingBox = PanelBoundingBox(myPanel);
+        return (new Vector2(boundingBox.Min.x, Screen.height - boundingBox.Max.y),
+            new Vector2(boundingBox.Max.x, Screen.height - boundingBox.Min.y));
+    }
+    
+    private void TrySetHoveredStitch(List<Stitch> myStitches) //TODO: think about adding error to the stitch bounding boxes?
+    {
+        Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         // Return early if a child is selected
         if (SelectedNode != null)
         {
             return;
         }
-
-        HoveredNode = null;
-        HoveredStitch = null;
         
         float closestDistance = float.MaxValue; // Track the closest stitch
-        Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
+        
 
         foreach (var s in myStitches)
         {
@@ -62,7 +95,7 @@ public class Hover
             var cornerScreenPositions = s.Corners.Select(item => GameManager.Instance.Camera.WorldToScreenPoint(item.Position));
             var positionsNormalized = cornerScreenPositions.Select(NormalizePixelCoords).ToArray();
 
-            if (!InsideBoundingBox(positionsNormalized, mousePos)) continue;
+            if (!InsideBoundingBox(BoundingBox(positionsNormalized), mousePos)) continue;
             
             var screenPoint = GameManager.Instance.Camera.WorldToScreenPoint(s.Position);
             float distance = ((Vector2)NormalizePixelCoords(screenPoint) - mousePos).magnitude;
@@ -74,6 +107,7 @@ public class Hover
             }
         }
 
+        if (HoveredStitch == null) return;
         HoveredNode = GetClosestNode(HoveredStitch, mousePos);
     }
 
@@ -99,27 +133,25 @@ public class Hover
         return result;
     }
 
-    private bool InsideBoundingBox(Vector3[] myPositions, Vector2 myMousePos)
-    { // all positions are normalized
-        // TODO: convert mypositions to vector2
-        var boundingBox = BoundingBox(myPositions);
+    private bool InsideBoundingBox((Vector2 Min, Vector2 Max) bounds, Vector2 myMousePos)
+    { 
         
-        if (myMousePos.x >= boundingBox.X.min && myMousePos.x <= boundingBox.X.max &&
-            myMousePos.y >= boundingBox.Y.min && myMousePos.y <= boundingBox.Y.max)
+        if (myMousePos.x >= bounds.Min.x && myMousePos.x <= bounds.Max.x &&
+            myMousePos.y >= bounds.Min.y && myMousePos.y <= bounds.Max.y)
         {
             return true;
         }
         return false;
     }
 
-    private ((float min, float max) X, (float min, float max) Y) BoundingBox(Vector3[] myPositions)
+    private (Vector2 Min, Vector2 Max) BoundingBox(Vector3[] myPositions)
     {
         float minX = myPositions.Min(position => position.x); 
         float maxX = myPositions.Max(position => position.x);
         float minY = myPositions.Min(position => position.y);
         float maxY = myPositions.Max(position => position.y);
 
-        return ((minX, maxX), (minY, maxY));
+        return (new Vector2(minX,minY), new Vector2(maxX,maxY));
     }
     
     private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)

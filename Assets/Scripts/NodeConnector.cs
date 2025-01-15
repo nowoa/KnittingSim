@@ -7,6 +7,8 @@ using static Verlet.VerletNode.Neighbor;
 
 public class NodeConnector //handles connecting the nodes to create a panel
 {
+    private static int id;
+    
     public static void ConnectNodes(Panel myPanel)
     {
         var stitchWidth = 10f / myPanel.HorizontalGauge;
@@ -16,13 +18,15 @@ public class NodeConnector //handles connecting the nodes to create a panel
         
         for (int i = 0; i < myPanel.Nodes.Count; i++)
         {
+            myPanel.Nodes[i].id = id;
+            id++;
             int[] neighborIndices = CalculateNeighborIndices(i, myPanel.Width);
             for (var n = 0; n<neighborIndices.Length; n++)
             {
                 TryConnectNodes(i, neighborIndices[n], n, dimensions, myPanel);
             }
 
-            if (neighborIndices[(int)Neighbor.UpRight].IsInRangeOf(myPanel.Nodes))
+            if (neighborIndices[(int)Neighbor.UpRight].IsInRangeOf(myPanel.Nodes) && !IsLastInRow(i,myPanel.Width))
             {
                 CreateParentStitch(i, neighborIndices, myPanel);
             }
