@@ -75,7 +75,51 @@ namespace Verlet
 
         void SolveSelfCollisionExpensive()
         {
-            //for the previous implementation, look in VerletSimOld
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                for (int j = i + 1; j < _nodes.Count; j++) // Avoid redundant checks
+                {
+                    var nodeA = _nodes[i];
+                    var nodeB = _nodes[j];
+                    /*if (nodeA.isSeam || nodeB.isSeam)
+                    {
+                        continue;
+                    }*/
+
+                    if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count> 8))
+                    {
+                        continue; //make sure it isnt trying to push apart decreases
+                    }
+
+                    if (nodeA.ParentStitch?.Corners[1] == nodeB ||
+                        nodeA.GetNeighbor(VerletNode.Neighbor.right)== nodeB ||
+                        nodeA.ParentStitch?.Corners[2] == nodeB ||
+                        nodeA.ParentStitch?.Corners[3].GetNeighbor(VerletNode.Neighbor.down) == nodeB)
+                    {
+
+                        
+                        continue;
+                    }
+                    
+                    // Calculate the distance between the nodes
+                    var delta = nodeA.Position - nodeB.Position;
+                    var distance = delta.magnitude;
+                    var minDistance = nodeA.CollisionRadius + nodeB.CollisionRadius;
+
+                    if (distance < minDistance)
+                    {
+                        // Calculate the amount to push outward
+                        float difference = minDistance - distance;
+
+                        // Normalize the delta vector to get the separation direction
+                        Vector3 direction = delta.normalized;
+
+                        // Push both nodes outward equally
+                        nodeA.Position += 0.5f * difference * direction;
+                        nodeB.Position -= 0.5f * difference * direction;
+                    }
+                }
+            }
         }
 
         public void DrawGizmos(Color myColor)

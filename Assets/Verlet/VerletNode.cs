@@ -38,12 +38,13 @@ namespace Verlet
         }
 
         #endregion
-        
-        private Stitch _parentStitch;
+
+        public Stitch ParentStitch;
         public Panel ParentPanel { get; private set; }
         private VerletNode[] _neighbors = new VerletNode[4];
         public bool IsAnchored { get; private set; }
         public Vector3 AnchoredPosition;
+        public float CollisionRadius;
 
         public enum Neighbor
         {
@@ -102,6 +103,12 @@ namespace Verlet
                 ParentPanel.AnchoredNodes.Remove(this);
             }
             AnchoredPosition = anchorPos;
+        }
+
+        public void SetCollisionRadius(float width, float height)
+        {
+            var size = 0.7f;
+            CollisionRadius = width > height ? height * size : width * size;
         }
     }
 }

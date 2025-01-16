@@ -40,6 +40,7 @@ public class Panel
                 VerletNode node = new VerletNode(new Vector2(10f/HorizontalGauge * x,10f/VerticalGauge * y));
                 nodes.Add(node);
                 node.SetParentPanel(this);
+                node.SetCollisionRadius(10f/HorizontalGauge,10f/VerticalGauge);
             }
         }
 

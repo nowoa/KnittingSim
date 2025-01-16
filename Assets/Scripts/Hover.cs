@@ -14,6 +14,7 @@ public class Hover
     public VerletNode SelectedNode;
     private float _selectedNodeDepth;
     private Camera _cam = GameManager.Instance.Camera;
+    private float stitchBuffer = 0.5f;
 
 
     public void UpdateHover(List<Panel> myPanels)
@@ -58,7 +59,9 @@ public class Hover
         {
             interval /= 2;
         }
-        float errorMargin = 0.3f;
+
+        var bufferSize = 200;
+        float errorMargin = 10f/((myPanel.HorizontalGauge + myPanel.VerticalGauge) / 2f) * bufferSize;
         List<Vector3> screenPointNodes = new List<Vector3>();
         foreach (var n in myPanel.Nodes)
         {
@@ -69,13 +72,8 @@ public class Hover
         {
             nodesCondensed[i] = screenPointNodes[i*interval];
         }
-        var boundingBox = BoundingBox(nodesCondensed);
         
-        float widthError = (boundingBox.Max.x - boundingBox.Min.x) * errorMargin;
-        float heightError = (boundingBox.Max.y - boundingBox.Min.y) * errorMargin;
-        
-        return (new Vector2(boundingBox.Min.x - widthError,  boundingBox.Min.y - heightError),
-            new Vector2(boundingBox.Max.x + widthError, boundingBox.Max.y + heightError));
+        return BoundingBox(nodesCondensed,errorMargin, false);
 
     }
     
@@ -104,7 +102,7 @@ public class Hover
             var cornerScreenPositions = s.Corners.Select(item => _cam.WorldToScreenPoint(item.Position));
             var positionsNormalized = cornerScreenPositions.Select(NormalizePixelCoords).ToArray();
 
-            if (!InsideBoundingBox(BoundingBox(positionsNormalized), mousePos)) continue;
+            if (!InsideBoundingBox(BoundingBox(positionsNormalized, stitchBuffer, true), mousePos)) continue;
             
             var screenPoint = _cam.WorldToScreenPoint(s.Position);
             float distance = ((Vector2)NormalizePixelCoords(screenPoint) - mousePos).magnitude;
@@ -153,14 +151,28 @@ public class Hover
         return false;
     }
 
-    private (Vector2 Min, Vector2 Max) BoundingBox(Vector3[] myPositions)
+    private (Vector2 Min, Vector2 Max) BoundingBox(Vector3[] myPositions, float buffer, bool relative)
     {
         float minX = myPositions.Min(position => position.x); 
         float maxX = myPositions.Max(position => position.x);
         float minY = myPositions.Min(position => position.y);
         float maxY = myPositions.Max(position => position.y);
 
-        return (new Vector2(minX,minY), new Vector2(maxX,maxY));
+        float widthBuffer;
+        float heightBuffer;
+        if (relative)
+        {
+             widthBuffer = (maxX - minX) * buffer;
+             heightBuffer = (maxY - minY) * buffer;
+        }
+        else
+        {
+            widthBuffer = buffer;
+            heightBuffer = buffer;
+        }
+        
+
+        return (new Vector2(minX - widthBuffer,minY - heightBuffer), new Vector2(maxX + widthBuffer,maxY + heightBuffer));
     }
     
     private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)
