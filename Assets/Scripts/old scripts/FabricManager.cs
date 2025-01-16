@@ -30,7 +30,6 @@ public class FabricManager
         {
             UpdateSimulation.Invoke();
         }
-        else{Debug.Log("no panel created yet!");}
     }
     
     public FabricManager(GarmentGenerator parent)

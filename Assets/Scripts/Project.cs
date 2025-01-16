@@ -43,9 +43,12 @@ public class Project
         return _panels.Values.ToList();
     }
 
-    public void CheckBoundingBox()
+    public void AnchorNodes()
     {
-        
+        foreach (var p in _panels.Values)
+        {
+            p.SetAnchoredPosition();
+        }
     }
 }
 

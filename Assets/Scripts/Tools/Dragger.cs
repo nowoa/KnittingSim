@@ -1,46 +1,42 @@
-/*
+using System.Linq;
+using UnityEngine;
+
 public class Dragger : Tool
 {
+    private Hover hover = GameManager.Instance.Hover;
     public override void MainAction()
     {
-        MouseHover.UpdateSelected();
-        if (MouseHover.SelectedNodeIndex >= 0 && MouseHover.SelectedNodeIndex < FabricManager.AllNodes.Count)
-        {
-            Debug.Log(FabricManager.AllNodes[MouseHover.SelectedNodeIndex].Connection.Count.ToString());
-        }
-
-        /*if (_mouseDragger.HoveredStitchIndex != -1)
-        {
-            if (FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners.Contains(null))
-            {
-                Debug.Log("one or more corners missing");
-            }
-
-            foreach (var c in FabricManager.AllStitches[_mouseDragger.HoveredStitchIndex].Corners)
-            {
-                Debug.Log(c.Position);
-            }
-
-        }#1#
+        hover.SelectNode(true); // set selected node
+        Debug.Log("main action");
     }
 
     public override void MainActionEnd()
     {
-        MouseHover.SelectedNodeIndex = -1;
+        hover.SelectNode(false); // remove selected node
     }
 
     public override void SecondaryAction()
     {
-        var cachedIndex = MouseHover.HoveredNodeIndex;
-        if (cachedIndex == -1)
+        var cachedNode = hover.HoveredNode;
+        if (cachedNode == null)
         {
             return;
         }
-        var cachedHoveredNode = FabricManager.AllNodes[cachedIndex];
+        cachedNode.ToggleAnchored(hover.GetMouseWorldPos());
+    }
 
-        cachedHoveredNode.IsAnchored = !cachedHoveredNode.IsAnchored;
-        cachedHoveredNode.AnchoredPos = MouseHover.GetTargetPos();
+    public override void SpecialAction()
+    {
+        //remove all anchored nodes
+        foreach (var panel in GameManager.Instance.Project.GetPanels())
+        {
+            // Create a copy of the list to avoid modifying it while iterating
+            var anchoredNodesCopy = panel.AnchoredNodes.ToList();
 
+            foreach (var n in anchoredNodesCopy)
+            {
+                n.ToggleAnchored(new Vector3(0, 0, 0));
+            }
+        }
     }
 }
-*/

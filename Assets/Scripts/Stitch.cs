@@ -11,13 +11,15 @@ public class Stitch
     public VerletNode[] Corners => _corners;
     public Vector3 Position { get; private set; }
     private List<Stitch> _neighbors;
+    public Panel ParentPanel { get; private set; }
 
-    public Stitch(VerletNode[] myCorners)
+    public Stitch(VerletNode[] myCorners, Panel parentPanel)
     {
         _corners[0] = myCorners[0];
         _corners[1] = myCorners[1];
         _corners[2] = myCorners[2];
         _corners[3] = myCorners[3];
+        ParentPanel = parentPanel;
     }
 
     enum stitchType

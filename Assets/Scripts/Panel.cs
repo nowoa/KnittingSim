@@ -7,6 +7,7 @@ public class Panel
 {
     public List<Stitch> Stitches { get; private set; } = new List<Stitch>(); //set in connector right after initializing
     public List<VerletNode> Nodes { get; private set; }
+    public List<VerletNode> AnchoredNodes { get; private set; }
     public bool IsCircular { get; private set; }
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -25,6 +26,7 @@ public class Panel
         
         Nodes = GenerateNodes(new Vector2Int(Width,Height));
         NodeConnector.ConnectNodes(this);
+        AnchoredNodes = new List<VerletNode>();
         //make array of nodes and send to connector
     }
     
@@ -37,6 +39,7 @@ public class Panel
             {
                 VerletNode node = new VerletNode(new Vector2(10f/HorizontalGauge * x,10f/VerticalGauge * y));
                 nodes.Add(node);
+                node.SetParentPanel(this);
             }
         }
 
@@ -58,6 +61,14 @@ public class Panel
         foreach (var s in Stitches)
         {
             s.UpdatePosition();
+        }
+    }
+
+    public void SetAnchoredPosition()
+    {
+        foreach (var n in AnchoredNodes)
+        {
+            n.Position = n.AnchoredPosition;
         }
     }
 }

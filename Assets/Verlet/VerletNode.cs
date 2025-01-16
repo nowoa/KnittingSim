@@ -40,7 +40,10 @@ namespace Verlet
         #endregion
         
         private Stitch _parentStitch;
+        public Panel ParentPanel { get; private set; }
         private VerletNode[] _neighbors = new VerletNode[4];
+        public bool IsAnchored { get; private set; }
+        public Vector3 AnchoredPosition;
 
         public enum Neighbor
         {
@@ -59,6 +62,11 @@ namespace Verlet
             }
 
             _neighbors[(int)myNeighbor] = myNode;
+        }
+
+        public void SetParentPanel(Panel myParent)
+        {
+            ParentPanel = myParent;
         }
 
         public VerletNode GetNeighbor(Neighbor myNeighbor)
@@ -80,6 +88,20 @@ namespace Verlet
         public VerletEdge GetEdgeByNode(VerletNode other)
         {
             return null;
+        }
+
+        public void ToggleAnchored(Vector3 anchorPos)
+        {
+            IsAnchored = !IsAnchored;
+            if (IsAnchored)
+            {
+                ParentPanel.AnchoredNodes.Add(this);
+            }
+            else
+            {
+                ParentPanel.AnchoredNodes.Remove(this);
+            }
+            AnchoredPosition = anchorPos;
         }
     }
 }

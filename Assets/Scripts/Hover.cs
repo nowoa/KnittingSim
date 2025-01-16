@@ -9,11 +9,11 @@ using Verlet;
 public class Hover
 {
     
-    private float _hoveredChildDepth;
     public VerletNode HoveredNode;
     public Stitch HoveredStitch;
     public VerletNode SelectedNode;
-
+    private float _selectedNodeDepth;
+    private Camera _cam = GameManager.Instance.Camera;
 
 
     public void UpdateHover(List<Panel> myPanels)
@@ -31,9 +31,18 @@ public class Hover
         }
         foreach (var p in panelsToCheck)
         {
-            Debug.Log(p.Name);
             TrySetHoveredStitch(p.Stitches);
         }
+    }
+
+    public void SelectNode(bool state)
+    {
+        if (state && HoveredNode!=null)
+        {
+            SelectedNode = HoveredNode;
+            _selectedNodeDepth = _cam.WorldToScreenPoint(SelectedNode.Position).z;
+        }
+        else SelectedNode = null;
     }
 
     private bool CheckPanelBoundingBox(Panel myPanel)
@@ -47,13 +56,13 @@ public class Hover
         if (interval <= 0) interval = 1;
         while (interval > 5) //at least check 1/nth of nodes (n=5)
         {
-            Mathf.FloorToInt(interval /= 2);
+            interval /= 2;
         }
         float errorMargin = 0.3f;
         List<Vector3> screenPointNodes = new List<Vector3>();
         foreach (var n in myPanel.Nodes)
         {
-            screenPointNodes.Add(GameManager.Instance.Camera.WorldToScreenPoint(n.Position));
+            screenPointNodes.Add(_cam.WorldToScreenPoint(n.Position));
         }
         Vector3[] nodesCondensed = new Vector3[screenPointNodes.Count/interval];
         for (int i = 0; i < screenPointNodes.Count / interval; i++)
@@ -92,12 +101,12 @@ public class Hover
         foreach (var s in myStitches)
         {
             // Normalize corner positions and calculate bounding box
-            var cornerScreenPositions = s.Corners.Select(item => GameManager.Instance.Camera.WorldToScreenPoint(item.Position));
+            var cornerScreenPositions = s.Corners.Select(item => _cam.WorldToScreenPoint(item.Position));
             var positionsNormalized = cornerScreenPositions.Select(NormalizePixelCoords).ToArray();
 
             if (!InsideBoundingBox(BoundingBox(positionsNormalized), mousePos)) continue;
             
-            var screenPoint = GameManager.Instance.Camera.WorldToScreenPoint(s.Position);
+            var screenPoint = _cam.WorldToScreenPoint(s.Position);
             float distance = ((Vector2)NormalizePixelCoords(screenPoint) - mousePos).magnitude;
             // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
             if (distance < closestDistance)
@@ -108,16 +117,16 @@ public class Hover
         }
 
         if (HoveredStitch == null) return;
-        HoveredNode = GetClosestNode(HoveredStitch, mousePos);
+        HoveredNode = GetClosestNodeFromStitch(HoveredStitch, mousePos);
     }
 
-    private VerletNode GetClosestNode(Stitch myStitch, Vector2 myMousePos)
+    private VerletNode GetClosestNodeFromStitch(Stitch myStitch, Vector2 myMousePos)
     {
         VerletNode result = null;
         float closestDistance = float.MaxValue;
         foreach (var c in myStitch.Corners)
         {
-            var screenPos = GameManager.Instance.Camera.WorldToScreenPoint(c.Position);
+            var screenPos = _cam.WorldToScreenPoint(c.Position);
             var screenPosNormalized = NormalizePixelCoords(screenPos);
             var distance = ((Vector2)screenPosNormalized - myMousePos).magnitude;
             
@@ -161,6 +170,12 @@ public class Hover
             pixelCoord.x * oneOverAverageScreenDimension, 
             pixelCoord.y * oneOverAverageScreenDimension, 
             pixelCoord.z);
+    }
+
+    public Vector3 GetMouseWorldPos()
+    {
+        Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _selectedNodeDepth);
+        return _cam.ScreenToWorldPoint(mousePositionWithDepth);
     }
     
 }

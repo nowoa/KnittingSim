@@ -1,4 +1,3 @@
-/*
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,11 +8,11 @@ public class InputHandler : MonoBehaviour
 {
     [SerializeField] private float cameraSpeed;
     [SerializeField] private float camRotationSpeed;
-    public static bool GameInput = true;
+    public static bool GameInput = true; // on hovering over UI buttons should be false
     private Transform _cameraPos;
     private void Start()
     {
-        _cameraPos = Camera.main.transform;
+        _cameraPos = GameManager.Instance.Camera.transform;
     }
 
     private void Update()
@@ -78,11 +77,11 @@ public class InputHandler : MonoBehaviour
             _cameraPos.position -= _cameraPos.up * (cameraSpeed * Time.deltaTime); // Move down in local space
         }
 
-
         if (Input.GetKey(KeyCode.Q))
         {
             _cameraPos.Rotate(new Vector3(0, -camRotationSpeed * Time.deltaTime, 0));
         }
+        
         if (Input.GetKey(KeyCode.E))
         {
             _cameraPos.Rotate(new Vector3(0, camRotationSpeed * Time.deltaTime, 0));
@@ -90,4 +89,3 @@ public class InputHandler : MonoBehaviour
         
     }
 }
-*/

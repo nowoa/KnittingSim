@@ -40,6 +40,7 @@ namespace Verlet
 
         void Solve(VerletNode particle)
         {
+            if (particle.IsAnchored) return;
             particle.Connection.ForEach(e =>
             {
                 var other = e.Other(particle);

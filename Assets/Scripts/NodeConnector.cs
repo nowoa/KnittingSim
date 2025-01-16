@@ -132,6 +132,6 @@ public class NodeConnector //handles connecting the nodes to create a panel
     private static void CreateParentStitch(int i, int[] indices, Panel myPanel)
     {
         var corners = GetStitchCorners(i, indices, myPanel);
-        myPanel.Stitches.Add(new Stitch(corners));
+        myPanel.Stitches.Add(new Stitch(corners, myPanel));
     }
 }

@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public static GameManager Instance => _instance;
     public Camera Camera;
-    public static Hover Hover;
+    public Hover Hover;
     public static float GravityFactor = -0.0f;
     public static int Iterations = 2;
     public Project Project;
@@ -40,15 +40,29 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        MoveSelectedNode();
+        AnchorNodes();
         Simulate();
         UpdateProject();
         CheckBoundingBox();
+    }
+
+    private void MoveSelectedNode()
+    {
+        if (Hover.SelectedNode == null) return;
+        Hover.SelectedNode.Position = Hover.SelectedNode.AnchoredPosition = Hover.GetMouseWorldPos();
+        Debug.Log(Hover.GetMouseWorldPos());
     }
 
     private void Simulate()
     {
         if (Project == null) return;
         Project.Simulator.Simulate(Iterations,Time.fixedDeltaTime);
+    }
+
+    private void AnchorNodes()
+    {
+        Project.AnchorNodes();
     }
 
     private void UpdateProject()
