@@ -41,10 +41,11 @@ namespace Verlet
 
         public Stitch ParentStitch;
         public Panel ParentPanel { get; private set; }
-        private VerletNode[] _neighbors = new VerletNode[4];
+        public VerletNode[] Neighbors { get; private set; } = new VerletNode[4];
         public bool IsAnchored { get; private set; }
         public Vector3 AnchoredPosition;
         public float CollisionRadius;
+        public Vector3 Normal { get; private set; }
 
         public enum Neighbor
         {
@@ -56,13 +57,13 @@ namespace Verlet
 
         public void SetNeighborNode(Neighbor myNeighbor, VerletNode myNode)
         {
-            if (_neighbors[(int)myNeighbor] != null)
+            if (Neighbors[(int)myNeighbor] != null)
             {
                 Debug.LogWarning("neighbor is already assigned.");
                 return;
             }
 
-            _neighbors[(int)myNeighbor] = myNode;
+            Neighbors[(int)myNeighbor] = myNode;
         }
 
         public void SetParentPanel(Panel myParent)
@@ -72,7 +73,7 @@ namespace Verlet
 
         public VerletNode GetNeighbor(Neighbor myNeighbor)
         {
-            return _neighbors[(int)myNeighbor];
+            return Neighbors[(int)myNeighbor];
         }
         
 
@@ -107,8 +108,50 @@ namespace Verlet
 
         public void SetCollisionRadius(float width, float height)
         {
-            var size = 0.7f;
+            var size = 1f;
             CollisionRadius = width > height ? height * size : width * size;
+        }
+        
+        public void CalculateNormal()
+        {
+            var nodeLeft = this.Traverse(Neighbor.left);
+            var nodeDown = this.Traverse(Neighbor.down);
+            var nodeDownLeft = this.Traverse(Neighbor.left)?.Traverse(Neighbor.down);
+            int normalCount = 0;
+            Vector3 averageNormal = new Vector3();
+
+            if (ParentStitch != null)
+            {
+                averageNormal += ParentStitch.Normal;
+                normalCount++;
+            }
+
+            if (nodeLeft != null && nodeLeft.ParentStitch != null)
+            {
+                averageNormal += nodeLeft.ParentStitch.Normal;
+                normalCount++;
+            }
+
+            if (nodeDown != null && nodeDown.ParentStitch != null)
+            {
+                averageNormal += nodeDown.ParentStitch.Normal;
+                normalCount++;
+            }
+
+            if (nodeDownLeft != null && nodeDownLeft.ParentStitch != null)
+            {
+                averageNormal += nodeDownLeft.ParentStitch.Normal;
+                normalCount++;
+            }
+            
+            if (normalCount == 0)
+            {
+                Debug.LogWarning("no normals! setting to vector3.zero");
+                Normal = Vector3.zero;
+                return;
+            }
+
+            Normal = (averageNormal / normalCount).normalized;
         }
     }
 }

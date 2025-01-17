@@ -86,7 +86,7 @@ namespace Verlet
                         continue;
                     }*/
 
-                    if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count> 8))
+                    if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count>= 5))
                     {
                         continue; //make sure it isnt trying to push apart decreases
                     }
@@ -96,7 +96,6 @@ namespace Verlet
                         nodeA.ParentStitch?.Corners[2] == nodeB ||
                         nodeA.ParentStitch?.Corners[3].GetNeighbor(VerletNode.Neighbor.down) == nodeB)
                     {
-
                         
                         continue;
                     }

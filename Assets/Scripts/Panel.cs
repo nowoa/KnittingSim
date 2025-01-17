@@ -37,7 +37,8 @@ public class Panel
         {
             for (int x = 0; x < myDimensions.x; x++)
             {
-                VerletNode node = new VerletNode(new Vector2(10f/HorizontalGauge * x,10f/VerticalGauge * y));
+                var z = Random.value * 0.01f;
+                VerletNode node = new VerletNode(new Vector3(10f/HorizontalGauge * x,10f/VerticalGauge * y, z));
                 nodes.Add(node);
                 node.SetParentPanel(this);
                 node.SetCollisionRadius(10f/HorizontalGauge,10f/VerticalGauge);

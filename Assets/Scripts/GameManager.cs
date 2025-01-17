@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -30,7 +31,6 @@ public class GameManager : MonoBehaviour
     {
         if (Project == null) return;
         Project.Simulator.DrawGizmos(Color.white);
-        
         if (Hover.HoveredStitch==null) return;
         Gizmos.color = Color.black;
         Gizmos.DrawCube(Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
     private void UpdateProject()
     {
         Project.UpdatePanels();
+        Project.UpdateMesh();
     }
 
     private void OnGUI()

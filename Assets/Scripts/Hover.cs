@@ -60,8 +60,7 @@ public class Hover
             interval /= 2;
         }
 
-        var bufferSize = 200;
-        float errorMargin = 10f/((myPanel.HorizontalGauge + myPanel.VerticalGauge) / 2f) * bufferSize;
+        var buffersize = 50; //set amount of pixels to add to the borders
         List<Vector3> screenPointNodes = new List<Vector3>();
         foreach (var n in myPanel.Nodes)
         {
@@ -73,7 +72,7 @@ public class Hover
             nodesCondensed[i] = screenPointNodes[i*interval];
         }
         
-        return BoundingBox(nodesCondensed,errorMargin, false);
+        return BoundingBox(nodesCondensed,buffersize, false);
 
     }
     

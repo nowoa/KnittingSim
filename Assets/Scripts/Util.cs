@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Verlet;
 
 public static class Util
 {
@@ -34,5 +35,10 @@ public static class Util
     public static bool IsEven(this int i)
     {
         return i % 2 == 0;
+    }
+
+    public static VerletNode Traverse(this VerletNode node, VerletNode.Neighbor direction)
+    {
+        return node.Neighbors[(int)direction] == null ? null : node.Neighbors[(int)direction];
     }
 }

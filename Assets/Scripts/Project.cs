@@ -11,23 +11,24 @@ public class Project
 
     private Dictionary<string, Panel> _panels = new();
     private FabricMesh _fabricMesh;
-    private List<VerletNode> _nodes = new ();
+    public List<VerletNode> Nodes { get; private set; } = new();
     public VerletSimulator Simulator;
 
     #endregion
 
     public Project()
     {
-        var gameObject = new GameObject();
-        gameObject.AddComponent<FabricMesh>();
-        Simulator = new VerletSimulator(_nodes);
+        var gameObject = GameObject.FindWithTag("GameController");
+        _fabricMesh = gameObject.AddComponent<FabricMesh>();
+        Simulator = new VerletSimulator(Nodes);
     }
 
     public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge)
     {
         _panels.Add(myName,new Panel());
         _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge,myName);
-        _nodes.AddRange(_panels[myName].Nodes);
+        Nodes.AddRange(_panels[myName].Nodes);
+        _fabricMesh.UpdateMesh();
     }
 
     public void UpdatePanels()
@@ -36,6 +37,11 @@ public class Project
         {
             pair.Value.UpdateStitchPosition();
         }
+    }
+
+    public void UpdateMesh()
+    {
+        _fabricMesh.UpdatePositions();
     }
 
     public List<Panel> GetPanels()
