@@ -5,21 +5,22 @@ using UnityEngine;
 using Verlet;
 using static Verlet.VerletNode.Neighbor;
 
-public class NodeConnector //handles connecting the nodes to create a panel
+public class Connector //handles connecting the nodes and stitches to create a panel
 {
-    private static int id;
+    private static int _nodeID;
+    private static int _stitchID;
     
-    public static void ConnectNodes(Panel myPanel)
+    public static void ConnectNodes(Panel myPanel, Vector2Int myGauge)
     {
-        var stitchWidth = 10f / myPanel.HorizontalGauge;
-        var stitchHeight = 10f / myPanel.VerticalGauge;
+        var stitchWidth = 10f / myGauge.x;
+        var stitchHeight = 10f / myGauge.y;
         var diagonalLength = Util.CalculateDiagonal(stitchWidth, stitchHeight);
         (float width, float height, float diagonal) dimensions = new(stitchWidth, stitchHeight, diagonalLength);
         
         for (int i = 0; i < myPanel.Nodes.Count; i++)
         {
-            myPanel.Nodes[i].id = id;
-            id++;
+            myPanel.Nodes[i].id = _nodeID;
+            _nodeID++;
             int[] neighborIndices = CalculateNeighborIndices(i, myPanel.Width);
             for (var n = 0; n<neighborIndices.Length; n++)
             {
@@ -30,8 +31,6 @@ public class NodeConnector //handles connecting the nodes to create a panel
             {
                 CreateParentStitch(i, neighborIndices, myPanel);
             }
-            
-            
         }
     }
 
@@ -135,5 +134,23 @@ public class NodeConnector //handles connecting the nodes to create a panel
         var stitch = new Stitch(corners, myPanel);
         myPanel.Stitches.Add(stitch);
         myPanel.Nodes[i].ParentStitch = stitch;
+    }
+
+    public static void ConnectStitches(List<Stitch> myStitches)
+    {
+        for (int i = 0; i < myStitches.Count; i++)
+        {
+            myStitches[i].id = _stitchID;
+            _stitchID++;
+            TryConnectStitches(myStitches[i]);
+        }
+    }
+
+    private static void TryConnectStitches(Stitch myStitch)
+    {
+        if (myStitch.Corners[1].ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.up, myStitch.Corners[1].ParentStitch);
+        if (myStitch.Corners[3].ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.right, myStitch.Corners[3].ParentStitch);
+        if (myStitch.Corners[0].Traverse(down)?.ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.down, myStitch.Corners[0].Traverse(down).ParentStitch);
+        if (myStitch.Corners[0].Traverse(left)?.ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.left, myStitch.Corners[0].Traverse(left).ParentStitch);
     }
 }

@@ -44,6 +44,7 @@ namespace Verlet
         public VerletNode[] Neighbors { get; private set; } = new VerletNode[4];
         public bool IsAnchored { get; private set; }
         public Vector3 AnchoredPosition;
+        public Vector2 Dimensions { get; private set; }
         public float CollisionRadius;
         public Vector3 Normal { get; private set; }
 
@@ -89,6 +90,11 @@ namespace Verlet
 
         public VerletEdge GetEdgeByNode(VerletNode other)
         {
+            foreach (var e in _connection)
+            {
+                if (e.Other(this) == other) return e;
+            }
+
             return null;
         }
 
@@ -106,13 +112,19 @@ namespace Verlet
             AnchoredPosition = anchorPos;
         }
 
-        public void SetCollisionRadius(float width, float height)
+        public void SetSize(float myWidth, float myHeight)
+        {
+            Dimensions = new Vector2(myWidth, myHeight);
+            SetCollisionRadius();
+        }
+
+        private void SetCollisionRadius()
         {
             var size = 1f;
-            CollisionRadius = width > height ? height * size : width * size;
+            CollisionRadius = Dimensions.x > Dimensions.y ? Dimensions.y * size : Dimensions.x * size;
         }
         
-        public void CalculateNormal()
+        public void UpdateNormal()
         {
             var nodeLeft = this.Traverse(Neighbor.left);
             var nodeDown = this.Traverse(Neighbor.down);
@@ -152,6 +164,15 @@ namespace Verlet
             }
 
             Normal = (averageNormal / normalCount).normalized;
+        }
+
+        public void ChangeEdgeLength(VerletNode myTarget, float myLength)
+        {
+            var edgeToChange = GetEdgeByNode(myTarget);
+            var edgetype = edgeToChange.edgeType;
+            myTarget._connection.Remove(edgeToChange);
+            _connection.Remove(edgeToChange);
+            VerletEdge.ConnectNodes(this, myTarget, myLength, edgetype);
         }
     }
 }

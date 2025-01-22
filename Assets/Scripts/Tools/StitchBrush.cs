@@ -1,14 +1,16 @@
-/*public class StitchBrush : Tool
+using static Stitch.Neighbor;
+
+public class StitchBrush : Tool
 {
     private bool _knitBrush;
     private bool _purlBrush;
-    
+    private Hover hover = GameManager.Instance.Hover;
     public override void DefaultBehavior()
     {
         base.DefaultBehavior();
-        if (MouseHover.HoveredStitchIndex == -1) return;
-    
-        var stitch = FabricManager.AllStitches[MouseHover.HoveredStitchIndex];
+        if (hover.HoveredStitch == null) return;
+
+        var stitch = hover.HoveredStitch;
         if (_knitBrush)
         {
             ApplyBrushAction(stitch, true);
@@ -39,46 +41,37 @@
         _purlBrush = false;
     }
     
-    private void ApplyBrushAction(StitchInfo stitch, bool isKnit)
+    private void ApplyBrushAction(Stitch myStitch, bool isKnit)
     {
-        if (stitch.Knit == isKnit) return;
+        if (myStitch.Knit == isKnit) return;
     
-        stitch.Knit = isKnit;
-        ApplyElasticityToNeighbors(stitch);
-        UpdateParentMesh(stitch);
+        myStitch.SetKnit(isKnit);
+        ApplyElasticityToNeighbors(myStitch);
+        GameManager.Instance.EventManager.InvokeRegenerateMesh();
     }
     
-    private void ApplyElasticityToNeighbors(StitchInfo stitch)
+    private void ApplyElasticityToNeighbors(Stitch myStitch)
     {
-        ApplyElasticity(stitch);
-        ApplyElasticity(stitch.StitchRight);
-        ApplyElasticity(stitch.StitchLeft);
+        ApplyElasticity(myStitch);
+        ApplyElasticity(myStitch.Neighbors[(int)right]);
+        ApplyElasticity(myStitch.Neighbors[(int)left]);
     }
     
-    private void ApplyElasticity(StitchInfo stitch)
+    private void ApplyElasticity(Stitch myStitch)
     {
-        if (stitch == null) return;
+        if (myStitch == null) return;
     
-        switch (stitch.GetNeighborElasticity())
+        switch (myStitch.GetNeighborElasticity())
         {
             case 0:
-                stitch.SetElasticityFactor(1f);
+                myStitch.SetElasticityFactor(1f);
                 break;
             case 1:
-                stitch.SetElasticityFactor(0.9f);
+                myStitch.SetElasticityFactor(0.9f);
                 break;
             case 2:
-                stitch.SetElasticityFactor(0.8f);
+                myStitch.SetElasticityFactor(0.8f);
                 break;
         }
     }
-    
-    private void UpdateParentMesh(StitchInfo stitch)
-    {
-        var parentMesh = stitch.ParentMesh;
-        if (parentMesh != null)
-        {
-            parentMesh.UpdateMesh();
-        }
-    }
-}*/
+}

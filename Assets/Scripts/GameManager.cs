@@ -14,12 +14,14 @@ public class GameManager : MonoBehaviour
     public static float GravityFactor = -0.0f;
     public static int Iterations = 2;
     public Project Project;
+    public EventManager EventManager;
 
     private void Awake()
     {
         _instance = this;
         Camera = Camera.main;
         Hover = new Hover();
+        EventManager = new EventManager();
         Project = new Project();
     }
 
@@ -41,9 +43,7 @@ public class GameManager : MonoBehaviour
     private void FixedUpdate()
     {
         MoveSelectedNode();
-        AnchorNodes();
-        Simulate();
-        UpdateProject();
+        Project?.FixedUpdate(Iterations,Time.fixedDeltaTime);
         CheckBoundingBox();
     }
 
@@ -67,8 +67,8 @@ public class GameManager : MonoBehaviour
 
     private void UpdateProject()
     {
-        Project.UpdatePanels();
-        Project.UpdateMesh();
+        Project.UpdatePanelPosition();
+        Project.UpdateMeshPosition();
     }
 
     private void OnGUI()

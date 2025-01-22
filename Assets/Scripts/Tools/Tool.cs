@@ -47,7 +47,7 @@ public static class ToolManager
 {
     private static Tool _activeTool;
     public static Tool Dragger = new Dragger();
-    /*public static Tool StitchBrush = new StitchBrush();
+    public static Tool StitchBrush = new StitchBrush();/*
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
@@ -56,7 +56,7 @@ public static class ToolManager
 
     static ToolManager()
     {
-        _activeTool = Dragger;
+        _activeTool = StitchBrush;
     }
 
     public static void SetActiveTool(Tool myTool)
