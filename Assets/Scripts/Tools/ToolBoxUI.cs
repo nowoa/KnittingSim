@@ -1,4 +1,3 @@
-/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,18 +5,6 @@ using UnityEngine.UI;
 
 public class ToolBoxUI : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void OnPointerEnter()
     {
         InputHandler.GameInput = false;
@@ -38,6 +25,7 @@ public class ToolBoxUI : MonoBehaviour
         ToolManager.SetActiveTool(ToolManager.StitchBrush);
     }
 
+    /*
     public void Increaser()
     {
         ToolManager.SetActiveTool(ToolManager.Increaser);
@@ -67,6 +55,10 @@ public class ToolBoxUI : MonoBehaviour
     {
         var meshScript = GameObject.FindObjectOfType<FabricMesh>();
         meshScript.UpdateMesh();
+    }*/
+
+    public void GUI()
+    {
+        GameManager.Instance.GUI_on = !GameManager.Instance.GUI_on;
     }
 }
-*/
