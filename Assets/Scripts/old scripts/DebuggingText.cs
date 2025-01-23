@@ -1,52 +1,33 @@
-/*
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class DebuggingText : MonoBehaviour
 {
-    public GarmentGenerator GarmentGenerator;
-    private int _nodeCount;
     private float _current = 0;
     public TMP_Text fpsTextField;
-    public TMP_Text stitchTypeTextField;
- public TMP_Text knitValueTextField;
+    public TMP_Text size;
     private int _frameCount;
-
     private float _timer;
+    public Slider sizeslider;
 
     // Update is called once per frame
     void Update()
     {
-        _nodeCount = FabricManager.AllNodes.Count;
         _frameCount += 1;
         _timer += Time.deltaTime;
-        if (_timer > 1)
+        var time = Mathf.Round(Time.deltaTime * 1000f *100f)/100f;
+        if (_timer > 0.3f) // set to 1 for fps
         {
             _current = _frameCount;
             _frameCount = 0;
-            _timer -= 1;
-            fpsTextField.text = "fps: " + _current.ToString() + " nodes: " + _nodeCount.ToString();
-            
+            _timer -= 0.3f;
+            fpsTextField.text = "frametime: " + time.ToString() + "ms";
         }
 
-        if (MouseHover.Instance.HoveredStitchIndex >= 0 &&
-            MouseHover.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
-        {
-            stitchTypeTextField.text =
-                FabricManager.AllStitches[MouseHover.Instance.HoveredStitchIndex].stitchType.ToString();
-        }
-        if (MouseHover.Instance.HoveredStitchIndex >= 0 &&
-            MouseHover.Instance.HoveredStitchIndex < FabricManager.AllStitches.Count)
-        {
-            knitValueTextField.text =
-                FabricManager.AllStitches[MouseHover.Instance.HoveredStitchIndex].Knit ? "knit" : "purl";
-        }
+        size.text = sizeslider.value.ToString();
+
     }
 
    
 }
-*/

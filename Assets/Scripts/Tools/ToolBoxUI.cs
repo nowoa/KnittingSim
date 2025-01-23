@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ToolBoxUI : MonoBehaviour
 {
+    public Slider slider;
+    
     public void OnPointerEnter()
     {
         InputHandler.GameInput = false;
@@ -17,12 +17,12 @@ public class ToolBoxUI : MonoBehaviour
 
     public void Dragger()
     {
-        ToolManager.SetActiveTool(ToolManager.Dragger);
+        ToolManager.SetActiveTool(ToolManager.DraggerInstance);
     }
 
     public void StitchBrush()
     {
-        ToolManager.SetActiveTool(ToolManager.StitchBrush);
+        ToolManager.SetActiveTool(ToolManager.StitchBrushInstance);
     }
 
     /*
@@ -57,8 +57,20 @@ public class ToolBoxUI : MonoBehaviour
         meshScript.UpdateMesh();
     }*/
 
-    public void GUI()
+    public void ToggleHover()
     {
-        GameManager.Instance.GUI_on = !GameManager.Instance.GUI_on;
+        GameManager.Instance.Hover.IsActive = !GameManager.Instance.Hover.IsActive;
+        Debug.Log(GameManager.Instance.Hover.IsActive);
     }
+
+    public void CreatePanel()
+    {
+        PanelGenerator.GeneratePanel(Random.value.ToString(), new Vector2Int(Mathf.FloorToInt(slider.value), Mathf.FloorToInt(slider.value)),false, new Vector2Int(30,30));
+    }
+
+    public void CollisionToggle()
+    {
+        GameManager.Instance.Project.Simulator.Collision = !GameManager.Instance.Project.Simulator.Collision;
+    }
+
 }

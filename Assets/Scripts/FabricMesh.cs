@@ -1,14 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Sirenix.Utilities;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using UnityEngine.UIElements;
-using Verlet;
 
 public class FabricMesh : MonoBehaviour
 {

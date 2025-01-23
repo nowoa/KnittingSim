@@ -17,6 +17,11 @@ public class Dragger : Tool
 
     public override void SecondaryAction()
     {
+        if (hover.SelectedNode != null)
+        {
+            hover.SelectedNode.ToggleAnchored(hover.GetMouseWorldPos());
+            return;
+        }
         var cachedNode = hover.HoveredNode;
         if (cachedNode == null)
         {

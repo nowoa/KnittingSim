@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
 using UnityEngine;
 using Verlet;
 
@@ -15,10 +12,12 @@ public class Hover
     private float _selectedNodeDepth;
     private Camera _cam = GameManager.Instance.Camera;
     private float stitchBuffer = 0.5f;
+    public bool IsActive = true;
 
 
     public void UpdateHover(List<Panel> myPanels)
     {
+        if (!IsActive) return;
         HoveredStitch = null;
         HoveredNode = null;
         List<Panel> panelsToCheck = new List<Panel>();
@@ -85,15 +84,14 @@ public class Hover
     
     private void TrySetHoveredStitch(List<Stitch> myStitches) //TODO: think about adding error to the stitch bounding boxes?
     {
-        Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         // Return early if a child is selected
         if (SelectedNode != null)
         {
             return;
         }
         
+        Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
-        
 
         foreach (var s in myStitches)
         {

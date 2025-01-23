@@ -1,11 +1,4 @@
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.IMGUI.Controls;
-using UnityEditor.UIElements;
 using UnityEngine;
-using Verlet;
 
 public abstract class Tool
 {
@@ -46,8 +39,8 @@ public abstract class Tool
 public static class ToolManager
 {
     private static Tool _activeTool;
-    public static Tool Dragger = new Dragger();
-    public static Tool StitchBrush = new StitchBrush();/*
+    public static Tool DraggerInstance = new Dragger();
+    public static Tool StitchBrushInstance = new StitchBrush();/*
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
@@ -56,7 +49,7 @@ public static class ToolManager
 
     static ToolManager()
     {
-        _activeTool = StitchBrush;
+        _activeTool = DraggerInstance;
     }
 
     public static void SetActiveTool(Tool myTool)

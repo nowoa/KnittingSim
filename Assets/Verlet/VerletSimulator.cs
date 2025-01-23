@@ -8,6 +8,7 @@ namespace Verlet
         private List<VerletNode> _nodes;
         public List<VerletNode> Nodes => _nodes;
         private Vector3 _gravity = new Vector3(0, GameManager.GravityFactor, 0);
+        public bool Collision= true;
 
         public VerletSimulator(List<VerletNode> nodes)
         {
@@ -75,6 +76,7 @@ namespace Verlet
 
         void SolveSelfCollisionExpensive()
         {
+            if (!Collision) return;
             for (int i = 0; i < _nodes.Count; i++)
             {
                 for (int j = i + 1; j < _nodes.Count; j++) // Avoid redundant checks
