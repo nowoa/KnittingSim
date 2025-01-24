@@ -1,34 +1,62 @@
-
 using UnityEngine;
 
 public class Debugging : MonoBehaviour
 {
     public bool GUI_on = false;
+    public static Debugging Instance;
     private GameManager Gm => GameManager.Instance;
+
+    private void OnEnable()
+    {
+        Instance = this;
+    }
 
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
+        
+        DrawSpatialHashGrid();
+        DrawHoveredStitch();
+        
+    }
+
+    private void DrawSpatialHashGrid()
+    {
         if (Gm.Project == null) return;
         Gm.Project.Simulator.DrawGizmos(Color.white);
-        if (Gm.Project.SpatialHashGridNodes != null)
+        if (Gm.Project.SpatialHashGrid != null)
         {
-            foreach (var cell in Gm.Project.SpatialHashGridNodes.Keys)
+            foreach (var cell in Gm.Project.SpatialHashGrid.Keys)
             {
                 var scalefactor = 0.2f;
                 Gizmos.color = new Color((cell.x * scalefactor).Fract(), (cell.y * scalefactor).Fract(), (cell.z*scalefactor).Fract());
-                foreach (var node in Gm.Project.SpatialHashGridNodes[cell])
+                foreach (var index in Gm.Project.SpatialHashGrid[cell])
                 {
-                    Gizmos.DrawSphere(node.Position, 0.2f);
+                    Gizmos.DrawSphere(Gm.Project.Nodes[index].Position, 0.2f);
                 }
             }
         }
+    }
+
+    private void DrawCollisionRadii()
+    {
+        if (Gm.Project is null) return;
+        Gizmos.color = new Color(1, 1, 1, 0.5f);
+        foreach (var node in Gm.Project.Nodes)
+        {
+            Gizmos.DrawSphere(node.Position, node.CollisionRadius);
+        }
+    }
+
+    private void DrawHoveredStitch()
+    {
         if (Gm.Hover.HoveredStitch==null) return;
         Gizmos.color = Color.black;
         Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position,0.1f);
     }
+    
     private void OnGUI()
     {
         if (!GUI_on) return;
@@ -39,7 +67,4 @@ public class Debugging : MonoBehaviour
             GUI.Box(boundingBox, p.Name+ " bounding box");
         }
     }
-    
-    
-    
 }

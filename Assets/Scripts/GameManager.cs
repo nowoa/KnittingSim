@@ -19,17 +19,14 @@ public class GameManager : MonoBehaviour
         EventManager = new EventManager();
         Project = new Project();
     }
-
-    private void Start()
-    {
-    }
     
 
     private void FixedUpdate()
     {
         MoveSelectedNode();
         Project?.FixedUpdate(Iterations,Time.fixedDeltaTime);
-        CheckBoundingBox();
+        using (new ProfileSample("Update Hover"))
+            CheckBoundingBox();
     }
 
     private void MoveSelectedNode()

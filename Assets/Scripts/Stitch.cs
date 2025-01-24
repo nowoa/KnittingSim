@@ -15,6 +15,8 @@ public class Stitch
     public Stitch[] Neighbors { get; private set; } = new Stitch[4];
     public float ElasticityFactor { get; private set; }
     public Vector2 Dimensions { get; private set; }
+
+    public VerletNode GetCorner(NodeCorner cornerType) => Corners[(int)cornerType];
     
     public enum Neighbor
     {
@@ -22,6 +24,14 @@ public class Stitch
         right,
         down,
         left
+    }
+
+    public enum NodeCorner
+    {
+        BottomLeft,
+        TopLeft,
+        TopRight,
+        BottomRight,
     }
 
     public Stitch(VerletNode[] myCorners, Panel parentPanel)

@@ -116,8 +116,8 @@ namespace Verlet
 
         private void SetCollisionRadius()
         {
-            var size = 0.9f;
-            CollisionRadius = Dimensions.x > Dimensions.y ? Dimensions.y * size : Dimensions.x * size;
+            var sizeFactor = 1f;
+            CollisionRadius = Mathf.Min(Dimensions.x, Dimensions.y) * sizeFactor;
         }
         
         public void UpdateNormal()

@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DefaultNamespace;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 
 namespace Verlet
@@ -10,6 +8,72 @@ namespace Verlet
     public class SelfCollision
     {
         public static bool checkDouble = true;
+
+        public static void Solve(IList<VerletNode> nodes, Dictionary<Vector3Int, List<int>> hashGrid, float cellSize)
+        {
+            Vector3[] resultOffsets = new Vector3[nodes.Count];
+
+            Parallel.For(0, nodes.Count, i =>
+            {
+                VerletNode currentNode = nodes[i];
+                
+                Vector3Int cellKey = SpatialHashGrid.GetCellKey(currentNode.Position, cellSize);
+                foreach (var offset in SpatialHashGrid.offsets3D)
+                {
+                    if (!hashGrid.ContainsKey(cellKey + offset)) continue;
+                    foreach (var otherIndex in hashGrid[cellKey + offset])
+                    {
+                        VerletNode otherNode = nodes[otherIndex];
+                        Vector3 positionOffset = SolveNodes(currentNode, otherNode, out bool success);
+                        if (success)
+                        {
+                            resultOffsets[i] += positionOffset;
+                            resultOffsets[otherIndex] -= positionOffset;
+                        }
+                    }
+                }
+            });
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].Position += resultOffsets[i];
+            }
+        }
+
+        private static Vector3 SolveNodes(VerletNode active, VerletNode other, out bool success)
+        {
+            success = false;
+            if (active == other) return Vector3.zero;
+            if (active.Connection.Count != 12) return Vector3.zero;
+            
+            // TODO: figure out the neighborhood
+            if(other.In(
+                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.TopLeft),
+                   active.GetNeighbor(VerletNode.Neighbor.right),
+                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.TopRight),
+                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.BottomRight).GetNeighbor(VerletNode.Neighbor.down)))
+            {
+                return Vector3.zero;
+            }
+            
+            Vector3 delta = active.Position - other.Position;
+            float distanceSqr = delta.sqrMagnitude;
+            float minDistanceSqr = Mathf.Pow(active.CollisionRadius + other.CollisionRadius, 2);
+
+            if (distanceSqr > minDistanceSqr)
+            {
+                return Vector3.zero;
+            }
+
+            float distance = Mathf.Sqrt(distanceSqr);
+            float minDistance = active.CollisionRadius + other.CollisionRadius;
+            float offsetMagnitude = minDistance - distance;
+            Vector3 direction = delta.normalized;
+            
+            success = true;
+            return 0.5f * offsetMagnitude * direction;
+        }
+        
         public static void Collide(Dictionary<Vector3Int,List<VerletNode>> myHashGrid)
         {
             Dictionary<Vector3Int, List<Vector3Int>> alreadyCheckedCells = new Dictionary<Vector3Int, List<Vector3Int>>();
@@ -80,7 +144,6 @@ namespace Verlet
                         // Push both nodes outward equally
                         nodeA.Position += 0.5f * difference * direction;
                         nodeB.Position -= 0.5f * difference * direction;
-                        Debug.Log(nodeA.id + ", " + nodeB.id );
                     }
                     
                 }

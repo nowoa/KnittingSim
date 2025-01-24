@@ -85,6 +85,7 @@ public class FabricMesh : MonoBehaviour
 
         _mesh.vertices = myVertices;
         _mesh.normals = myNormals;
+        _mesh.RecalculateBounds();
     }
 
     

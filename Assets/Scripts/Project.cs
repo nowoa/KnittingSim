@@ -4,7 +4,6 @@ using System.Linq;
 using DefaultNamespace;
 using UnityEngine;
 using Verlet;
-using Collision = UnityEngine.Collision;
 
 public class Project
 {
@@ -12,7 +11,7 @@ public class Project
 
     private Dictionary<string, Panel> _panels = new();
     public FabricMesh FabricMesh;
-    public Dictionary<Vector3Int, List<VerletNode>> SpatialHashGridNodes = new();
+    public Dictionary<Vector3Int, List<int>> SpatialHashGrid = new();
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
@@ -39,15 +38,29 @@ public class Project
 
     public void FixedUpdate(int mySimIterations, float dt)
     {
-        if (Nodes.Length == 0) return;
+        if (_panels.Count == 0)
+        {
+            return;
+        }
         AnchorNodes();
-        Simulator.Simulate(mySimIterations,dt);
-        SpatialHashGridNodes = SpatialHashGrid.Partition(Nodes, node => node.Position);
-        SelfCollision.Collide(SpatialHashGridNodes);
-        UpdatePanelPosition();
-        CalculateNormals();
-        UpdateMeshPosition();
-        Debug.Log(Nodes.Length);
+
+        using (new ProfileSample("Verlet Simulation"))
+            Simulator.Simulate(mySimIterations,dt);
+
+        float partitioningCellSize = 0.5f;
+
+        using (new ProfileSample("Construct Spatial Hash Grid"))
+            SpatialHashGrid = DefaultNamespace.SpatialHashGrid.PartitionIndex(Nodes, node => node.Position, partitioningCellSize);
+        
+        using (new ProfileSample("Solve Self Collision"))
+            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
+
+        using (new ProfileSample("Mesh Update"))
+        {
+            UpdatePanelPosition();
+            CalculateNormals();
+            UpdateMeshPosition();
+        }
     }
 
     public void UpdateFabricStructure()

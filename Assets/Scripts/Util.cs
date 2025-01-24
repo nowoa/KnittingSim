@@ -46,4 +46,13 @@ public static class Util
     {
         return f - Mathf.Floor(f);
     }
+
+    public static bool In<T1>(this T1 item, IEnumerable<T1> collection)
+    {
+        return collection.Any(x => Equals(x, item));
+    }
+    public static bool In<T1>(this T1 item, params T1[] checkItems)
+    {
+        return item.In(collection: checkItems);
+    }
 }
