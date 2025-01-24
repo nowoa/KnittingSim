@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
+
 using UnityEngine;
 
 public class Debugging : MonoBehaviour
@@ -12,8 +8,21 @@ public class Debugging : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (!Application.isPlaying) return;
         if (Gm.Project == null) return;
         Gm.Project.Simulator.DrawGizmos(Color.white);
+        if (Gm.Project.SpatialHashGridNodes != null)
+        {
+            foreach (var cell in Gm.Project.SpatialHashGridNodes.Keys)
+            {
+                var scalefactor = 0.2f;
+                Gizmos.color = new Color((cell.x * scalefactor).Fract(), (cell.y * scalefactor).Fract(), (cell.z*scalefactor).Fract());
+                foreach (var node in Gm.Project.SpatialHashGridNodes[cell])
+                {
+                    Gizmos.DrawSphere(node.Position, 0.2f);
+                }
+            }
+        }
         if (Gm.Hover.HoveredStitch==null) return;
         Gizmos.color = Color.black;
         Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
@@ -30,5 +39,7 @@ public class Debugging : MonoBehaviour
             GUI.Box(boundingBox, p.Name+ " bounding box");
         }
     }
+    
+    
     
 }

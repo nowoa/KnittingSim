@@ -13,6 +13,7 @@ public class Hover
     private Camera _cam = GameManager.Instance.Camera;
     private float stitchBuffer = 0.5f;
     public bool IsActive = true;
+    private int _bufferSize = 100;
 
 
     public void UpdateHover(List<Panel> myPanels)
@@ -58,8 +59,6 @@ public class Hover
         {
             interval /= 2;
         }
-
-        var buffersize = 50; //set amount of pixels to add to the borders
         List<Vector3> screenPointNodes = new List<Vector3>();
         foreach (var n in myPanel.Nodes)
         {
@@ -71,7 +70,7 @@ public class Hover
             nodesCondensed[i] = screenPointNodes[i*interval];
         }
         
-        return BoundingBox(nodesCondensed,buffersize, false);
+        return BoundingBox(nodesCondensed,_bufferSize, false);
 
     }
     

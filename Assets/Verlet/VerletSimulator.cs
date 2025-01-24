@@ -1,18 +1,18 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Verlet
 {
     public class VerletSimulator
     {
-        private List<VerletNode> _nodes;
+        private List<VerletNode>_nodes;
         public List<VerletNode> Nodes => _nodes;
         private Vector3 _gravity = new Vector3(0, GameManager.GravityFactor, 0);
-        public bool Collision= true;
 
-        public VerletSimulator(List<VerletNode> nodes)
+        public VerletSimulator(IList<VerletNode> nodes)
         {
-            _nodes = nodes;
+            _nodes = nodes.ToList();
         }
 
         public void Simulate(int iterations, float dt)
@@ -22,7 +22,6 @@ namespace Verlet
             {
                 Solve();
             }
-            SolveSelfCollisionExpensive();
         }
 
         void Step(float deltaTime)
@@ -72,55 +71,6 @@ namespace Verlet
             var f = (current - rest) / current;
             a.Position -= f * 0.5f * delta;
             b.Position += f * 0.5f * delta;
-        }
-
-        void SolveSelfCollisionExpensive()
-        {
-            if (!Collision) return;
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                for (int j = i + 1; j < _nodes.Count; j++) // Avoid redundant checks
-                {
-                    var nodeA = _nodes[i];
-                    var nodeB = _nodes[j];
-                    /*if (nodeA.isSeam || nodeB.isSeam)
-                    {
-                        continue;
-                    }*/
-
-                    if (nodeA.Connection.Count > 12 || (nodeA.Connection.Count < 12 && nodeA.Connection.Count>= 5))
-                    {
-                        continue; //make sure it isnt trying to push apart decreases
-                    }
-
-                    if (nodeA.ParentStitch?.Corners[1] == nodeB ||
-                        nodeA.GetNeighbor(VerletNode.Neighbor.right)== nodeB ||
-                        nodeA.ParentStitch?.Corners[2] == nodeB ||
-                        nodeA.ParentStitch?.Corners[3].GetNeighbor(VerletNode.Neighbor.down) == nodeB)
-                    {
-                        
-                        continue;
-                    }
-                    
-                    // Calculate the distance between the nodes
-                    var delta = nodeA.Position - nodeB.Position;
-                    var distance = delta.magnitude;
-                    var minDistance = nodeA.CollisionRadius + nodeB.CollisionRadius;
-
-                    if (distance < minDistance)
-                    {
-                        // Calculate the amount to push outward
-                        float difference = minDistance - distance;
-
-                        // Normalize the delta vector to get the separation direction
-                        Vector3 direction = delta.normalized;
-
-                        // Push both nodes outward equally
-                        nodeA.Position += 0.5f * difference * direction;
-                        nodeB.Position -= 0.5f * difference * direction;
-                    }
-                }
-            }
         }
 
         public void DrawGizmos(Color myColor)

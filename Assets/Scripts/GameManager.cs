@@ -36,7 +36,6 @@ public class GameManager : MonoBehaviour
     {
         if (Hover.SelectedNode == null) return;
         Hover.SelectedNode.Position = Hover.SelectedNode.AnchoredPosition = Hover.GetMouseWorldPos();
-        Debug.Log(Hover.GetMouseWorldPos());
     }
 
     private void Simulate()

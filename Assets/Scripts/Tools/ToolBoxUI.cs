@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Verlet;
 
 public class ToolBoxUI : MonoBehaviour
 {
@@ -70,7 +71,12 @@ public class ToolBoxUI : MonoBehaviour
 
     public void CollisionToggle()
     {
-        GameManager.Instance.Project.Simulator.Collision = !GameManager.Instance.Project.Simulator.Collision;
+        GameManager.Instance.Project.Collision = !GameManager.Instance.Project.Collision;
+    }
+
+    public void HashGridOverlapToggle()
+    {
+        SelfCollision.checkDouble = !SelfCollision.checkDouble;
     }
 
 }

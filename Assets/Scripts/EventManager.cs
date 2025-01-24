@@ -6,7 +6,7 @@ public class EventManager
 {
     public event Action OnRegenerateMesh;
 
-    public void InvokeRegenerateMesh()
+    public void InvokeStructureUpdate()
     {
         if (OnRegenerateMesh==null) Debug.LogWarning("no subscribers to onregeneratemesh event");
         else

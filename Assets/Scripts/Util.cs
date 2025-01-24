@@ -41,4 +41,9 @@ public static class Util
     {
         return node.Neighbors[(int)direction] == null ? null : node.Neighbors[(int)direction];
     }
+
+    public static float Fract(this float f)
+    {
+        return f - Mathf.Floor(f);
+    }
 }

@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using DefaultNamespace;
 using UnityEngine;
-using UnityEngine.Android;
 using Verlet;
+using Collision = UnityEngine.Collision;
 
 public class Project
 {
@@ -13,8 +12,11 @@ public class Project
 
     private Dictionary<string, Panel> _panels = new();
     public FabricMesh FabricMesh;
-    public List<VerletNode> Nodes { get; private set; } = new();
+    public Dictionary<Vector3Int, List<VerletNode>> SpatialHashGridNodes = new();
+    public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
+    public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
+    public bool Collision = false;
     
 
     #endregion
@@ -24,29 +26,34 @@ public class Project
         var gameObject = GameObject.FindWithTag("GameController");
         FabricMesh = gameObject.AddComponent<FabricMesh>();
         Simulator = new VerletSimulator(Nodes);
-        GameManager.Instance.EventManager.OnRegenerateMesh += RegenerateFabricMesh;
+        GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;
     }
 
     public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge)
     {
         _panels.Add(myName,new Panel());
         _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge,myName);
-        Nodes.AddRange(_panels[myName].Nodes);
-        GameManager.Instance.EventManager.InvokeRegenerateMesh();
+        UpdateGlobalNodesAndStitches();
+        GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
 
     public void FixedUpdate(int mySimIterations, float dt)
     {
+        if (Nodes.Length == 0) return;
         AnchorNodes();
         Simulator.Simulate(mySimIterations,dt);
+        SpatialHashGridNodes = SpatialHashGrid.Partition(Nodes, node => node.Position);
+        SelfCollision.Collide(SpatialHashGridNodes);
         UpdatePanelPosition();
         CalculateNormals();
         UpdateMeshPosition();
+        Debug.Log(Nodes.Length);
     }
 
-    public void RegenerateFabricMesh()
-    {
-        FabricMesh.RegenerateMesh(GetPanels().SelectMany(item => item.Stitches).ToList());
+    public void UpdateFabricStructure()
+    {//updates the global node and stitch lists, then updates the mesh
+        UpdateGlobalNodesAndStitches();
+        FabricMesh.RegenerateMesh(Stitches);
         UpdateMeshPosition();
     }
 
@@ -60,12 +67,12 @@ public class Project
 
     public void CalculateNormals()
     {
-        foreach (var stitch in GetPanels().SelectMany(item => item.Stitches))
+        foreach (var stitch in Stitches)
         {
             stitch.UpdateNormal();
         }
 
-        foreach (var node in GetPanels().SelectMany(item => item.Nodes))
+        foreach (var node in Nodes)
         {
             node.UpdateNormal();
         }
@@ -75,7 +82,7 @@ public class Project
     {
         var positions = new List<Vector3>();
         var normals = new List<Vector3>();
-        foreach (var s in GetPanels().SelectMany(item => item.Stitches))
+        foreach (var s in Stitches)
         {
             var corners = s.GetCorners();
             positions.AddRange(corners.Select(item => item.Position));
@@ -96,6 +103,13 @@ public class Project
         {
             p.SetAnchoredPosition();
         }
+    }
+
+    public void UpdateGlobalNodesAndStitches()
+    {
+        Nodes = GetPanels().SelectMany(item => item.Nodes).ToArray();
+        Stitches = GetPanels().SelectMany(item => item.Stitches).ToArray();
+        Simulator = new VerletSimulator(Nodes);
     }
 }
 

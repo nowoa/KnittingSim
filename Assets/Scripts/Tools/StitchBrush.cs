@@ -47,7 +47,7 @@ public class StitchBrush : Tool
     
         myStitch.SetKnit(isKnit);
         ApplyElasticityToNeighbors(myStitch);
-        GameManager.Instance.EventManager.InvokeRegenerateMesh();
+        GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
     
     private void ApplyElasticityToNeighbors(Stitch myStitch)

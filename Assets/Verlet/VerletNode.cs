@@ -116,7 +116,7 @@ namespace Verlet
 
         private void SetCollisionRadius()
         {
-            var size = 1f;
+            var size = 0.9f;
             CollisionRadius = Dimensions.x > Dimensions.y ? Dimensions.y * size : Dimensions.x * size;
         }
         
