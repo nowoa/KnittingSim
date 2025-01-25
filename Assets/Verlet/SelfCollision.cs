@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DefaultNamespace;
 using UnityEngine;
@@ -37,9 +38,7 @@ namespace Verlet
             if (active.Connection.Count != 12) return;
             
             // TODO: figure out the neighborhood
-            if(other.In(
-                   active.DirectNeighbors
-                   ))
+            if(active.DirectNeighbors.Contains(other))
             {
                 return;
             }
