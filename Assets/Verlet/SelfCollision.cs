@@ -56,8 +56,8 @@ namespace Verlet
             float minDistance = active.CollisionRadius + other.CollisionRadius;
             float offsetMagnitude = minDistance - distance;
             Vector3 direction = delta.normalized;
-            active.Position+= 0.2f * offsetMagnitude * direction;
-            other.Position -= 0.2f * offsetMagnitude * direction;
+            active.Position+= 0.1f * offsetMagnitude * direction;
+            other.Position -= 0.1f * offsetMagnitude * direction;
         }
     }
 }

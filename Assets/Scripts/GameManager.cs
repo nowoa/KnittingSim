@@ -56,6 +56,6 @@ public class GameManager : MonoBehaviour
 
     private void CheckBoundingBox()
     {
-        Hover.UpdateHover(Project.GetPanels());
+        Hover.UpdateHover(Project.ScreenHashGrid);
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DefaultNamespace;
 using UnityEngine;
 using Verlet;
 
@@ -14,9 +15,10 @@ public class Hover
     private float stitchBuffer = 0.5f;
     public bool IsActive = true;
     private int _bufferSize = 100;
+    public float ScreenHashGridCellSize = 10f;
 
 
-    public void UpdateHover(List<Panel> myPanels)
+    /*public void UpdateHover(List<Panel> myPanels)
     {
         if (!IsActive) return;
         HoveredStitch = null;
@@ -34,6 +36,20 @@ public class Hover
         {
             TrySetHoveredStitch(p.Stitches);
         }
+    }*/
+
+    public void UpdateHover(Dictionary<Vector2Int,List<Stitch>> hashGrid)
+    {
+        HoveredStitch = null;
+        HoveredNode = null;
+        var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, ScreenHashGridCellSize);
+        List<Stitch> stitchesToCheck = new List<Stitch>();
+        foreach (var o in SpatialHashGrid.offsets2D)
+        {
+            if (!hashGrid.ContainsKey(mouseCell + o)) continue;
+            stitchesToCheck.AddRange(hashGrid[mouseCell+o]);
+        }
+        TrySetHoveredStitch(stitchesToCheck);
     }
 
     public void SelectNode(bool state)
