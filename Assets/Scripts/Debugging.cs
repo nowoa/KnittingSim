@@ -15,7 +15,8 @@ public class Debugging : MonoBehaviour
     {
         if (!Application.isPlaying) return;
         
-        DrawSpatialHashGrid();
+        /*DrawSpatialHashGrid();*/
+        DrawScreenHashGrid();
         DrawHoveredStitch();
         
     }
@@ -33,6 +34,24 @@ public class Debugging : MonoBehaviour
                 foreach (var index in Gm.Project.SpatialHashGrid[cell])
                 {
                     Gizmos.DrawSphere(Gm.Project.Nodes[index].Position, 0.2f);
+                }
+            }
+        }
+    }
+    
+    private void DrawScreenHashGrid()
+    {
+        if (Gm.Project == null) return;
+        Gm.Project.Simulator.DrawGizmos(Color.white);
+        if (Gm.Project.ScreenHashGrid != null)
+        {
+            foreach (var cell in Gm.Project.ScreenHashGrid.Keys)
+            {
+                var scalefactor = 0.2f;
+                Gizmos.color = new Color((cell.x * scalefactor).Fract(), (cell.y * scalefactor).Fract(),0);
+                foreach (var stitch in Gm.Project.ScreenHashGrid[cell])
+                {
+                    Gizmos.DrawSphere(stitch.Position, 0.2f);
                 }
             }
         }

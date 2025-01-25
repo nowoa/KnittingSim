@@ -26,6 +26,22 @@ namespace DefaultNamespace
             }
             return result;
         }
+        
+        public static Dictionary<Vector2Int,List<T>> PartitionScreen<T>(IEnumerable<T> items, Func<T, Vector3> positionGetter, float cellSize = 5f)
+        {
+            Dictionary<Vector2Int, List<T>> result = new Dictionary<Vector2Int, List<T>>();
+            foreach (var item in items)
+            {
+                Vector2 pos = positionGetter(item);
+                Vector2Int cellKey = GetCellKey2D(pos,cellSize);
+                if (!result.ContainsKey(cellKey))
+                {
+                    result.Add(cellKey,new List<T>());
+                }
+                result[cellKey].Add(item);
+            }
+            return result;
+        }
 
         public static Dictionary<Vector3Int, List<int>> PartitionIndex<T>(IList<T> items, Func<T, Vector3> positionGetter, float cellSize = 5f)
         {
@@ -43,7 +59,7 @@ namespace DefaultNamespace
             return result;
         }
 
-        public static int GetCellKey(float value, float cellSize)
+        private static int GetCellKey(float value, float cellSize)
         {
             return Mathf.FloorToInt(value / cellSize);
         }
@@ -51,6 +67,10 @@ namespace DefaultNamespace
         public static Vector3Int GetCellKey(Vector3 position, float cellSize)
         {
             return new Vector3Int(GetCellKey(position.x, cellSize), GetCellKey(position.y, cellSize), GetCellKey(position.z, cellSize));
+        }
+        public static Vector2Int GetCellKey2D(Vector3 position, float cellSize)
+        {
+            return new Vector2Int(GetCellKey(position.x, cellSize), GetCellKey(position.y, cellSize));
         }
 
         public static Vector3Int[] offsets3D = new[]
@@ -82,6 +102,17 @@ namespace DefaultNamespace
             new Vector3Int(1, 1, 0),
             new Vector3Int(1, 1, 1),
             new Vector3Int(0,0,0)
+        };
+        public static Vector2Int[] offsets2D = new[]
+        {//THIS DOES INCLUDE THE CENTER CELL
+            new Vector2Int(-1,-1),
+            new Vector2Int(-1,0),
+            new Vector2Int(-1,1),
+            new Vector2Int(0,-1),
+            new Vector2Int(0,1),
+            new Vector2Int(1,-1),
+            new Vector2Int(1,0),
+            new Vector2Int(1,1),
         };
     }
 }

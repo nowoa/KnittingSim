@@ -4,6 +4,7 @@ using System.Linq;
 using DefaultNamespace;
 using UnityEngine;
 using Verlet;
+using static DefaultNamespace.SpatialHashGrid;
 
 public class Project
 {
@@ -12,10 +13,12 @@ public class Project
     private Dictionary<string, Panel> _panels = new();
     public FabricMesh FabricMesh;
     public Dictionary<Vector3Int, List<int>> SpatialHashGrid = new();
+    public Dictionary<Vector2Int, List<Stitch>> ScreenHashGrid = new();
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
     public bool Collision = false;
+    private float partitioningCellSize;
     
 
     #endregion
@@ -44,16 +47,15 @@ public class Project
         }
         AnchorNodes();
 
-        using (new ProfileSample("Verlet Simulation"))
-            Simulator.Simulate(mySimIterations,dt);
-
-        float partitioningCellSize = 0.5f;
-
         using (new ProfileSample("Construct Spatial Hash Grid"))
-            SpatialHashGrid = DefaultNamespace.SpatialHashGrid.PartitionIndex(Nodes, node => node.Position, partitioningCellSize);
+            SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, partitioningCellSize);
+        ScreenHashGrid = PartitionScreen(Stitches, stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position), GameManager.Instance.Hover.ScreenHashGridCellSize);
         
         using (new ProfileSample("Solve Self Collision"))
             if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
+        using (new ProfileSample("Verlet Simulation"))
+            Simulator.Simulate(mySimIterations,dt);
+
 
         using (new ProfileSample("Mesh Update"))
         {
@@ -66,6 +68,12 @@ public class Project
     public void UpdateFabricStructure()
     {//updates the global node and stitch lists, then updates the mesh
         UpdateGlobalNodesAndStitches();
+        foreach (var n in Nodes)
+        {
+           n.GetDirectNeighbors(); 
+        }
+
+        partitioningCellSize = Nodes[0].CollisionRadius * 1f;
         FabricMesh.RegenerateMesh(Stitches);
         UpdateMeshPosition();
     }
