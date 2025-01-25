@@ -16,6 +16,7 @@ public class Project
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
     public bool Collision = false;
+    private float partitioningCellSize;
     
 
     #endregion
@@ -44,13 +45,9 @@ public class Project
         }
         AnchorNodes();
 
-        float partitioningCellSize = 0.5f;
-
         using (new ProfileSample("Construct Spatial Hash Grid"))
             SpatialHashGrid = DefaultNamespace.SpatialHashGrid.PartitionIndex(Nodes, node => node.Position, partitioningCellSize);
         
-        using (new ProfileSample("Solve Self Collision"))
-            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
         using (new ProfileSample("Solve Self Collision"))
             if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
         using (new ProfileSample("Verlet Simulation"))
@@ -72,6 +69,8 @@ public class Project
         {
            n.GetDirectNeighbors(); 
         }
+
+        partitioningCellSize = Nodes[0].CollisionRadius * 1f;
         FabricMesh.RegenerateMesh(Stitches);
         UpdateMeshPosition();
     }
