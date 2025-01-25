@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DefaultNamespace;
+using Unity.VisualScripting;
 using UnityEngine;
 using Verlet;
 
@@ -15,8 +16,8 @@ public class Hover
     private float stitchBuffer = 0.5f;
     public bool IsActive = true;
     private int _bufferSize = 100;
-    public float ScreenHashGridCellSize = 10f;
-
+    public float ScreenHashGridCellSize = 50f;
+    public List<Stitch> StitchesToCheck;
 
     /*public void UpdateHover(List<Panel> myPanels)
     {
@@ -43,13 +44,13 @@ public class Hover
         HoveredStitch = null;
         HoveredNode = null;
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, ScreenHashGridCellSize);
-        List<Stitch> stitchesToCheck = new List<Stitch>();
+        StitchesToCheck = new List<Stitch>();
         foreach (var o in SpatialHashGrid.offsets2D)
         {
             if (!hashGrid.ContainsKey(mouseCell + o)) continue;
-            stitchesToCheck.AddRange(hashGrid[mouseCell+o]);
+            StitchesToCheck.AddRange(hashGrid[mouseCell+o]);
         }
-        TrySetHoveredStitch(stitchesToCheck);
+        TrySetHoveredStitch(StitchesToCheck);
     }
 
     public void SelectNode(bool state)
@@ -96,14 +97,43 @@ public class Hover
         return (new Vector2(boundingBox.Min.x, Screen.height - boundingBox.Max.y),
             new Vector2(boundingBox.Max.x, Screen.height - boundingBox.Min.y));
     }
-    
+
+    private VerletNode CheckForAnchoredNode(IList<VerletNode> nodes, out bool found)
+    {
+        found = false;
+        var anchoredNodes = nodes.Where(item => item.IsAnchored).ToList();
+        if (anchoredNodes.Count == 0) return null;
+        found = true;
+        if (anchoredNodes.Count == 1) return anchoredNodes[0];
+        var closestDistance = float.MaxValue;
+        float distance;
+        VerletNode closest = null;
+        foreach (var n in anchoredNodes)
+        {
+            distance = DistanceToMouse(NormalizePixelCoords(_cam.WorldToScreenPoint(n.Position)));
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+            }
+
+            closest = n;
+        }
+
+        return closest;
+    }
     private void TrySetHoveredStitch(List<Stitch> myStitches) //TODO: think about adding error to the stitch bounding boxes?
     {
-        // Return early if a child is selected
         if (SelectedNode != null)
         {
             return;
         }
+        
+        var anchoredNode = CheckForAnchoredNode(myStitches.SelectMany(item => item.Corners).ToArray(), out bool found);
+        if (found)
+        {
+            HoveredNode = anchoredNode;
+        }
+        
         
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
@@ -127,7 +157,14 @@ public class Hover
         }
 
         if (HoveredStitch == null) return;
+        if (found) return;
         HoveredNode = GetClosestNodeFromStitch(HoveredStitch, mousePos);
+    }
+
+    private float DistanceToMouse(Vector3 position)
+    {
+        var mousePos = NormalizePixelCoords(Input.mousePosition);
+        return (mousePos - position).sqrMagnitude;
     }
 
     private VerletNode GetClosestNodeFromStitch(Stitch myStitch, Vector2 myMousePos)

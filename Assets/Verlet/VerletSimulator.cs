@@ -84,6 +84,7 @@ namespace Verlet
                         var other = e.Other(p);
                         Gizmos.DrawLine(p.Position, other.Position);
                     });
+                    if (p.IsAnchored) Gizmos.color = Color.cyan;
                     Gizmos.DrawSphere(p.Position,0.1f);
                 }
             }

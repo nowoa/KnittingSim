@@ -15,9 +15,12 @@ public class Debugging : MonoBehaviour
     {
         if (!Application.isPlaying) return;
         
-        /*DrawSpatialHashGrid();*/
-        DrawScreenHashGrid();
+        /*DrawSpatialHashGrid();*//*
+        DrawScreenHashGrid();*/
+        DrawHoverCheck();
         DrawHoveredStitch();
+        
+        if(Gm.Project.Simulator!=null) Gm.Project.Simulator.DrawGizmos(Color.white);
         
     }
 
@@ -57,6 +60,16 @@ public class Debugging : MonoBehaviour
         }
     }
 
+    private void DrawHoverCheck()
+    {
+        if (Gm.Project == null) return;
+        foreach (var s in Gm.Hover.StitchesToCheck)
+        {
+            Gizmos.color = new Color(0,1,0,0.3f);
+            Gizmos.DrawSphere(s.Position,0.3f);
+        }
+    }
+
     private void DrawCollisionRadii()
     {
         if (Gm.Project is null) return;
@@ -73,7 +86,7 @@ public class Debugging : MonoBehaviour
         Gizmos.color = Color.black;
         Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
         Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position,0.1f);
+        Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position,0.2f);
     }
     
     private void OnGUI()
