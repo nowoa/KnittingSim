@@ -44,9 +44,6 @@ public class Project
         }
         AnchorNodes();
 
-        using (new ProfileSample("Verlet Simulation"))
-            Simulator.Simulate(mySimIterations,dt);
-
         float partitioningCellSize = 0.5f;
 
         using (new ProfileSample("Construct Spatial Hash Grid"))
@@ -54,6 +51,11 @@ public class Project
         
         using (new ProfileSample("Solve Self Collision"))
             if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
+        using (new ProfileSample("Solve Self Collision"))
+            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
+        using (new ProfileSample("Verlet Simulation"))
+            Simulator.Simulate(mySimIterations,dt);
+
 
         using (new ProfileSample("Mesh Update"))
         {
@@ -66,6 +68,10 @@ public class Project
     public void UpdateFabricStructure()
     {//updates the global node and stitch lists, then updates the mesh
         UpdateGlobalNodesAndStitches();
+        foreach (var n in Nodes)
+        {
+           n.GetDirectNeighbors(); 
+        }
         FabricMesh.RegenerateMesh(Stitches);
         UpdateMeshPosition();
     }

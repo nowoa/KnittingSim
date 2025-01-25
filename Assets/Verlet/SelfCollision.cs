@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DefaultNamespace;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Verlet
@@ -48,13 +49,12 @@ namespace Verlet
             
             // TODO: figure out the neighborhood
             if(other.In(
-                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.TopLeft),
-                   active.GetNeighbor(VerletNode.Neighbor.right),
-                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.TopRight),
-                   active.ParentStitch?.GetCorner(Stitch.NodeCorner.BottomRight).GetNeighbor(VerletNode.Neighbor.down)))
+                   active.DirectNeighbors
+                   ))
             {
                 return Vector3.zero;
             }
+
             
             Vector3 delta = active.Position - other.Position;
             float distanceSqr = delta.sqrMagnitude;
@@ -73,8 +73,23 @@ namespace Verlet
             success = true;
             return 0.5f * offsetMagnitude * direction;
         }
+
+        private static VerletNode[] DirectConnections(VerletNode center)
+        {
+            return new[]
+            {
+                center.Neighbors[0],
+                center.Neighbors[1],
+                center.Neighbors[2],
+                center.Neighbors[3],
+                center.ParentStitch?.GetCorner(Stitch.NodeCorner.TopRight),
+                center.Traverse(VerletNode.Neighbor.right)?.Traverse(VerletNode.Neighbor.down),
+                center.Traverse(VerletNode.Neighbor.left)?.Traverse(VerletNode.Neighbor.down),
+                center.Traverse(VerletNode.Neighbor.left)?.Traverse(VerletNode.Neighbor.up)
+            };
+        }
         
-        public static void Collide(Dictionary<Vector3Int,List<VerletNode>> myHashGrid)
+        /*public static void Collide(Dictionary<Vector3Int,List<VerletNode>> myHashGrid)
         {
             Dictionary<Vector3Int, List<Vector3Int>> alreadyCheckedCells = new Dictionary<Vector3Int, List<Vector3Int>>();
             foreach (var (key, nodes) in myHashGrid)
@@ -148,6 +163,6 @@ namespace Verlet
                     
                 }
             }
-        }
+        }*/
     }
 }

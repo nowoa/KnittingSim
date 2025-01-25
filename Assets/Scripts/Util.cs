@@ -39,7 +39,7 @@ public static class Util
 
     public static VerletNode Traverse(this VerletNode node, VerletNode.Neighbor direction)
     {
-        return node.Neighbors[(int)direction] == null ? null : node.Neighbors[(int)direction];
+        return node.Neighbors[(int)direction];
     }
 
     public static float Fract(this float f)

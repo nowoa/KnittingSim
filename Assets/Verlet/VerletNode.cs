@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -43,6 +46,8 @@ namespace Verlet
         public Vector2 Dimensions { get; private set; }
         public float CollisionRadius;
         public Vector3 Normal { get; private set; }
+
+        public VerletNode[] DirectNeighbors { get; private set; } = Array.Empty<VerletNode>();
 
         public enum Neighbor
         {
@@ -169,6 +174,11 @@ namespace Verlet
             myTarget._connection.Remove(edgeToChange);
             _connection.Remove(edgeToChange);
             VerletEdge.ConnectNodes(this, myTarget, myLength, edgetype);
+        }
+
+        public void GetDirectNeighbors()
+        {
+            DirectNeighbors = _connection.Where(item => item.edgeType != VerletEdge.EdgeType.Bend).Select(item => item.Other(this)).ToArray();
         }
     }
 }
