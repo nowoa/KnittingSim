@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DefaultNamespace;
 using UnityEngine;
 using Verlet;
 using static DefaultNamespace.SpatialHashGrid;
@@ -17,7 +16,7 @@ public class Project
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
-    public bool Collision = false;
+    public bool Collision = true;
     private float _partitioningCellSize;
     private ToolBoxUI _toolBoxUI;
 
@@ -25,10 +24,8 @@ public class Project
 
     public Project()
     {
-        var gameObject = GameObject.FindWithTag("GameController");
-        FabricMesh = gameObject.AddComponent<FabricMesh>();
-        _toolBoxUI = GameObject.FindWithTag("UI").GetComponent<ToolBoxUI>();
-        Debug.Log(_toolBoxUI);
+        FabricMesh = GameManager.Instance.gameObject.AddComponent<FabricMesh>();
+        _toolBoxUI = ToolBoxUI.Instance;
         Simulator = new VerletSimulator(Nodes);
         GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;
     }

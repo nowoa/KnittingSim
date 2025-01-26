@@ -1,16 +1,22 @@
-using System.Numerics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Verlet;
-using Vector2 = System.Numerics.Vector2;
+using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 public class ToolBoxUI : MonoBehaviour
 {
+    public static ToolBoxUI Instance;
+    
     public Slider slider;
     [FormerlySerializedAs("MouseRadiusCircle")] public Image mouseRadiusCircle;
-    
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     public void OnPointerEnter()
     {
         InputHandler.GameInput = false;

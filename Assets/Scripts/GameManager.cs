@@ -17,9 +17,13 @@ public class GameManager : MonoBehaviour
         Camera = Camera.main;
         Hover = new Hover();
         EventManager = new EventManager();
+    }
+
+    private void Start()
+    {
         Project = new Project();
     }
-    
+
 
     private void FixedUpdate()
     {
@@ -51,9 +55,7 @@ public class GameManager : MonoBehaviour
         Project.UpdatePanelPosition();
         Project.UpdateMeshPosition();
     }
-
     
-
     private void CheckBoundingBox()
     {
         Hover.UpdateHover(Project.ScreenHashGrid);
