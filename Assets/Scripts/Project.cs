@@ -18,7 +18,7 @@ public class Project
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public VerletSimulator Simulator;
     public bool Collision = false;
-    private float partitioningCellSize;
+    private float _partitioningCellSize;
     
 
     #endregion
@@ -48,11 +48,11 @@ public class Project
         AnchorNodes();
 
         using (new ProfileSample("Construct Spatial Hash Grid"))
-            SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, partitioningCellSize);
-        ScreenHashGrid = PartitionScreen(Stitches, stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position), GameManager.Instance.Hover.ScreenHashGridCellSize);
+            SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
+        ScreenHashGrid = PartitionScreen(Stitches, stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position), GameManager.Instance.Hover.MouseRadius);
         
         using (new ProfileSample("Solve Self Collision"))
-            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, partitioningCellSize);
+            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, _partitioningCellSize);
         using (new ProfileSample("Verlet Simulation"))
             Simulator.Simulate(mySimIterations,dt);
 
@@ -73,8 +73,9 @@ public class Project
            n.GetDirectNeighbors(); 
         }
 
-        partitioningCellSize = Nodes[0].CollisionRadius * 1f;
+        _partitioningCellSize = Nodes[0].CollisionRadius * 1f;
         FabricMesh.RegenerateMesh(Stitches);
+        FabricMesh.SetVertexColors(Stitches);
         UpdateMeshPosition();
     }
 

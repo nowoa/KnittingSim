@@ -1,3 +1,4 @@
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 public class Debugging : MonoBehaviour
@@ -15,8 +16,8 @@ public class Debugging : MonoBehaviour
     {
         if (!Application.isPlaying) return;
         
-        /*DrawSpatialHashGrid();*//*
-        DrawScreenHashGrid();*/
+        /*DrawSpatialHashGrid();*/
+        /*DrawScreenHashGrid();*/
         DrawHoverCheck();
         DrawHoveredStitch();
         

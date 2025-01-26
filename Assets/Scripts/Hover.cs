@@ -16,8 +16,8 @@ public class Hover
     private float stitchBuffer = 0.5f;
     public bool IsActive = true;
     private int _bufferSize = 100;
-    public float ScreenHashGridCellSize = 50f;
     public List<Stitch> StitchesToCheck;
+    public float MouseRadius = 50f;
 
     /*public void UpdateHover(List<Panel> myPanels)
     {
@@ -43,7 +43,7 @@ public class Hover
     {
         HoveredStitch = null;
         HoveredNode = null;
-        var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, ScreenHashGridCellSize);
+        var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
         StitchesToCheck = new List<Stitch>();
         foreach (var o in SpatialHashGrid.offsets2D)
         {
@@ -104,7 +104,14 @@ public class Hover
         var anchoredNodes = nodes.Where(item => item.IsAnchored).ToList();
         if (anchoredNodes.Count == 0) return null;
         found = true;
-        if (anchoredNodes.Count == 1) return anchoredNodes[0];
+        if (anchoredNodes.Count == 1)
+        {
+            if (DistanceToMousePixels(anchoredNodes[0].Position) < MouseRadius)
+            {
+                return anchoredNodes[0];
+            }
+            return null;
+        }
         var closestDistance = float.MaxValue;
         float distance;
         VerletNode closest = null;
@@ -118,8 +125,12 @@ public class Hover
 
             closest = n;
         }
+        if (DistanceToMousePixels(closest.Position) < MouseRadius)
+        {
+            return closest;
+        }
+        return null;
 
-        return closest;
     }
     private void TrySetHoveredStitch(List<Stitch> myStitches) //TODO: think about adding error to the stitch bounding boxes?
     {
@@ -134,12 +145,17 @@ public class Hover
             HoveredNode = anchoredNode;
         }
         
-        
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
 
-        foreach (var s in myStitches)
+        var myStitchesCopy = new List<Stitch>(myStitches);
+        foreach (var s in myStitchesCopy)
         {
+            if (DistanceToMousePixels(s.Position) > MouseRadius)
+            {
+                StitchesToCheck.Remove(s);
+                continue;
+            }
             // Normalize corner positions and calculate bounding box
             var cornerScreenPositions = s.Corners.Select(item => _cam.WorldToScreenPoint(item.Position));
             var positionsNormalized = cornerScreenPositions.Select(NormalizePixelCoords).ToArray();
@@ -165,6 +181,12 @@ public class Hover
     {
         var mousePos = NormalizePixelCoords(Input.mousePosition);
         return (mousePos - position).sqrMagnitude;
+    }
+
+    private float DistanceToMousePixels(Vector3 worldPos)
+    {
+        var point = _cam.WorldToScreenPoint(worldPos);
+        return (point - Input.mousePosition).magnitude;
     }
 
     private VerletNode GetClosestNodeFromStitch(Stitch myStitch, Vector2 myMousePos)

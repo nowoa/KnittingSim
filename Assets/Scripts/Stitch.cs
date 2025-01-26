@@ -17,6 +17,9 @@ public class Stitch
     public Vector2 Dimensions { get; private set; }
 
     public VerletNode GetCorner(NodeCorner cornerType) => Corners[(int)cornerType];
+
+    public Color StitchColor { get; private set; }
+    
     
     public enum Neighbor
     {
@@ -42,6 +45,7 @@ public class Stitch
         _corners[3] = myCorners[3];
         ParentPanel = parentPanel;
         Dimensions = _corners[0].Dimensions;
+        StitchColor = Color.black;
     }
 
     public enum StitchType
@@ -105,6 +109,11 @@ public class Stitch
     public void SetKnit(bool isKnit)
     {
         Knit = isKnit;
+    }
+
+    public void SetColor(Color myColor)
+    {
+        StitchColor = myColor;
     }
     
     public int GetNeighborElasticity()

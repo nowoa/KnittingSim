@@ -1,10 +1,15 @@
+using System.Numerics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Verlet;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class ToolBoxUI : MonoBehaviour
 {
     public Slider slider;
+    [FormerlySerializedAs("MouseRadiusCircle")] public Image mouseRadiusCircle;
     
     public void OnPointerEnter()
     {
@@ -77,6 +82,13 @@ public class ToolBoxUI : MonoBehaviour
     public void HashGridOverlapToggle()
     {
         SelfCollision.checkDouble = !SelfCollision.checkDouble;
+    }
+
+
+    public void SetMouseRadius(float radius)
+    {
+        GameManager.Instance.Hover.MouseRadius = radius;
+        mouseRadiusCircle.rectTransform.localScale = new Vector3(radius / 50, radius / 50, radius / 50);
     }
 
 }

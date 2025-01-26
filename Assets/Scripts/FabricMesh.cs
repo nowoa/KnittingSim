@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FabricMesh : MonoBehaviour
@@ -28,6 +29,21 @@ public class FabricMesh : MonoBehaviour
         _mesh.SetUVs(0,structure.uvs);
         _mesh.name = "fabric";
         _meshFilter.sharedMesh = _mesh;
+    }
+
+    public void SetVertexColors(IList<Stitch> myStitches)
+    {
+        Color[] colors = new Color[myStitches.Count*4];
+        int counter = 0;
+        foreach (var s in myStitches)
+        {
+            colors[counter + 0] = s.StitchColor;
+            colors[counter + 1] = s.StitchColor;
+            colors[counter + 2] = s.StitchColor;
+            colors[counter + 3] = s.StitchColor;
+            counter += 4;
+        }
+        _mesh.colors = colors;
     }
 
     private static (List<int> triangles, List<Vector2> uvs) MeshStructure(IList<Stitch> myStitches)
