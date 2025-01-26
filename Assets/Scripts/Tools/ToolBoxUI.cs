@@ -91,4 +91,9 @@ public class ToolBoxUI : MonoBehaviour
         mouseRadiusCircle.rectTransform.localScale = new Vector3(radius / 50, radius / 50, radius / 50);
     }
 
+    public void UpdateUI()
+    {
+        mouseRadiusCircle.rectTransform.position = Input.mousePosition;
+    }
+
 }

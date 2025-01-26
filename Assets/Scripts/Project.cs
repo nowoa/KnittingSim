@@ -19,7 +19,7 @@ public class Project
     public VerletSimulator Simulator;
     public bool Collision = false;
     private float _partitioningCellSize;
-    
+    private ToolBoxUI _toolBoxUI;
 
     #endregion
 
@@ -27,6 +27,8 @@ public class Project
     {
         var gameObject = GameObject.FindWithTag("GameController");
         FabricMesh = gameObject.AddComponent<FabricMesh>();
+        _toolBoxUI = GameObject.FindWithTag("UI").GetComponent<ToolBoxUI>();
+        Debug.Log(_toolBoxUI);
         Simulator = new VerletSimulator(Nodes);
         GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;
     }
@@ -41,6 +43,7 @@ public class Project
 
     public void FixedUpdate(int mySimIterations, float dt)
     {
+        _toolBoxUI.UpdateUI();
         if (_panels.Count == 0)
         {
             return;
@@ -63,6 +66,8 @@ public class Project
             CalculateNormals();
             UpdateMeshPosition();
         }
+        
+        
     }
 
     public void UpdateFabricStructure()
