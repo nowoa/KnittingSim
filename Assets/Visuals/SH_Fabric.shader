@@ -1,4 +1,4 @@
-Shader "Custom/BackFaceRendering"
+Shader "Custom/SH_Fabric"
 {
     Properties
     {
@@ -25,6 +25,7 @@ Shader "Custom/BackFaceRendering"
         {
             float2 uv_MainTex;
             float vface : VFACE;
+            float4 color : COLOR;
         };
 
         half _Glossiness;
@@ -34,15 +35,15 @@ Shader "Custom/BackFaceRendering"
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-            o.Albedo = c.rgb;
+            o.Albedo = c.rgb * IN.color.rgb;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             
             if (IN.vface < 0)
             {
-                o.Albedo = fixed3(0.0, 0.0, 0.0);
+                o.Albedo *= 0.8;
                 o.Smoothness = 0.0;
-                o.Metallic = 1.0; // give the backside a velet-like appearance
+                // o.Metallic = 1.0; // give the backside a velet-like appearance
             }
             
             o.Alpha = 1.0;

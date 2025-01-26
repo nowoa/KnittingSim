@@ -45,7 +45,7 @@ public class Stitch
         _corners[3] = myCorners[3];
         ParentPanel = parentPanel;
         Dimensions = _corners[0].Dimensions;
-        StitchColor = Color.black;
+        StitchColor = Color.Lerp(Color.magenta, Color.cyan, Random.value);
     }
 
     public enum StitchType
