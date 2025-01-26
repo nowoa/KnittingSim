@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-
 
 public class OrbitCamera : MonoBehaviour
 {
@@ -11,6 +9,13 @@ public class OrbitCamera : MonoBehaviour
         public float Pitch { get; private set; }
         public float Zoom { get; private set; }
 
+        private float _yawVelocity;
+        
+        public OrbitCameraProperties()
+        {
+            Zoom = 10f;
+        }
+
         public void SetFocusPoint(Vector3 p)
         {
             FocusPoint = p;
@@ -19,21 +24,39 @@ public class OrbitCamera : MonoBehaviour
         public void SetYaw(float newYaw)
         {
             Yaw = newYaw;
+            // _yawVelocity = 0;
         }
 
         public void SetPitch(float newPitch)
         {
-            Pitch = Mathf.Clamp(newPitch, -30f, 30f);
+            Pitch = Mathf.Clamp(newPitch, -60f, 60f);
         }
 
         public void SetZoom(float zoom)
         {
-            Zoom = Mathf.Max(0, zoom);
+            Zoom = Mathf.Max(0.1f, zoom);
         }
 
-        public OrbitCameraProperties()
+        public void Update(float deltaTime)
         {
-            Zoom = 10f;
+            Yaw += _yawVelocity;
+            // _yawVelocity *= decay * deltaTime;
+            _yawVelocity = ExpoDecay(_yawVelocity, 0.0f, 15f, deltaTime);
+        }
+
+        public void AddYawForce(float force)
+        {
+            _yawVelocity += force;
+            const float MAX_VELOCITY = 2.6f;
+            if (Mathf.Abs(_yawVelocity) > MAX_VELOCITY)
+            {
+                _yawVelocity = MAX_VELOCITY * Mathf.Sign(_yawVelocity);
+            }
+        }
+
+        public static float ExpoDecay(float a, float b, float decay, float deltaTime)
+        {
+            return b + (a - b) * Mathf.Exp(-decay * deltaTime);
         }
     }
     
@@ -48,32 +71,15 @@ public class OrbitCamera : MonoBehaviour
     
     // Sensitivity Settings
     private const float _orbitAngle = 1200f;
-    private const float _panningDistance = 10f;
-    private const float _zoomDistance = 20f;
+    private const float _zoomFactor = 20f;
     
-    
-    private const float _smoothTime = 0.01f;
-
-    private Vector3 _followPoint;
     private Vector3 _smoothVelocity;
-
-    private Func<Vector3> _followerFunction;
-    private bool _useFollowing;
-
-    private void OnEnable()
-    {
-        _followPoint = cameraParent.position;
-        StopFollowing();
-    }
+    
 
     private void Update()
     {
         HandleInputs();
-
-        if (_useFollowing)
-        {
-            Focus(_followerFunction());
-        }
+        _orbitProps.Update(Time.deltaTime);
         
         UpdateInternalTransforms();
     }
@@ -91,29 +97,39 @@ public class OrbitCamera : MonoBehaviour
         float mouseY = Input.GetAxis("Mouse Y");
         float scrolling = Input.GetAxis("Mouse ScrollWheel");
 
+        const int MAGIC_PIXEL_OFFSET = 30;
+        Vector3 offsetPoint = orbitCam.ScreenToWorldPoint(new Vector3(Screen.width * 0.5f + MAGIC_PIXEL_OFFSET, Screen.height * 0.5f + MAGIC_PIXEL_OFFSET, _orbitProps.Zoom));
+        Vector3 panDifference = offsetPoint - _orbitProps.FocusPoint;
+        float panX = Vector3.Dot(panDifference, cameraParent.right);
+        float panY = Vector3.Dot(panDifference, cameraParent.up);
+
         if (Input.GetMouseButton(0))
         {
             float orbitAngle = _orbitAngle * Time.deltaTime;
             
-            _orbitProps.SetYaw(_orbitProps.Yaw + mouseX * orbitAngle);
+            _orbitProps.AddYawForce(mouseX * orbitAngle * 0.1f);
             _orbitProps.SetPitch(_orbitProps.Pitch - mouseY * orbitAngle);
         }
         
         if (Input.GetMouseButton(1))
         {
-            _orbitProps.SetZoom(_orbitProps.Zoom - mouseY * Time.deltaTime * _zoomDistance);
+            float currentZoom = _orbitProps.Zoom;
+            _orbitProps.SetZoom(currentZoom - mouseY * Time.deltaTime * currentZoom * _zoomFactor);
         }
 
         if (scrolling != 0)
         {
-            _orbitProps.SetZoom(_orbitProps.Zoom + scrolling * _zoomDistance);
+            float scrollFactor = scrolling > 0 ? 1.1f : 0.9f;
+            Debug.Log(scrollFactor);
+            _orbitProps.SetZoom(_orbitProps.Zoom * scrollFactor);
         }
 
         if (Input.GetMouseButton(2))
         {
-            float panning = _panningDistance * Time.deltaTime;
-            Vector3 direction = (cameraParent.right * -mouseX + cameraParent.up * -mouseY).normalized;
-            _orbitProps.SetFocusPoint(_orbitProps.FocusPoint + direction * panning);
+
+            Vector3 panRight = panX * -mouseX * cameraParent.right;
+            Vector3 panUp = panY * -mouseY * cameraParent.up;
+            _orbitProps.SetFocusPoint(_orbitProps.FocusPoint + panRight + panUp);
         }
     }
 
@@ -140,25 +156,9 @@ public class OrbitCamera : MonoBehaviour
 
     public void Focus(Vector3 targetPosition)
     {
-        if (_useFollowing)
-        {
-            Debug.LogWarning("Following is currently enabled. Focus call is being ignored");
-            return;
-        }
         _orbitProps.SetFocusPoint(targetPosition);
     }
-
-    public void Follow(Func<Vector3> followFunction)
-    {
-        _followerFunction = followFunction;
-        _useFollowing = true;
-    }
-
-    public void StopFollowing()
-    {
-        _followerFunction = null;
-        _useFollowing = false;
-    }
+    
 
     #endregion
 }
