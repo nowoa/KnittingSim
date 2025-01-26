@@ -6,7 +6,6 @@ public abstract class Tool
 
     public virtual void DefaultBehavior()
     {
-        //hovering
     }
 
     public virtual void MainAction()
@@ -38,7 +37,7 @@ public abstract class Tool
 
 public static class ToolManager
 {
-    private static Tool _activeTool;
+    public static Tool ActiveTool { get; private set; }
     public static Tool DraggerInstance = new Dragger();
     public static Tool StitchBrushInstance = new StitchBrush();/*
     public static Tool Increaser = new Increaser();
@@ -49,42 +48,42 @@ public static class ToolManager
 
     static ToolManager()
     {
-        _activeTool = DraggerInstance;
+        ActiveTool = DraggerInstance;
     }
 
     public static void SetActiveTool(Tool myTool)
     {
-        _activeTool = myTool;
+        ActiveTool = myTool;
     }
 
     public static void OnDefaultBehavior()
     {
-        _activeTool.DefaultBehavior();
+        ActiveTool.DefaultBehavior();
     }
 
     public static void OnMainAction()
     {
-        _activeTool.MainAction();
+        ActiveTool.MainAction();
     }
 
     public static void OnMainActionEnd()
     {
-        _activeTool.MainActionEnd();
+        ActiveTool.MainActionEnd();
     }
 
     public static void OnSecondaryAction()
     {
-        _activeTool.SecondaryAction();
+        ActiveTool.SecondaryAction();
     }
 
     public static void OnSecondaryActionEnd()
     {
-        _activeTool.SecondaryActionEnd();
+        ActiveTool.SecondaryActionEnd();
     }
 
     public static void OnSpecialAction()
     {
-        _activeTool.SpecialAction();
+        ActiveTool.SpecialAction();
     }
 }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DefaultNamespace;
@@ -13,48 +14,42 @@ public class Hover
     public VerletNode SelectedNode;
     private float _selectedNodeDepth;
     private Camera _cam = GameManager.Instance.Camera;
-    private float stitchBuffer = 0.5f;
     public bool IsActive = true;
-    private int _bufferSize = 100;
-    public List<Stitch> StitchesToCheck;
-    public float MouseRadius = 50f;
-
-    /*public void UpdateHover(List<Panel> myPanels)
-    {
-        if (!IsActive) return;
-        HoveredStitch = null;
-        HoveredNode = null;
-        List<Panel> panelsToCheck = new List<Panel>();
-        foreach (var p in myPanels)
-        {
-            
-            if (CheckPanelBoundingBox(p))
-            {
-                panelsToCheck.Add(p);
-            }
-        }
-        foreach (var p in panelsToCheck)
-        {
-            TrySetHoveredStitch(p.Stitches);
-        }
-    }*/
+    public List<Stitch> StitchesInRadius;
+    public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
 
     public void UpdateHover(Dictionary<Vector2Int,List<Stitch>> hashGrid)
     {
         HoveredStitch = null;
         HoveredNode = null;
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
-        StitchesToCheck = new List<Stitch>();
+        var stitchesToCheck = new List<Stitch>();
         foreach (var o in SpatialHashGrid.offsets2D)
         {
             if (!hashGrid.ContainsKey(mouseCell + o)) continue;
-            StitchesToCheck.AddRange(hashGrid[mouseCell+o]);
+            stitchesToCheck.AddRange(hashGrid[mouseCell+o]);
         }
-        TrySetHoveredStitch(StitchesToCheck);
+
+        StitchesInRadius = CheckRadius(stitchesToCheck, stitch => stitch.Position);
+        TrySetHoveredStitch(StitchesInRadius);
+    }
+
+    private List<T> CheckRadius<T>(IList<T> items, Func<T, Vector3> PositionGetter)
+    {
+        var result = new List<T>();
+        foreach (var i in items)
+        {
+            if (DistanceToMousePixels(PositionGetter(i)) > MouseRadius)
+            {
+                continue;
+            }
+            result.Add(i);
+        }
+        return result;
     }
 
     public void SelectNode(bool state)
-    {
+    {//dragger calls this method to toggle selected node
         if (state && HoveredNode!=null)
         {
             SelectedNode = HoveredNode;
@@ -63,105 +58,41 @@ public class Hover
         else SelectedNode = null;
     }
 
-    private bool CheckPanelBoundingBox(Panel myPanel)
-    {
-        return InsideBoundingBox(PanelBoundingBox(myPanel), Input.mousePosition);
-    }
-    
-    public (Vector2 Min, Vector2 Max) PanelBoundingBox(Panel myPanel)
-    {
-        int interval = Mathf.FloorToInt(myPanel.Width/2)-1;
-        if (interval <= 0) interval = 1;
-        while (interval > 5) //at least check 1/nth of nodes (n=5)
-        {
-            interval /= 2;
-        }
-        List<Vector3> screenPointNodes = new List<Vector3>();
-        foreach (var n in myPanel.Nodes)
-        {
-            screenPointNodes.Add(_cam.WorldToScreenPoint(n.Position));
-        }
-        Vector3[] nodesCondensed = new Vector3[screenPointNodes.Count/interval];
-        for (int i = 0; i < screenPointNodes.Count / interval; i++)
-        {
-            nodesCondensed[i] = screenPointNodes[i*interval];
-        }
-        
-        return BoundingBox(nodesCondensed,_bufferSize, false);
-
-    }
-    
-    public (Vector2 Min, Vector2 Max) IMGUIBoundingBox(Panel myPanel)
-    {
-        var boundingBox = PanelBoundingBox(myPanel);
-        return (new Vector2(boundingBox.Min.x, Screen.height - boundingBox.Max.y),
-            new Vector2(boundingBox.Max.x, Screen.height - boundingBox.Min.y));
-    }
-
     private VerletNode CheckForAnchoredNode(IList<VerletNode> nodes, out bool found)
     {
         found = false;
         var anchoredNodes = nodes.Where(item => item.IsAnchored).ToList();
         if (anchoredNodes.Count == 0) return null;
+        var nodesInsideRadius = CheckRadius(anchoredNodes, node => node.Position);
+        if (nodesInsideRadius.Count == 0) return null;
+
         found = true;
-        if (anchoredNodes.Count == 1)
-        {
-            if (DistanceToMousePixels(anchoredNodes[0].Position) < MouseRadius)
-            {
-                return anchoredNodes[0];
-            }
-            return null;
-        }
-        var closestDistance = float.MaxValue;
+        
         float distance;
+        float closestDistance = float.MaxValue;
         VerletNode closest = null;
         foreach (var n in anchoredNodes)
         {
-            distance = DistanceToMouse(NormalizePixelCoords(_cam.WorldToScreenPoint(n.Position)));
+            distance = DistanceToMousePixels(_cam.WorldToScreenPoint(n.Position));
             if (distance < closestDistance)
             {
                 closestDistance = distance;
+                closest = n;
             }
-
-            closest = n;
         }
-        if (DistanceToMousePixels(closest.Position) < MouseRadius)
-        {
-            return closest;
-        }
-        return null;
 
+        return closest;
     }
-    private void TrySetHoveredStitch(List<Stitch> myStitches) //TODO: think about adding error to the stitch bounding boxes?
+    
+    private void TrySetHoveredStitch(List<Stitch> myStitches)
     {
-        if (SelectedNode != null)
-        {
-            return;
-        }
-        
-        var anchoredNode = CheckForAnchoredNode(myStitches.SelectMany(item => item.Corners).ToArray(), out bool found);
-        if (found)
-        {
-            HoveredNode = anchoredNode;
-        }
+        if (SelectedNode != null) return;
         
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
 
-        var myStitchesCopy = new List<Stitch>(myStitches);
-        foreach (var s in myStitchesCopy)
+        foreach (var s in myStitches)
         {
-            if (DistanceToMousePixels(s.Position) > MouseRadius)
-            {
-                StitchesToCheck.Remove(s);
-                continue;
-            }
-            // Normalize corner positions and calculate bounding box
-            var cornerScreenPositions = s.Corners.Select(item => _cam.WorldToScreenPoint(item.Position));
-            var positionsNormalized = cornerScreenPositions.Select(NormalizePixelCoords).ToArray();
-
-            if (!InsideBoundingBox(BoundingBox(positionsNormalized, stitchBuffer, true), mousePos)) continue;
-            
             var screenPoint = _cam.WorldToScreenPoint(s.Position);
             float distance = ((Vector2)NormalizePixelCoords(screenPoint) - mousePos).magnitude;
             // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
@@ -173,14 +104,17 @@ public class Hover
         }
 
         if (HoveredStitch == null) return;
-        if (found) return;
+        
+        if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
+        {
+            var anchoredNode = CheckForAnchoredNode(myStitches.SelectMany(item => item.Corners).ToArray(), out bool found);
+            if (found)
+            {
+                HoveredNode = anchoredNode;
+                return;
+            }
+        }
         HoveredNode = GetClosestNodeFromStitch(HoveredStitch, mousePos);
-    }
-
-    private float DistanceToMouse(Vector3 position)
-    {
-        var mousePos = NormalizePixelCoords(Input.mousePosition);
-        return (mousePos - position).sqrMagnitude;
     }
 
     private float DistanceToMousePixels(Vector3 worldPos)
@@ -203,7 +137,6 @@ public class Hover
             {
                 continue;
             }
-
             closestDistance = distance;
             result = c;
         }
@@ -211,41 +144,6 @@ public class Hover
         return result;
     }
 
-    private bool InsideBoundingBox((Vector2 Min, Vector2 Max) bounds, Vector2 myMousePos)
-    { 
-        
-        if (myMousePos.x >= bounds.Min.x && myMousePos.x <= bounds.Max.x &&
-            myMousePos.y >= bounds.Min.y && myMousePos.y <= bounds.Max.y)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private (Vector2 Min, Vector2 Max) BoundingBox(Vector3[] myPositions, float buffer, bool relative)
-    {
-        float minX = myPositions.Min(position => position.x); 
-        float maxX = myPositions.Max(position => position.x);
-        float minY = myPositions.Min(position => position.y);
-        float maxY = myPositions.Max(position => position.y);
-
-        float widthBuffer;
-        float heightBuffer;
-        if (relative)
-        {
-             widthBuffer = (maxX - minX) * buffer;
-             heightBuffer = (maxY - minY) * buffer;
-        }
-        else
-        {
-            widthBuffer = buffer;
-            heightBuffer = buffer;
-        }
-        
-
-        return (new Vector2(minX - widthBuffer,minY - heightBuffer), new Vector2(maxX + widthBuffer,maxY + heightBuffer));
-    }
-    
     private static Vector3 NormalizePixelCoords(Vector3 pixelCoord)
     {
         float oneOverAverageScreenDimension = 1f / ((Screen.width + Screen.height) / 2f);
@@ -260,5 +158,4 @@ public class Hover
         Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _selectedNodeDepth);
         return _cam.ScreenToWorldPoint(mousePositionWithDepth);
     }
-    
 }

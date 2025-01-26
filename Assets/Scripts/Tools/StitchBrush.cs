@@ -1,44 +1,52 @@
+using Unity.VisualScripting.FullSerializer.Internal.Converters;
+using UnityEditorInternal;
 using static Stitch.Neighbor;
 
 public class StitchBrush : Tool
 {
-    private bool _knitBrush;
-    private bool _purlBrush;
     private Hover hover = GameManager.Instance.Hover;
+
+    enum ActiveBrush
+    {
+        NONE,
+        KNIT,
+        PURL
+    }
+
+    private ActiveBrush _activeBrush;
     public override void DefaultBehavior()
     {
-        base.DefaultBehavior();
-        if (hover.HoveredStitch == null) return;
+        if (hover.StitchesInRadius.Count == 0) return;
+        
+        if(_activeBrush == ActiveBrush.NONE) return;
 
-        var stitch = hover.HoveredStitch;
-        if (_knitBrush)
+        bool isKnit = _activeBrush == ActiveBrush.KNIT;
+        
+        foreach (var stitch in hover.StitchesInRadius)
         {
-            ApplyBrushAction(stitch, true);
+            ApplyBrushAction(stitch, isKnit);
         }
-        else if (_purlBrush)
-        {
-            ApplyBrushAction(stitch, false);
-        }
+        GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
     
     public override void MainAction()
     {
-        _knitBrush = true;
+        _activeBrush = ActiveBrush.KNIT;
     }
     
     public override void MainActionEnd()
     {
-        _knitBrush = false;
+        _activeBrush = ActiveBrush.NONE;
     }
     
     public override void SecondaryAction()
     {
-        _purlBrush = true;
+        _activeBrush = ActiveBrush.PURL;
     }
     
     public override void SecondaryActionEnd()
     {
-        _purlBrush = false;
+        _activeBrush = ActiveBrush.NONE;
     }
     
     private void ApplyBrushAction(Stitch myStitch, bool isKnit)
@@ -47,7 +55,7 @@ public class StitchBrush : Tool
     
         myStitch.SetKnit(isKnit);
         ApplyElasticityToNeighbors(myStitch);
-        GameManager.Instance.EventManager.InvokeStructureUpdate();
+        
     }
     
     private void ApplyElasticityToNeighbors(Stitch myStitch)

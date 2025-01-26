@@ -64,7 +64,7 @@ public class Debugging : MonoBehaviour
     private void DrawHoverCheck()
     {
         if (Gm.Project == null) return;
-        foreach (var s in Gm.Hover.StitchesToCheck)
+        foreach (var s in Gm.Hover.StitchesInRadius)
         {
             Gizmos.color = new Color(0,1,0,0.3f);
             Gizmos.DrawSphere(s.Position,0.3f);
@@ -85,19 +85,9 @@ public class Debugging : MonoBehaviour
     {
         if (Gm.Hover.HoveredStitch==null) return;
         Gizmos.color = Color.black;
-        Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
+        if (Gm.Hover.HoveredStitch!=null)Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position,0.2f);
     }
     
-    private void OnGUI()
-    {
-        if (!GUI_on) return;
-        foreach (var p in Gm.Project.GetPanels())
-        {
-            var BBValue = Gm.Hover.IMGUIBoundingBox(p);
-            Rect boundingBox = Rect.MinMaxRect(BBValue.Min.x,BBValue.Min.y,BBValue.Max.x,BBValue.Max.y);
-            GUI.Box(boundingBox, p.Name+ " bounding box");
-        }
-    }
 }
