@@ -24,7 +24,7 @@ Shader "Custom/BackFaceRendering"
         struct Input
         {
             float2 uv_MainTex;
-            float3 viewDir; // Required to detect backfaces
+            float vface : VFACE;
         };
 
         half _Glossiness;
@@ -33,23 +33,18 @@ Shader "Custom/BackFaceRendering"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            // Check if the surface normal is facing away from the view direction
-            float isBackFace = dot(IN.viewDir, o.Normal) < 0.0;
-
-            if (isBackFace > 0.0)
-            {
-                o.Albedo = fixed3(0.0, 0.0, 0.0); 
-            }
-            else
-            {
-                // Albedo comes from a texture tinted by color
-                fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-                o.Albedo = c.rgb;
-            }
-
-            // Metallic and smoothness come from slider variables
+            fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
+            o.Albedo = c.rgb;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
+            
+            if (IN.vface < 0)
+            {
+                o.Albedo = fixed3(0.0, 0.0, 0.0);
+                o.Smoothness = 0.0;
+                o.Metallic = 1.0; // give the backside a velet-like appearance
+            }
+            
             o.Alpha = 1.0;
         }
         ENDCG
