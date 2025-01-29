@@ -21,12 +21,15 @@ public class StitchBrush : Tool
         if(_activeBrush == ActiveBrush.NONE) return;
 
         bool isKnit = _activeBrush == ActiveBrush.KNIT;
-        
+
+        bool hasChanges = false;
         foreach (var stitch in hover.StitchesInRadius)
         {
-            ApplyBrushAction(stitch, isKnit);
+            bool typeChanged = ApplyBrushAction(stitch, isKnit);
+            hasChanges |= typeChanged;
         }
-        GameManager.Instance.EventManager.InvokeStructureUpdate();
+        
+        if (hasChanges) GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
     
     public override void MainAction()
@@ -49,13 +52,13 @@ public class StitchBrush : Tool
         _activeBrush = ActiveBrush.NONE;
     }
     
-    private void ApplyBrushAction(Stitch myStitch, bool isKnit)
+    private bool ApplyBrushAction(Stitch myStitch, bool isKnit)
     {
-        if (myStitch.Knit == isKnit) return;
+        if (myStitch.Knit == isKnit) return false;
     
         myStitch.SetKnit(isKnit);
         ApplyElasticityToNeighbors(myStitch);
-        
+        return true;
     }
     
     private void ApplyElasticityToNeighbors(Stitch myStitch)

@@ -40,7 +40,7 @@ namespace Verlet
 
         void Solve(VerletNode particle)
         {
-            if (particle.IsAnchored) return;
+            if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(particle)) return;
             particle.Connection.ForEach(e =>
             {
                 var other = e.Other(particle);
@@ -84,7 +84,7 @@ namespace Verlet
                         var other = e.Other(p);
                         Gizmos.DrawLine(p.Position, other.Position);
                     });
-                    if (p.IsAnchored) Gizmos.color = Color.cyan;
+                    if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(p)) Gizmos.color = Color.cyan;
                     Gizmos.DrawSphere(p.Position,0.1f);
                 }
             }

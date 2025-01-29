@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ public class Debugging : MonoBehaviour
         DrawHoveredStitch();
         
         if(Gm.Project.Simulator!=null) Gm.Project.Simulator.DrawGizmos(Color.white);
+        DrawHoveredNode();
         
     }
 
@@ -88,6 +90,12 @@ public class Debugging : MonoBehaviour
         if (Gm.Hover.HoveredStitch!=null)Gizmos.DrawCube(Gm.Hover.HoveredStitch.Position, new Vector3(0.1f,0.1f,0.1f));
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position,0.2f);
+    }
+
+    private void DrawHoveredNode()
+    {
+        Gizmos.color = Color.magenta;
+        if (Gm.Hover.HoveredNode!=null)Gizmos.DrawSphere(Gm.Hover.HoveredNode.Position, 0.1f);
     }
     
 }

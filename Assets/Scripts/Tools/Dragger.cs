@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using Verlet;
 
 public class Dragger : Tool
 {
@@ -17,31 +18,13 @@ public class Dragger : Tool
 
     public override void SecondaryAction()
     {
-        if (hover.SelectedNode != null)
+        VerletNode nodeToAnchor = hover.SelectedNode;
+        if (nodeToAnchor is null)
         {
-            hover.SelectedNode.ToggleAnchored(hover.GetMouseWorldPos());
-            return;
+            nodeToAnchor = hover.HoveredNode;
         }
-        var cachedNode = hover.HoveredNode;
-        if (cachedNode == null)
-        {
-            return;
-        }
-        cachedNode.ToggleAnchored(hover.GetMouseWorldPos());
-    }
 
-    public override void SpecialAction()
-    {
-        //remove all anchored nodes
-        foreach (var panel in GameManager.Instance.Project.GetPanels())
-        {
-            // Create a copy of the list to avoid modifying it while iterating
-            var anchoredNodesCopy = panel.AnchoredNodes.ToList();
-
-            foreach (var n in anchoredNodesCopy)
-            {
-                n.ToggleAnchored(new Vector3(0, 0, 0));
-            }
-        }
+        if (nodeToAnchor is null) return;
+        GameManager.Instance.Project.anchors.ToggleAnchor(nodeToAnchor, nodeToAnchor.Position);
     }
 }

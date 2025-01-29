@@ -61,13 +61,5 @@ public class Panel
             s.UpdatePosition();
         }
     }
-
-    public void SetAnchoredPosition()
-    {
-        foreach (var n in AnchoredNodes)
-        {
-            n.Position = n.AnchoredPosition;
-        }
-    }
 }
 

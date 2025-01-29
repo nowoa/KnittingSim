@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public static int Iterations = 2;
     public Project Project;
     public EventManager EventManager;
+    public Visualisers Visualisers;
 
     private void Awake()
     {
@@ -36,24 +37,14 @@ public class GameManager : MonoBehaviour
     private void MoveSelectedNode()
     {
         if (Hover.SelectedNode == null) return;
-        Hover.SelectedNode.Position = Hover.SelectedNode.AnchoredPosition = Hover.GetMouseWorldPos();
-    }
+        if (Project.anchors.GetAnchors().ContainsKey(Hover.SelectedNode))
+        {
+            Project.anchors.MoveAnchor(Hover.SelectedNode);
+            return;
+        }
 
-    private void Simulate()
-    {
-        if (Project == null) return;
-        Project.Simulator.Simulate(Iterations,Time.fixedDeltaTime);
-    }
+        Hover.SelectedNode.Position = Hover.GetMouseWorldPos();
 
-    private void AnchorNodes()
-    {
-        Project.AnchorNodes();
-    }
-
-    private void UpdateProject()
-    {
-        Project.UpdatePanelPosition();
-        Project.UpdateMeshPosition();
     }
     
     private void CheckBoundingBox()

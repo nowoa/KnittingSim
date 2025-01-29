@@ -4,6 +4,10 @@ public abstract class Tool
 {
     //get mouse hoverer
 
+    public virtual void OnActivate()
+    {
+        
+    }
     public virtual void DefaultBehavior()
     {
     }

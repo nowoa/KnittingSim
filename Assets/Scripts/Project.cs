@@ -15,6 +15,7 @@ public class Project
     public Dictionary<Vector2Int, List<Stitch>> ScreenHashGrid = new();
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
+    public Anchors anchors = new Anchors();
     public VerletSimulator Simulator;
     public bool Collision = true;
     private float _partitioningCellSize;
@@ -45,24 +46,20 @@ public class Project
         {
             return;
         }
-        AnchorNodes();
 
-        using (new ProfileSample("Construct Spatial Hash Grid"))
-            SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
+        anchors.UpdateNodePositions();
+
+        Simulator.Simulate(mySimIterations,dt);
+        
+        SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
         ScreenHashGrid = PartitionScreen(Stitches, stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position), GameManager.Instance.Hover.MouseRadius);
         
-        using (new ProfileSample("Solve Self Collision"))
-            if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, _partitioningCellSize);
-        using (new ProfileSample("Verlet Simulation"))
-            Simulator.Simulate(mySimIterations,dt);
-
-
-        using (new ProfileSample("Mesh Update"))
-        {
-            UpdatePanelPosition();
-            CalculateNormals();
-            UpdateMeshPosition();
-        }
+        if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, _partitioningCellSize);
+        
+        UpdatePanelPosition();
+        CalculateNormals();
+        anchors.UpdatePinPositions();
+        UpdateMeshPosition();
         
         
     }
@@ -119,14 +116,6 @@ public class Project
     public List<Panel> GetPanels()
     {
         return _panels.Values.ToList();
-    }
-
-    public void AnchorNodes()
-    {
-        foreach (var p in _panels.Values)
-        {
-            p.SetAnchoredPosition();
-        }
     }
 
     public void UpdateGlobalNodesAndStitches()

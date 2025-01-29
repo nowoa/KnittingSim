@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 
@@ -41,8 +42,6 @@ namespace Verlet
         public Stitch ParentStitch;
         public Panel ParentPanel { get; private set; }
         public VerletNode[] Neighbors { get; private set; } = new VerletNode[4];
-        public bool IsAnchored { get; private set; }
-        public Vector3 AnchoredPosition;
         public Vector2 Dimensions { get; private set; }
         public float CollisionRadius;
         public Vector3 Normal { get; private set; }
@@ -97,20 +96,6 @@ namespace Verlet
             }
 
             return null;
-        }
-
-        public void ToggleAnchored(Vector3 anchorPos)
-        {
-            IsAnchored = !IsAnchored;
-            if (IsAnchored)
-            {
-                ParentPanel.AnchoredNodes.Add(this);
-            }
-            else
-            {
-                ParentPanel.AnchoredNodes.Remove(this);
-            }
-            AnchoredPosition = anchorPos;
         }
 
         public void SetSize(float myWidth, float myHeight)
@@ -180,5 +165,12 @@ namespace Verlet
         {
             DirectNeighbors = _connection.Where(item => item.edgeType != VerletEdge.EdgeType.Bend).Select(item => item.Other(this)).ToArray();
         }
+    }
+
+    public class AnchoredNode
+    {
+        public VerletNode Node;
+        public Vector3 AnchoredPos;
+        public GameObject PinNeedle;
     }
 }

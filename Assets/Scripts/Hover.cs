@@ -17,6 +17,7 @@ public class Hover
     public bool IsActive = true;
     public List<Stitch> StitchesInRadius;
     public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
+    public float AnchoredNodeRadius = 50f;
 
     public void UpdateHover(Dictionary<Vector2Int,List<Stitch>> hashGrid)
     {
@@ -30,12 +31,13 @@ public class Hover
             stitchesToCheck.AddRange(hashGrid[mouseCell+o]);
         }
 
-        StitchesInRadius = CheckRadius(stitchesToCheck, stitch => stitch.Position);
+        StitchesInRadius = FilterByRadius(stitchesToCheck, stitch => stitch.Position);
         TrySetHoveredStitch(StitchesInRadius);
     }
 
-    private List<T> CheckRadius<T>(IList<T> items, Func<T, Vector3> PositionGetter)
+    private List<T> FilterByRadius<T>(IList<T> items, Func<T, Vector3> PositionGetter, float MouseRadius = 0f)
     {
+        if (MouseRadius == 0) MouseRadius = this.MouseRadius;
         var result = new List<T>();
         foreach (var i in items)
         {
@@ -58,22 +60,19 @@ public class Hover
         else SelectedNode = null;
     }
 
-    private VerletNode CheckForAnchoredNode(IList<VerletNode> nodes, out bool found)
+    private VerletNode CheckForAnchoredNode()
     {
-        found = false;
-        var anchoredNodes = nodes.Where(item => item.IsAnchored).ToList();
-        if (anchoredNodes.Count == 0) return null;
-        var nodesInsideRadius = CheckRadius(anchoredNodes, node => node.Position);
+        var anchoredNodes = GameManager.Instance.Project.anchors.AnchoredNodes();
+        if (anchoredNodes.Length == 0) return null;
+        var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, AnchoredNodeRadius);
         if (nodesInsideRadius.Count == 0) return null;
-
-        found = true;
         
         float distance;
         float closestDistance = float.MaxValue;
         VerletNode closest = null;
         foreach (var n in anchoredNodes)
         {
-            distance = DistanceToMousePixels(_cam.WorldToScreenPoint(n.Position));
+            distance = DistanceToMousePixels(n.Position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
@@ -107,8 +106,8 @@ public class Hover
         
         if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
         {
-            var anchoredNode = CheckForAnchoredNode(myStitches.SelectMany(item => item.Corners).ToArray(), out bool found);
-            if (found)
+            var anchoredNode = CheckForAnchoredNode();
+            if (anchoredNode is not null)
             {
                 HoveredNode = anchoredNode;
                 return;
