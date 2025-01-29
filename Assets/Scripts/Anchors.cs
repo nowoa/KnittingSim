@@ -89,7 +89,7 @@ public class Anchor
     }
 
     public void SetHighlight(float highlight)
-    {
+    {//value between 0-1
         _pinRenderer.GetPropertyBlock(_mpb);
         _mpb.SetFloat(_highlightProp, highlight);
         _pinRenderer.SetPropertyBlock(_mpb);

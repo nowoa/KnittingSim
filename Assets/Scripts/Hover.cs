@@ -23,6 +23,7 @@ public class Hover
     {
         HoveredStitch = null;
         HoveredNode = null;
+        
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
         var stitchesToCheck = new List<Stitch>();
         foreach (var o in SpatialHashGrid.offsets2D)
@@ -86,7 +87,10 @@ public class Hover
     private void TrySetHoveredStitch(List<Stitch> myStitches)
     {
         if (SelectedNode != null) return;
-        
+        foreach (var (key, value) in GameManager.Instance.Project.anchors.GetAnchors())
+        {
+            value.SetHighlight(0f);
+        }
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
 
@@ -110,6 +114,7 @@ public class Hover
             if (anchoredNode is not null)
             {
                 HoveredNode = anchoredNode;
+                GameManager.Instance.Project.anchors.GetAnchors()[HoveredNode].SetHighlight(1f);
                 return;
             }
         }

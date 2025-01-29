@@ -54,7 +54,7 @@ Shader "Custom/SH_Pin"
             float3 cameraPos = _WorldSpaceCameraPos;
             float3 incoming = normalize(cameraPos - IN.wsPos);
             float fresnel = 1 - dot(IN.wsNormal, incoming);
-            fresnel = saturate(pow(fresnel, 3) * 10);
+            fresnel = saturate(pow(fresnel, 3) * 20);
 
             o.Albedo *= lerp(0.7, 1, _Highlight);
 
