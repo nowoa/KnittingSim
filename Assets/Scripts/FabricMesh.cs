@@ -94,7 +94,7 @@ public class FabricMesh : MonoBehaviour
     public void UpdatePositions(Vector3[] myVertices, Vector3[] myNormals)
     { //runs every frame
         
-        if (_mesh == null)
+        if (_mesh is null)
         {
             return;
         }
@@ -102,7 +102,6 @@ public class FabricMesh : MonoBehaviour
         _mesh.vertices = myVertices;
         _mesh.normals = myNormals;
         _mesh.RecalculateBounds();
+        _mesh.RecalculateTangents();
     }
-
-    
 }
