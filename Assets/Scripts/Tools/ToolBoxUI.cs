@@ -36,6 +36,11 @@ public class ToolBoxUI : MonoBehaviour
     {
         ToolManager.SetActiveTool(ToolManager.StitchBrushInstance);
     }
+    
+    public void ColorBrush()
+    {
+        ToolManager.SetActiveTool(ToolManager.ColorBrushInstance);
+    }
 
     /*
     public void Increaser()

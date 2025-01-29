@@ -36,14 +36,15 @@ Shader "Custom/SH_Fabric"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
+            fixed4 mask = tex2D(_MainTex, IN.uv_MainTex).r;
+            float4 c = lerp(_Color * 0.2f, _Color, mask);
             o.Albedo = c.rgb * IN.color.rgb;
             o.Metallic = 0;
             o.Smoothness = _Glossiness;
             
             if (IN.vface < 0)
             {
-                o.Albedo *= 0.8;
+                o.Albedo *= 0.6;
                 o.Smoothness = 0.0;
             }
             float3 normal = UnpackScaleNormal(tex2D(_NormalTex, IN.uv_MainTex), _NormalScale);

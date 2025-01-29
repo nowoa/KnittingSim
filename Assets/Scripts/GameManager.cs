@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public Project Project;
     public EventManager EventManager;
     public Visualisers Visualisers;
+    public ColorPalette ColorPalette;
 
     private void Awake()
     {

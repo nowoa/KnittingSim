@@ -43,7 +43,9 @@ public static class ToolManager
 {
     public static Tool ActiveTool { get; private set; }
     public static Tool DraggerInstance = new Dragger();
-    public static Tool StitchBrushInstance = new StitchBrush();/*
+    public static Tool StitchBrushInstance = new StitchBrush();
+    public static Tool ColorBrushInstance = new ColorBrush();
+    /*
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();
     public static Tool PanelStamp = new PanelStamp();
@@ -58,6 +60,7 @@ public static class ToolManager
     public static void SetActiveTool(Tool myTool)
     {
         ActiveTool = myTool;
+        Debug.Log(myTool);
     }
 
     public static void OnDefaultBehavior()
