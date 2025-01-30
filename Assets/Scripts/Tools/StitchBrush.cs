@@ -1,5 +1,3 @@
-using Unity.VisualScripting.FullSerializer.Internal.Converters;
-using UnityEditorInternal;
 using static Stitch.Neighbor;
 
 public class StitchBrush : Tool

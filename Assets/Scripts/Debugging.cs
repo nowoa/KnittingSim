@@ -1,5 +1,3 @@
-using Unity.VisualScripting;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 public class Debugging : MonoBehaviour
