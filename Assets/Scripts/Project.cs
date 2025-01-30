@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verlet;
-using static DefaultNamespace.SpatialHashGrid;
 
 public class Project
 {
@@ -11,8 +10,10 @@ public class Project
 
     private Dictionary<string, Panel> _panels = new();
     public FabricMesh FabricMesh;
-    public Dictionary<Vector3Int, List<int>> SpatialHashGrid = new();
+    public Dictionary<Vector3Int, List<int>> HashGridWorld = new();
+    public Vector3[] StitchScreenPositions;
     public Dictionary<Vector2Int, List<Stitch>> ScreenHashGrid = new();
+    public Dictionary<Vector2Int, List<int>> HashGridScreen = new();
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public Anchors anchors = new Anchors();
@@ -51,17 +52,16 @@ public class Project
 
         Simulator.Simulate(mySimIterations,dt);
         
-        SpatialHashGrid = PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
-        ScreenHashGrid = PartitionScreen(Stitches, stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position), GameManager.Instance.Hover.MouseRadius);
+        HashGridWorld = SpatialHashGrid.PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
+        StitchScreenPositions = Stitches.Select(stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position)).ToArray();
+        HashGridScreen = SpatialHashGrid.PartitionScreen(StitchScreenPositions, pos => pos, GameManager.Instance.Hover.MouseRadius);
         
-        if(Collision) SelfCollision.Solve(Nodes, SpatialHashGrid, _partitioningCellSize);
+        if(Collision) SelfCollision.Solve(Nodes, HashGridWorld, _partitioningCellSize);
         
         UpdatePanelPosition();
         CalculateNormals();
         anchors.UpdatePinPositions();
         UpdateMeshPosition();
-        
-        
     }
 
     public void UpdateFabricStructure()
@@ -103,14 +103,21 @@ public class Project
     {
         var positions = new List<Vector3>();
         var normals = new List<Vector3>();
-        foreach (var s in Stitches)
+        var detailUVs = new List<Vector2>();
+        
+        bool[] hoveredStitches = GameManager.Instance.Hover.HoverStitchStatus;
+        bool hasHoveredStitches = hoveredStitches is not null;
+        
+        for(int i = 0; i < Stitches.Length; i++)
         {
-            var corners = s.GetCorners();
+            Stitch stitch = Stitches[i];
+            var corners = stitch.GetCorners();
             positions.AddRange(corners.Select(item => item.Position));
             normals.AddRange(corners.Select(item=>item.Normal));
+            detailUVs.AddRange(corners.Select(item=> new Vector2(hasHoveredStitches && hoveredStitches[i]? 1: 0, 0)));
         }
         //update positions every frame
-        FabricMesh.UpdatePositions(positions.ToArray(), normals.ToArray());
+        FabricMesh.UpdatePositions(positions.ToArray(), normals.ToArray(), detailUVs);
     }
 
     public List<Panel> GetPanels()

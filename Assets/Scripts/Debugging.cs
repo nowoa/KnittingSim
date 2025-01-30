@@ -31,13 +31,13 @@ public class Debugging : MonoBehaviour
     {
         if (Gm.Project == null) return;
         Gm.Project.Simulator.DrawGizmos(Color.white);
-        if (Gm.Project.SpatialHashGrid != null)
+        if (Gm.Project.HashGridWorld != null)
         {
-            foreach (var cell in Gm.Project.SpatialHashGrid.Keys)
+            foreach (var cell in Gm.Project.HashGridWorld.Keys)
             {
                 var scalefactor = 0.2f;
                 Gizmos.color = new Color((cell.x * scalefactor).Fract(), (cell.y * scalefactor).Fract(), (cell.z*scalefactor).Fract());
-                foreach (var index in Gm.Project.SpatialHashGrid[cell])
+                foreach (var index in Gm.Project.HashGridWorld[cell])
                 {
                     Gizmos.DrawSphere(Gm.Project.Nodes[index].Position, 0.2f);
                 }
@@ -49,15 +49,16 @@ public class Debugging : MonoBehaviour
     {
         if (Gm.Project == null) return;
         Gm.Project.Simulator.DrawGizmos(Color.white);
-        if (Gm.Project.ScreenHashGrid != null)
+        if (Gm.Project.HashGridScreen != null)
         {
-            foreach (var cell in Gm.Project.ScreenHashGrid.Keys)
+            foreach (var cell in Gm.Project.HashGridScreen.Keys)
             {
                 var scalefactor = 0.2f;
                 Gizmos.color = new Color((cell.x * scalefactor).Fract(), (cell.y * scalefactor).Fract(),0);
-                foreach (var stitch in Gm.Project.ScreenHashGrid[cell])
+                foreach (var index in Gm.Project.HashGridScreen[cell])
                 {
-                    Gizmos.DrawSphere(stitch.Position, 0.2f);
+                    Vector3 pos = Gm.Project.Stitches[index].Position;
+                    Gizmos.DrawSphere(pos, 0.2f);
                 }
             }
         }

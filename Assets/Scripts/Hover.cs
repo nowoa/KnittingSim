@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DefaultNamespace;
-using Unity.VisualScripting;
 using UnityEngine;
 using Verlet;
 
@@ -15,28 +13,29 @@ public class Hover
     private float _selectedNodeDepth;
     private Camera _cam = GameManager.Instance.Camera;
     public bool IsActive = true;
-    public List<Stitch> StitchesInRadius;
+    public bool[] HoverStitchStatus;
+    public List<Stitch> StitchesInRadius = new();
     public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
     public float AnchoredNodeRadius = 50f;
 
-    public void UpdateHover(Dictionary<Vector2Int,List<Stitch>> hashGrid)
+    public void UpdateHover(Dictionary<Vector2Int,List<int>> hashGrid, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         HoveredStitch = null;
         HoveredNode = null;
+        HoverStitchStatus = new bool[screenPositions.Count];
+        StitchesInRadius = new();
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
-        var stitchesToCheck = new List<Stitch>();
-        foreach (var o in SpatialHashGrid.offsets2D)
-        {
-            if (!hashGrid.ContainsKey(mouseCell + o)) continue;
-            stitchesToCheck.AddRange(hashGrid[mouseCell+o]);
-        }
 
-        StitchesInRadius = FilterByRadius(stitchesToCheck, stitch => stitch.Position);
-        TrySetHoveredStitch(StitchesInRadius);
+        IEnumerable<int> indicesToCheck = SpatialHashGrid.offsets2D
+            .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
+            .SelectMany(offset => hashGrid[offset + mouseCell]);
+
+        IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= MouseRadius);
+        TrySetHoveredStitch(indicesInRange, screenPositions, stitches);
     }
 
-    private List<T> FilterByRadius<T>(IList<T> items, Func<T, Vector3> PositionGetter, float MouseRadius = 0f)
+    private List<T> FilterByRadius<T>(IEnumerable<T> items, Func<T, Vector3> PositionGetter, float MouseRadius = 0f)
     {
         if (MouseRadius == 0) MouseRadius = this.MouseRadius;
         var result = new List<T>();
@@ -84,7 +83,7 @@ public class Hover
         return closest;
     }
     
-    private void TrySetHoveredStitch(List<Stitch> myStitches)
+    private void TrySetHoveredStitch(IEnumerable<int> indexSelection, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         if (SelectedNode != null) return;
         foreach (var (key, value) in GameManager.Instance.Project.anchors.GetAnchors())
@@ -93,16 +92,19 @@ public class Hover
         }
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
-
-        foreach (var s in myStitches)
+        
+        foreach (int index in indexSelection)
         {
-            var screenPoint = _cam.WorldToScreenPoint(s.Position);
-            float distance = ((Vector2)NormalizePixelCoords(screenPoint) - mousePos).magnitude;
+            HoverStitchStatus[index] = true;
+            Stitch stitch = stitches[index];
+            StitchesInRadius.Add(stitch);
+            var screenPoint = screenPositions[index];
+            float distance = ScreenDistance(screenPoint, Input.mousePosition);
             // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                HoveredStitch = s;
+                HoveredStitch = stitch;
             }
         }
 
@@ -125,6 +127,12 @@ public class Hover
     {
         var point = _cam.WorldToScreenPoint(worldPos);
         return (point - Input.mousePosition).magnitude;
+    }
+
+    private float ScreenDistance(Vector3 screenPos1, Vector3 screenPos2)
+    {
+        Vector2 diff = new Vector2(screenPos2.x - screenPos1.x, screenPos2.y - screenPos1.y);
+        return diff.magnitude;
     }
 
     private VerletNode GetClosestNodeFromStitch(Stitch myStitch, Vector2 myMousePos)

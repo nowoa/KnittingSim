@@ -91,7 +91,7 @@ public class FabricMesh : MonoBehaviour
         }
     }
 
-    public void UpdatePositions(Vector3[] myVertices, Vector3[] myNormals)
+    public void UpdatePositions(Vector3[] myVertices, Vector3[] myNormals, List<Vector2> detailUVs = null)
     { //runs every frame
         
         if (_mesh is null)
@@ -101,6 +101,10 @@ public class FabricMesh : MonoBehaviour
 
         _mesh.vertices = myVertices;
         _mesh.normals = myNormals;
+        if (detailUVs is not null)
+        {
+            _mesh.SetUVs(1, detailUVs);
+        }
         _mesh.RecalculateBounds();
         _mesh.RecalculateTangents();
     }

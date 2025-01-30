@@ -17,7 +17,7 @@ Shader "Custom/SH_Fabric"
         Cull Off
 
         CGPROGRAM
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard fullforwardshadows vertex:vert
         #pragma target 3.0
 
         sampler2D _MainTex;
@@ -28,11 +28,18 @@ Shader "Custom/SH_Fabric"
             float2 uv_MainTex;
             float vface : VFACE;
             float4 color : COLOR;
+            float hovered;
         };
 
         half _Glossiness;
         fixed4 _Color;
         float _NormalScale;
+
+        void vert(inout appdata_full v, out Input o)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, o);
+            o.hovered = v.texcoord1.x;
+        }
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
@@ -41,12 +48,14 @@ Shader "Custom/SH_Fabric"
             o.Albedo = c.rgb * IN.color.rgb;
             o.Metallic = 0;
             o.Smoothness = _Glossiness;
+
+            // if IN.vface
+            o.Albedo *= lerp(0.6, 1, IN.vface);
+            o.Smoothness *= IN.vface;
+
+            // if IN.hovered
+            o.Albedo *= lerp(1, 0.3, IN.hovered);
             
-            if (IN.vface < 0)
-            {
-                o.Albedo *= 0.6;
-                o.Smoothness = 0.0;
-            }
             float3 normal = UnpackScaleNormal(tex2D(_NormalTex, IN.uv_MainTex), _NormalScale);
             o.Normal = normal;
             o.Alpha = 1.0;

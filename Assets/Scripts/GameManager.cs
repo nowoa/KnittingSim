@@ -29,8 +29,11 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Project is null) return;
+        if (Project.GetPanels().Count == 0) return;
+        
         MoveSelectedNode();
-        Project?.FixedUpdate(Iterations,Time.fixedDeltaTime);
+        Project.FixedUpdate(Iterations,Time.fixedDeltaTime);
         using (new ProfileSample("Update Hover"))
             CheckBoundingBox();
     }
@@ -50,6 +53,7 @@ public class GameManager : MonoBehaviour
     
     private void CheckBoundingBox()
     {
-        Hover.UpdateHover(Project.ScreenHashGrid);
+        Hover.UpdateHover(Project.HashGridScreen, Project.StitchScreenPositions, Project.Stitches);
     }
+    
 }
