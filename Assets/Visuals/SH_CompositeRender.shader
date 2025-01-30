@@ -4,6 +4,7 @@ Shader "Hidden/SH_CompositeRender"
     {
         [NoScaleOffset] _MainTex ("Texture", 2D) = "white" {}
         [NoScaleOffset] _MaskTex ("Mask Tex", 2D) = "black" {}
+        _OutlineColor ("Outline Color", Color) = (0.0, 0.0, 0.0, 1.0)
     }
     SubShader
     {
@@ -40,6 +41,7 @@ Shader "Hidden/SH_CompositeRender"
 
             sampler2D _MainTex;
             sampler2D _MaskTex;
+            float4 _OutlineColor;
             
             float4 _MaskTex_TexelSize;
 
@@ -66,7 +68,7 @@ Shader "Hidden/SH_CompositeRender"
                 float expandedMask = maxFilter(_MaskTex, i.uv, _MaskTex_TexelSize.xy, 2);
                 float mask = tex2D(_MaskTex, i.uv);
                 float border = saturate(expandedMask - mask);
-                col *= 1 - border;
+                col = lerp(col, _OutlineColor, border);
                 return col;
             }
             ENDCG
