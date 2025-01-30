@@ -1,91 +1,54 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+
 using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    [SerializeField] private float cameraSpeed;
-    [SerializeField] private float camRotationSpeed;
+    
     public static bool GameInput = true; // on hovering over UI buttons should be false
-    private Transform _cameraPos;
-    private void Start()
-    {
-        _cameraPos = GameManager.Instance.Camera.transform;
-    }
+    
+    [SerializeField] private OrbitCamera orbitCamera;
+
+    private bool HasProject => GameManager.Instance.Project is not null;
+    
 
     private void Update()
     {
-        if(!GameInput){return;}
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            ToolManager.OnMainAction();
-        }
-
-        else if (Input.GetKeyUp(KeyCode.Mouse0))
-        {
-            ToolManager.OnMainActionEnd();
-        }
-
-        else if (Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            ToolManager.OnSecondaryAction();
-        }
-
-        else if (Input.GetKeyUp(KeyCode.Mouse1))
-        {
-            ToolManager.OnSecondaryActionEnd();
-        }
+        orbitCamera.SetControlsEnabled(false);
         
-        else if (Input.GetKeyDown(KeyCode.Mouse2))
+        if(!GameInput){return;}
+        if (Input.GetKey(KeyCode.LeftAlt))
         {
-            //middle mouse
+            orbitCamera.SetControlsEnabled(true);
         }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            ToolManager.OnSpecialAction();
-        }
-
         else
         {
-            ToolManager.OnDefaultBehavior();
-        }
-
-        if (Input.GetAxis("Mouse ScrollWheel") != 0)
-        {
-            _cameraPos.position += _cameraPos.forward * Input.GetAxis("Mouse ScrollWheel");
-        }
-
-        if (Input.GetKey(KeyCode.A))
-        {
-            _cameraPos.position -= _cameraPos.right * (cameraSpeed * Time.deltaTime); // Move left in local space
-        }
-
-        if (Input.GetKey(KeyCode.D))
-        {
-            _cameraPos.position += _cameraPos.right * (cameraSpeed * Time.deltaTime); // Move right in local space
-        }
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            _cameraPos.position += _cameraPos.up * (cameraSpeed * Time.deltaTime); // Move up in local space
-        }
-
-        if (Input.GetKey(KeyCode.S))
-        {
-            _cameraPos.position -= _cameraPos.up * (cameraSpeed * Time.deltaTime); // Move down in local space
-        }
-
-        if (Input.GetKey(KeyCode.Q))
-        {
-            _cameraPos.Rotate(new Vector3(0, -camRotationSpeed * Time.deltaTime, 0));
+            HandleTools();
         }
         
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            _cameraPos.Rotate(new Vector3(0, camRotationSpeed * Time.deltaTime, 0));
+            Debug.Log($"Spacebar! {HasProject}");
+            orbitCamera.Focus(GameManager.Instance.Project.FabricMesh.GetComponent<MeshRenderer>());
         }
+    }
+
+    private void HandleCamera()
+    {
         
+    }
+
+    private void HandleTools()
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse0)) ToolManager.OnMainAction();
+
+        else if (Input.GetKeyUp(KeyCode.Mouse0)) ToolManager.OnMainActionEnd();
+
+        else if (Input.GetKeyDown(KeyCode.Mouse1)) ToolManager.OnSecondaryAction();
+
+        else if (Input.GetKeyUp(KeyCode.Mouse1)) ToolManager.OnSecondaryActionEnd();
+        
+        else if (Input.GetKeyDown(KeyCode.A)) ToolManager.OnSpecialAction();
+        
+        else ToolManager.OnDefaultBehavior();
     }
 }

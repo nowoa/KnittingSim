@@ -9,6 +9,8 @@ public class OrbitCamera : MonoBehaviour
         public float Pitch { get; private set; }
         public float Zoom { get; private set; }
 
+        public float MaxPitchAngle = 80f;
+
         private float _yawVelocity;
         
         public OrbitCameraProperties()
@@ -24,12 +26,12 @@ public class OrbitCamera : MonoBehaviour
         public void SetYaw(float newYaw)
         {
             Yaw = newYaw;
-            // _yawVelocity = 0;
+            _yawVelocity = 0;
         }
 
         public void SetPitch(float newPitch)
         {
-            Pitch = Mathf.Clamp(newPitch, -60f, 60f);
+            Pitch = Mathf.Clamp(newPitch, -MaxPitchAngle, MaxPitchAngle);
         }
 
         public void SetZoom(float zoom)
@@ -40,18 +42,12 @@ public class OrbitCamera : MonoBehaviour
         public void Update(float deltaTime)
         {
             Yaw += _yawVelocity;
-            // _yawVelocity *= decay * deltaTime;
             _yawVelocity = ExpoDecay(_yawVelocity, 0.0f, 15f, deltaTime);
         }
 
         public void AddYawForce(float force)
         {
             _yawVelocity += force;
-            const float MAX_VELOCITY = 2.6f;
-            if (Mathf.Abs(_yawVelocity) > MAX_VELOCITY)
-            {
-                _yawVelocity = MAX_VELOCITY * Mathf.Sign(_yawVelocity);
-            }
         }
 
         public static float ExpoDecay(float a, float b, float decay, float deltaTime)
@@ -70,68 +66,90 @@ public class OrbitCamera : MonoBehaviour
     private readonly OrbitCameraProperties _orbitProps = new();
     
     // Sensitivity Settings
-    private const float _orbitAngle = 1200f;
-    private const float _zoomFactor = 20f;
+    private const float _orbitAngle = 8f;
+    private const float _zoomFactor = 5f;
     
     private Vector3 _smoothVelocity;
-    
 
+    private bool _controlsEnabled;
+    private bool _useSmoothMotion = true;
+
+    private Vector3 _lastPointPanning;
+    private bool _startPanning;
+    
     private void Update()
     {
-        HandleInputs();
-        _orbitProps.Update(Time.deltaTime);
+        if (_controlsEnabled)
+        {
+            HandleInputs();
+        }
         
+        _orbitProps.Update(Time.deltaTime);
         UpdateInternalTransforms();
     }
 
     private void HandleInputs()
     {
-        // debugging
-        if (Input.GetKey(KeyCode.Space))
+
+        if (Input.GetKeyDown(KeyCode.L))
         {
-            Focus(GameObject.Find("Monkey").GetComponent<MeshRenderer>());
+            _useSmoothMotion = !_useSmoothMotion;
+            Debug.Log($"OrbitCamera: Set Smooth Motion to [{_useSmoothMotion}]");
         }
         
-        if (!Input.GetKey(KeyCode.LeftAlt)) return;
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         float scrolling = Input.GetAxis("Mouse ScrollWheel");
 
-        const int MAGIC_PIXEL_OFFSET = 30;
-        Vector3 offsetPoint = orbitCam.ScreenToWorldPoint(new Vector3(Screen.width * 0.5f + MAGIC_PIXEL_OFFSET, Screen.height * 0.5f + MAGIC_PIXEL_OFFSET, _orbitProps.Zoom));
-        Vector3 panDifference = offsetPoint - _orbitProps.FocusPoint;
-        float panX = Vector3.Dot(panDifference, cameraParent.right);
-        float panY = Vector3.Dot(panDifference, cameraParent.up);
+        float focusDistance = (focus.position - cameraParent.position).magnitude;
+
+        if (Input.GetMouseButtonUp(2))
+        {
+            _startPanning = false;
+        }
 
         if (Input.GetMouseButton(0))
         {
-            float orbitAngle = _orbitAngle * Time.deltaTime;
+            float orbitAngle = _orbitAngle;
+
+            if (_useSmoothMotion)
+            {
+                const float MATCH_YAW_WITH_PITCH = 5;
+                _orbitProps.AddYawForce(mouseX * orbitAngle * MATCH_YAW_WITH_PITCH * Time.deltaTime);
+            }
+            else
+            {
+                _orbitProps.SetYaw(_orbitProps.Yaw + mouseX * orbitAngle);
+            }
             
-            _orbitProps.AddYawForce(mouseX * orbitAngle * 0.1f);
             _orbitProps.SetPitch(_orbitProps.Pitch - mouseY * orbitAngle);
         }
         
         if (Input.GetMouseButton(1))
         {
             float currentZoom = _orbitProps.Zoom;
-            _orbitProps.SetZoom(currentZoom - mouseY * Time.deltaTime * currentZoom * _zoomFactor);
+            float dynamicZoomMultiplier = currentZoom * 0.01f;
+            _orbitProps.SetZoom(currentZoom - mouseY * _zoomFactor * dynamicZoomMultiplier);
         }
 
         if (scrolling != 0)
         {
-            float scrollFactor = scrolling > 0 ? 1.1f : 0.9f;
-            Debug.Log(scrollFactor);
+            float scrollFactor = scrolling < 0 ? 1.1f : 0.9f;
             _orbitProps.SetZoom(_orbitProps.Zoom * scrollFactor);
         }
 
         if (Input.GetMouseButton(2))
         {
-
-            Vector3 panRight = panX * -mouseX * cameraParent.right;
-            Vector3 panUp = panY * -mouseY * cameraParent.up;
-            _orbitProps.SetFocusPoint(_orbitProps.FocusPoint + panRight + panUp);
+            float pan = Mathf.Tan(orbitCam.fieldOfView * Mathf.Deg2Rad) * focusDistance;
+            const float PAN_MULTIPLIER = 0.009f;
+            pan *= PAN_MULTIPLIER;
+            Vector3 goRight =  -mouseX * pan * cameraParent.right;
+            Vector3 goUp =  -mouseY * pan * cameraParent.up;
+            _orbitProps.SetFocusPoint(_orbitProps.FocusPoint + goRight + goUp);
         }
     }
+
+    private static Vector3 SetDepth(Vector3 input, float depth) => new (input.x, input.y, depth);
 
     private void UpdateInternalTransforms()
     {
@@ -139,10 +157,18 @@ public class OrbitCamera : MonoBehaviour
         focus.localEulerAngles = new Vector3(0, _orbitProps.Yaw, 0);
         verticalAxis.localEulerAngles = new Vector3(_orbitProps.Pitch, 0, 0);
         cameraParent.localPosition = new Vector3(0, 0, -_orbitProps.Zoom);
+        
+        orbitCam.transform.position = cameraParent.position;
+        orbitCam.transform.rotation = cameraParent.rotation;
     }
 
     #region PUBLIC API
 
+    public void SetControlsEnabled(bool toggle)
+    {
+        _controlsEnabled = toggle;
+    }
+    
     public void Focus(MeshRenderer meshRenderer)
     {
         Bounds bounds = meshRenderer.bounds;

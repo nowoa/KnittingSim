@@ -1,28 +1,42 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteAlways]
+
 public class Compositor : MonoBehaviour
 {
-    private Camera _cam;
+    [SerializeField] private CameraClone cameraClone;
+    
+    [SerializeField] private Material outlineMaterial;
+    [SerializeField] private Color outlineColor = Color.black;
 
-    [SerializeField] private Material material;
+    private Material _outlineMaterial;
     
     private void OnEnable()
     {
-        _cam = GetComponent<Camera>();
+        _outlineMaterial = new Material(outlineMaterial);
+        
+        UpdateRenderTexture(cameraClone.RenderTexture);
+        cameraClone.onUpdateTexture.AddListener(UpdateRenderTexture);
+        
+    }
+
+    private void OnDisable()
+    {
+        cameraClone.onUpdateTexture.RemoveListener(UpdateRenderTexture);
+    }
+
+    private void UpdateRenderTexture(RenderTexture rt)
+    {
+        _outlineMaterial.SetTexture("_MaskTex", rt);
+    }
+
+    private void Update()
+    {
+        _outlineMaterial.SetColor("_OutlineColor", outlineColor);
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (material is null)
-        {
-            Graphics.Blit(source, destination);
-            return;
-        }
-        
-        Graphics.Blit(source, destination, material);
+        Graphics.Blit(source, destination, _outlineMaterial);
     }
 }
