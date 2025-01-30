@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     public Visualisers Visualisers;
     public ColorPalette ColorPalette;
 
+    public MeshFilter detailMeshFilter;
+
     private void Awake()
     {
         _instance = this;

@@ -53,8 +53,8 @@ Shader "Custom/SH_Fabric"
             o.Albedo *= lerp(0.6, 1, IN.vface);
             o.Smoothness *= IN.vface;
 
-            // if IN.hovered
-            o.Albedo *= lerp(1, 0.3, IN.hovered);
+            // // if IN.hovered
+            // o.Albedo *= lerp(1, 0.3, IN.hovered);
             
             float3 normal = UnpackScaleNormal(tex2D(_NormalTex, IN.uv_MainTex), _NormalScale);
             o.Normal = normal;

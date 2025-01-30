@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class FabricMesh : MonoBehaviour
@@ -29,6 +28,8 @@ public class FabricMesh : MonoBehaviour
         _mesh.SetUVs(0,structure.uvs);
         _mesh.name = "fabric";
         _meshFilter.sharedMesh = _mesh;
+        var mf = GameManager.Instance.detailMeshFilter;
+        mf.sharedMesh = _mesh;
     }
 
     public void SetVertexColors(IList<Stitch> myStitches)
