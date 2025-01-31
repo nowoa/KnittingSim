@@ -16,7 +16,7 @@ public class InputHandler : MonoBehaviour
         orbitCamera.SetControlsEnabled(false);
         
         if(!GameInput){return;}
-        if (Input.GetKey(KeyCode.LeftAlt))
+        if (Input.GetKey(KeyCode.Space))
         {
             orbitCamera.SetControlsEnabled(true);
         }
@@ -25,7 +25,7 @@ public class InputHandler : MonoBehaviour
             HandleTools();
         }
         
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log($"Spacebar! {HasProject}");
             orbitCamera.Focus(GameManager.Instance.Project.FabricMesh.GetComponent<MeshRenderer>());
