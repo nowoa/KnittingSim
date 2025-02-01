@@ -42,7 +42,6 @@ public class Project
 
     public void FixedUpdate(int mySimIterations, float dt)
     {
-        _toolBoxUI.UpdateUI();
         if (_panels.Count == 0)
         {
             return;

@@ -119,12 +119,6 @@ public class ToolBoxUI : MonoBehaviour
     public void SetMouseRadius(float radius)
     {
         GameManager.Instance.Hover.MouseRadius = radius;
-        mouseRadiusCircle.rectTransform.localScale = new Vector3(radius / 50, radius / 50, radius / 50);
-    }
-
-    public void UpdateUI()
-    {
-        mouseRadiusCircle.rectTransform.position = Input.mousePosition;
     }
 
 }

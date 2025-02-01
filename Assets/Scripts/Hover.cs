@@ -15,9 +15,7 @@ public class Hover
     public bool IsActive = true;
     public bool[] HoverStitchStatus;
     public List<int> IndicesInRadius = new();
-    public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
-    public float AnchoredNodeRadius = 50f;
-    public List<Stitch> StitchesInRadiusAnchored = new();
+    public float MouseRadius = 20f; //TODO: turn this into normalized size instead of fixed
 
     public void UpdateHover(Dictionary<Vector2Int,List<int>> hashGrid, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
@@ -25,19 +23,30 @@ public class Hover
         HoveredNode = null;
         HoverStitchStatus = new bool[screenPositions.Count];
         IndicesInRadius = new List<int>();
+        var smallestPossibleRadius = 20f;
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
 
         int[] indicesToCheck = SpatialHashGrid.offsets2D
             .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
             .SelectMany(offset => hashGrid[offset + mouseCell]).ToArray();
-
+        
         IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= MouseRadius);
-        SetHoveredState(indicesInRange);
-        IEnumerable<int> indicesInRangeSmall =
-            indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= 50f);
-        //use draggerMouseRadius when dragger is enabled
-        TrySetHoveredStitch(indicesInRangeSmall, screenPositions, stitches);
+        
+        if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
+        {
+            SetHoveredState(indicesInRange);
+            IEnumerable<int> indicesInRangeSmall =
+                indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= smallestPossibleRadius);
+            //use draggerMouseRadius when dragger is enabled
+            TrySetHoveredStitch(indicesInRangeSmall, screenPositions, stitches);
+        }
+        else
+        {
+            TrySetHoveredStitch(indicesInRange, screenPositions, stitches);
+        }
+        
+        
     }
 
     private void SetHoveredState(IEnumerable<int> indicesInRange)
@@ -78,7 +87,6 @@ public class Hover
         var anchoredNodes = GameManager.Instance.Project.anchors.AnchoredNodes();
         if (anchoredNodes.Length == 0) return null;
         var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, MouseRadius);
-        StitchesInRadiusAnchored = nodesInsideRadius.Select(item => item.ParentStitch).ToList();
         if (nodesInsideRadius.Count == 0) return null;
 
         float closestDistance = float.MaxValue;

@@ -40,7 +40,7 @@ public class ColorBrush : Tool
     private void ApplyBrushAction(Color myColor, int index)
     {
         Random.InitState(index);
-        GameManager.Instance.Project.Stitches[index].SetColor(myColor + new Color((0.5f - Random.value)/20, (0.5f - Random.value)/20, (0.5f - Random.value)/20));
+        GameManager.Instance.Project.Stitches[index].SetColor(myColor + new Color((0.5f - Random.value)/10, (0.5f - Random.value)/10, (0.5f - Random.value)/10));
         // add this to add a little bit of randomisation to the color -- causes it to flicker if you hold the mouse in the same pos
         //  + new Color((0.5f - Random.value)/20, (0.5f - Random.value)/20, (0.5f - Random.value)/20) 
     }
