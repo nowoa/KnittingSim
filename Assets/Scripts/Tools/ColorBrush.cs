@@ -15,7 +15,6 @@ public class ColorBrush : Tool
             ApplyBrushAction(stitch, GameManager.Instance.ColorPalette.currentColor);
             
         }
-        
         GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
     
@@ -40,6 +39,6 @@ public class ColorBrush : Tool
     
     private void ApplyBrushAction(Stitch myStitch, Color myColor)
     {
-        myStitch.SetColor(myColor);
+        myStitch.SetColor(myColor + new Color((0.5f - Random.value)/10, (0.5f - Random.value)/10, (0.5f - Random.value)/10));
     }
 }

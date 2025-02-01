@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class ColorPalette : MonoBehaviour
 {
@@ -17,9 +19,15 @@ public class ColorPalette : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        currentColor = Color.white;
+    }
+
     private void SetColor(Color color)
     {
         colorDisplay.color = currentColor = color;
+        ToolManager.SetActiveTool(ToolManager.ColorBrushInstance);
         
         Debug.Log("color updated");
     }
