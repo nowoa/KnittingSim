@@ -8,13 +8,13 @@ public class ColorBrush : Tool
     public override void DefaultBehavior()
     {
         if (!active) return;
-        if (hover.StitchesInRadius.Count == 0) return;
-        
-        foreach (var stitch in hover.StitchesInRadius)
+        if (hover.IndicesInRadius.Count == 0) return;
+
+        foreach (var index in hover.IndicesInRadius)
         {
-            ApplyBrushAction(stitch, GameManager.Instance.ColorPalette.currentColor);
-            
+            ApplyBrushAction(GameManager.Instance.ColorPalette.currentColor, index);
         }
+
         GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
     
@@ -37,8 +37,11 @@ public class ColorBrush : Tool
     {
     }
     
-    private void ApplyBrushAction(Stitch myStitch, Color myColor)
+    private void ApplyBrushAction(Color myColor, int index)
     {
-        myStitch.SetColor(myColor + new Color((0.5f - Random.value)/10, (0.5f - Random.value)/10, (0.5f - Random.value)/10));
+        Random.InitState(index);
+        GameManager.Instance.Project.Stitches[index].SetColor(myColor + new Color((0.5f - Random.value)/20, (0.5f - Random.value)/20, (0.5f - Random.value)/20));
+        // add this to add a little bit of randomisation to the color -- causes it to flicker if you hold the mouse in the same pos
+        //  + new Color((0.5f - Random.value)/20, (0.5f - Random.value)/20, (0.5f - Random.value)/20) 
     }
 }

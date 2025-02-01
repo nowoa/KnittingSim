@@ -15,6 +15,7 @@ public class Hover
     public bool IsActive = true;
     public bool[] HoverStitchStatus;
     public List<Stitch> StitchesInRadius = new();
+    public List<int> IndicesInRadius = new();
     public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
     public float AnchoredNodeRadius = 50f;
 
@@ -24,6 +25,7 @@ public class Hover
         HoveredNode = null;
         HoverStitchStatus = new bool[screenPositions.Count];
         StitchesInRadius = new();
+        IndicesInRadius = new List<int>();
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
 
@@ -98,6 +100,7 @@ public class Hover
             HoverStitchStatus[index] = true;
             Stitch stitch = stitches[index];
             StitchesInRadius.Add(stitch);
+            IndicesInRadius.Add(index);
             var screenPoint = screenPositions[index];
             float distance = ScreenDistance(screenPoint, Input.mousePosition);
             // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
