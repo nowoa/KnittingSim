@@ -28,7 +28,7 @@ public class Anchors
     }
     private void CreateAnchor(VerletNode node, Vector3 position)
     {
-        _anchors.Add(node, new Anchor(position));
+        _anchors.Add(node, new Anchor(position, node.Normal));
     }
 
     private void RemoveAnchor(VerletNode node)
@@ -76,12 +76,12 @@ public class Anchor
     private static int _colorProp = Shader.PropertyToID("_Color");
     private static int _highlightProp = Shader.PropertyToID("_Highlight");
 
-    public Anchor(Vector3 position, float highlight = 0.0f)
+    public Anchor(Vector3 position, Vector3 normal, float highlight = 0.0f)
     {
         Position = position;
-        _pinModel = GameManager.Instance.Visualisers.CreateVisualiser(GameManager.Instance.Visualisers.PinNeedlePrefab);
+        _pinModel = GameManager.Instance.Visualisers.CreateVisualiser(GameManager.Instance.Visualisers.PinNeedlePrefab, position, Quaternion.LookRotation(normal));
         _pinRenderer = _pinModel.GetComponentInChildren<MeshRenderer>();
-        var color = Random.ColorHSV(0f, 1f, 0.5f, 0.8f, 0.8f, 1f);
+        var color = Random.ColorHSV(0f, 1f, 0.5f, 1f, 0.8f, 1f);
         _mpb = new();
         _mpb.SetColor(_colorProp, color);
         _mpb.SetFloat(_highlightProp, highlight);
@@ -98,7 +98,7 @@ public class Anchor
     public void UpdatePinModelPosition(VerletNode node)
     {
         _pinModel.transform.position = node.Position;
-        _pinModel.transform.rotation = Quaternion.LookRotation(node.Normal);
+        _pinModel.transform.rotation = Quaternion.Slerp(_pinModel.transform.rotation,Quaternion.LookRotation(node.Normal), 0.2f);
     }
 
     public void Cleanup()
