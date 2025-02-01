@@ -42,6 +42,16 @@ public class ToolBoxUI : MonoBehaviour
         ToolManager.SetActiveTool(ToolManager.ColorBrushInstance);
     }
 
+    public void Selector()
+    {
+        ToolManager.SetActiveTool(ToolManager.SelectorInstance);
+    }
+
+    public void Frog()
+    {
+        GameManager.Instance.Project.FrogAll();
+    }
+
     /*
     public void Increaser()
     {

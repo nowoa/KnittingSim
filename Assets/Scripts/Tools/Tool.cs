@@ -45,6 +45,7 @@ public static class ToolManager
     public static Tool DraggerInstance = new Dragger();
     public static Tool StitchBrushInstance = new StitchBrush();
     public static Tool ColorBrushInstance = new ColorBrush();
+    public static Tool SelectorInstance = new Selector();
     /*
     public static Tool Increaser = new Increaser();
     public static Tool Decreaser = new Decreaser();

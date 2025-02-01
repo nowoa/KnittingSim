@@ -22,7 +22,8 @@ public class Debugging : MonoBehaviour
         
         if(Gm.Project.Simulator!=null) Gm.Project.Simulator.DrawGizmos(Color.white);
         DrawHoveredNode();
-        
+        DrawSelectedStitches();
+
     }
 
     private void DrawSpatialHashGrid()
@@ -40,6 +41,15 @@ public class Debugging : MonoBehaviour
                     Gizmos.DrawSphere(Gm.Project.Nodes[index].Position, 0.2f);
                 }
             }
+        }
+    }
+
+    private void DrawSelectedStitches()
+    {
+        Gizmos.color = Color.blue;
+        foreach (var s in Selector.SelectedStitches)
+        {
+            Gizmos.DrawSphere(s.Position, 0.3f);
         }
     }
     
