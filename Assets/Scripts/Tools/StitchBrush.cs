@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using static Stitch.Neighbor;
 
 public class StitchBrush : Tool
@@ -14,16 +15,16 @@ public class StitchBrush : Tool
     private ActiveBrush _activeBrush;
     public override void DefaultBehavior()
     {
-        if (hover.StitchesInRadius.Count == 0) return;
+        if (hover.IndicesInRadius.Count == 0) return;
         
         if(_activeBrush == ActiveBrush.NONE) return;
 
         bool isKnit = _activeBrush == ActiveBrush.KNIT;
 
         bool hasChanges = false;
-        foreach (var stitch in hover.StitchesInRadius)
+        foreach (var index in hover.IndicesInRadius)
         {
-            bool typeChanged = ApplyBrushAction(stitch, isKnit);
+            bool typeChanged = ApplyBrushAction(GameManager.Instance.Project.Stitches[index], isKnit);
             hasChanges |= typeChanged;
         }
         

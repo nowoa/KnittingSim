@@ -75,10 +75,10 @@ public class Debugging : MonoBehaviour
     private void DrawHoverCheck()
     {
         if (Gm.Project == null) return;
-        foreach (var s in Gm.Hover.StitchesInRadius)
+        foreach (var index in Gm.Hover.IndicesInRadius)
         {
             Gizmos.color = new Color(0,1,0,0.3f);
-            Gizmos.DrawSphere(s.Position,0.3f);
+            Gizmos.DrawSphere(Gm.Project.Stitches[index].Position,0.3f);
         }
     }
 

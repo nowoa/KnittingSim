@@ -10,6 +10,7 @@ public class ToolBoxUI : MonoBehaviour
     public static ToolBoxUI Instance;
     
     public Slider slider;
+    public Slider Radius;
     [FormerlySerializedAs("MouseRadiusCircle")] public Image mouseRadiusCircle;
 
     private void Awake()
@@ -30,21 +31,25 @@ public class ToolBoxUI : MonoBehaviour
     public void Dragger()
     {
         ToolManager.SetActiveTool(ToolManager.DraggerInstance);
+        SetMouseRadius(Radius.value);
     }
 
     public void StitchBrush()
     {
         ToolManager.SetActiveTool(ToolManager.StitchBrushInstance);
+        SetMouseRadius(Radius.value);
     }
     
     public void ColorBrush()
     {
         ToolManager.SetActiveTool(ToolManager.ColorBrushInstance);
+        SetMouseRadius(Radius.value);
     }
 
     public void Selector()
     {
         ToolManager.SetActiveTool(ToolManager.SelectorInstance);
+        SetMouseRadius(50f);
     }
 
     public void Frog()
@@ -105,15 +110,15 @@ public class ToolBoxUI : MonoBehaviour
         SelfCollision.checkDouble = !SelfCollision.checkDouble;
     }
 
+    public void UpdateRadiusSlider(float radius)
+    {
+        SetMouseRadius(radius);
+    }
+
 
     public void SetMouseRadius(float radius)
     {
-        if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
-        {
-            GameManager.Instance.Hover.AnchoredNodeRadius = radius;
-            GameManager.Instance.Hover.MouseRadius = 50f;
-        }
-        else GameManager.Instance.Hover.MouseRadius = radius;
+        GameManager.Instance.Hover.MouseRadius = radius;
         mouseRadiusCircle.rectTransform.localScale = new Vector3(radius / 50, radius / 50, radius / 50);
     }
 

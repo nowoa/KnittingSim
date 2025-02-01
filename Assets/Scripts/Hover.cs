@@ -14,27 +14,38 @@ public class Hover
     private Camera _cam = GameManager.Instance.Camera;
     public bool IsActive = true;
     public bool[] HoverStitchStatus;
-    public List<Stitch> StitchesInRadius = new();
     public List<int> IndicesInRadius = new();
     public float MouseRadius = 50f; //TODO: turn this into normalized size instead of fixed
     public float AnchoredNodeRadius = 50f;
+    public List<Stitch> StitchesInRadiusAnchored = new();
 
     public void UpdateHover(Dictionary<Vector2Int,List<int>> hashGrid, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         HoveredStitch = null;
         HoveredNode = null;
         HoverStitchStatus = new bool[screenPositions.Count];
-        StitchesInRadius = new();
         IndicesInRadius = new List<int>();
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
 
-        IEnumerable<int> indicesToCheck = SpatialHashGrid.offsets2D
+        int[] indicesToCheck = SpatialHashGrid.offsets2D
             .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
-            .SelectMany(offset => hashGrid[offset + mouseCell]);
+            .SelectMany(offset => hashGrid[offset + mouseCell]).ToArray();
 
         IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= MouseRadius);
-        TrySetHoveredStitch(indicesInRange, screenPositions, stitches);
+        SetHoveredState(indicesInRange);
+        IEnumerable<int> indicesInRangeSmall =
+            indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= 50f);
+        //use draggerMouseRadius when dragger is enabled
+        TrySetHoveredStitch(indicesInRangeSmall, screenPositions, stitches);
+    }
+
+    private void SetHoveredState(IEnumerable<int> indicesInRange)
+    {
+        foreach (var i in indicesInRange)
+        {
+            HoverStitchStatus[i] = true;
+        }
     }
 
     private List<T> FilterByRadius<T>(IEnumerable<T> items, Func<T, Vector3> PositionGetter, float MouseRadius = 0f)
@@ -66,15 +77,15 @@ public class Hover
     {
         var anchoredNodes = GameManager.Instance.Project.anchors.AnchoredNodes();
         if (anchoredNodes.Length == 0) return null;
-        var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, AnchoredNodeRadius);
+        var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, MouseRadius);
+        StitchesInRadiusAnchored = nodesInsideRadius.Select(item => item.ParentStitch).ToList();
         if (nodesInsideRadius.Count == 0) return null;
-        
-        float distance;
+
         float closestDistance = float.MaxValue;
         VerletNode closest = null;
         foreach (var n in anchoredNodes)
         {
-            distance = DistanceToMousePixels(n.Position);
+            var distance = DistanceToMousePixels(n.Position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
@@ -99,7 +110,6 @@ public class Hover
         {
             HoverStitchStatus[index] = true;
             Stitch stitch = stitches[index];
-            StitchesInRadius.Add(stitch);
             IndicesInRadius.Add(index);
             var screenPoint = screenPositions[index];
             float distance = ScreenDistance(screenPoint, Input.mousePosition);
