@@ -5,6 +5,7 @@ Shader "Hidden/SH_CompositeRender"
         [NoScaleOffset] _MainTex ("Texture", 2D) = "white" {}
         [NoScaleOffset] _MaskTex ("Mask Tex", 2D) = "black" {}
         _OutlineColor ("Outline Color", Color) = (0.0, 0.0, 0.0, 1.0)
+        _OutlineThickness ("Outline Thickness (Pixel)", Integer) = 2
     }
     SubShader
     {
@@ -42,6 +43,7 @@ Shader "Hidden/SH_CompositeRender"
             sampler2D _MainTex;
             sampler2D _MaskTex;
             float4 _OutlineColor;
+            int _OutlineThickness;
             
             float4 _MaskTex_TexelSize;
 
@@ -65,7 +67,7 @@ Shader "Hidden/SH_CompositeRender"
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
                 // just invert the colors
-                float expandedMask = maxFilter(_MaskTex, i.uv, _MaskTex_TexelSize.xy, 2);
+                float expandedMask = maxFilter(_MaskTex, i.uv, _MaskTex_TexelSize.xy, _OutlineThickness);
                 float mask = tex2D(_MaskTex, i.uv);
                 float border = saturate(expandedMask - mask);
                 col = lerp(col, _OutlineColor, border);

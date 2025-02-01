@@ -8,6 +8,7 @@ public class Compositor : MonoBehaviour
     
     [SerializeField] private Material outlineMaterial;
     [SerializeField] private Color outlineColor = Color.black;
+    [Range(1, 15)][SerializeField] private int outlineThickness = 2;
 
     private Material _outlineMaterial;
     
@@ -33,6 +34,7 @@ public class Compositor : MonoBehaviour
     private void Update()
     {
         _outlineMaterial.SetColor("_OutlineColor", outlineColor);
+        _outlineMaterial.SetInteger("_OutlineThickness", outlineThickness);
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
