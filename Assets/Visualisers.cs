@@ -6,9 +6,9 @@ public class Visualisers : MonoBehaviour
 {
     public GameObject PinNeedlePrefab;
 
-    public GameObject CreateVisualiser(GameObject prefab)
+    public GameObject CreateVisualiser(GameObject prefab, Vector3 position, Quaternion lookRotation)
     {
-        var result = Instantiate(prefab, transform);
+        var result = Instantiate(prefab, position, lookRotation,transform);
         return result;
     }
 
