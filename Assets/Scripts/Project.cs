@@ -125,6 +125,12 @@ public class Project
         return _panels.Values.ToList();
     }
 
+    public void FrogAll()
+    {
+        _panels.Clear();
+        FabricMesh.DestroyMesh();
+    }
+
     public void UpdateGlobalNodesAndStitches()
     {
         Nodes = GetPanels().SelectMany(item => item.Nodes).ToArray();

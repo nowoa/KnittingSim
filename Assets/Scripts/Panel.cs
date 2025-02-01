@@ -44,11 +44,6 @@ public class Panel
         return nodes;
     }
     
-    private void RemovePanel()
-    {
-        
-    }
-
     private void SelectPanel()
     {
         

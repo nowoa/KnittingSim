@@ -109,4 +109,9 @@ public class FabricMesh : MonoBehaviour
         _mesh.RecalculateBounds();
         _mesh.RecalculateTangents();
     }
+
+    public void DestroyMesh()
+    {
+        Destroy(_mesh);
+    }
 }
