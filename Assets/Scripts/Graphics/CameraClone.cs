@@ -6,6 +6,7 @@ public class CameraClone : MonoBehaviour
 {
     [SerializeField] private Camera followCam;
     [SerializeField] private LayerMask cullingMask;
+    [Range(0, 10)][SerializeField] private int lodLevel = 0;
     
     private Camera _selfCam;
 
@@ -50,7 +51,9 @@ public class CameraClone : MonoBehaviour
             _renderTexture = null;
         }
 
-        RenderTextureDescriptor desc = new(_screenWidth, _screenHeight, RenderTextureFormat.R8);
+        int resolutionDivisor = lodLevel + 1;
+        
+        RenderTextureDescriptor desc = new(_screenWidth / resolutionDivisor, _screenHeight / resolutionDivisor, RenderTextureFormat.R8);
         _renderTexture = new RenderTexture(desc);
         _selfCam.targetTexture = _renderTexture;
         onUpdateTexture.Invoke(_renderTexture);

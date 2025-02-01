@@ -62,15 +62,40 @@ Shader "Hidden/SH_CompositeRender"
                 }
                 return maxValue;
             }
+            
+            float4 boxBlur(sampler2D tex, float2 uv, float2 texelSize, int kernel = 1, bool circular = false)
+            {
+                float4 totalColor = 0;
+                float totalWeight = 0;
+
+                for(int y = -kernel; y <= kernel; y++)
+                {
+                    for(int x = -kernel; x <= kernel; x++)
+                    {
+                        float2 pixelOffset = float2(x, y);
+                        if(circular && dot(pixelOffset, pixelOffset) > kernel * kernel)
+                        {
+                            continue;
+                        }
+                        float2 offset = float2(x, y) * texelSize;
+                        float4 sample = tex2D(tex, uv + offset);
+                        totalColor += sample;
+                        totalWeight += 1;
+                    }
+                }
+                return totalColor /= totalWeight;
+            }
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // just invert the colors
-                float expandedMask = maxFilter(_MaskTex, i.uv, _MaskTex_TexelSize.xy, _OutlineThickness);
-                float mask = tex2D(_MaskTex, i.uv);
-                float border = saturate(expandedMask - mask);
+
+                float blurredMask = boxBlur(_MaskTex, i.uv, _MaskTex_TexelSize.xy, _OutlineThickness, true);
+                float border = saturate(abs(blurredMask - 0.5));
+                border = border < 0.2? 1 : 0;
+
                 col = lerp(col, _OutlineColor, border);
+                
                 return col;
             }
             ENDCG

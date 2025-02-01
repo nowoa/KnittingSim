@@ -27,7 +27,6 @@ public class InputHandler : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.F))
         {
-            Debug.Log($"Spacebar! {HasProject}");
             orbitCamera.Focus(GameManager.Instance.Project.FabricMesh.GetComponent<MeshRenderer>());
         }
     }
