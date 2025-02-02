@@ -12,8 +12,10 @@ public class Project
     public FabricMesh FabricMesh;
     public Dictionary<Vector3Int, List<int>> HashGridWorld = new();
     public Vector3[] StitchScreenPositions;
+    public Vector3[] NodeScreenPositions;
     public Dictionary<Vector2Int, List<Stitch>> ScreenHashGrid = new();
     public Dictionary<Vector2Int, List<int>> HashGridScreen = new();
+    public float MinimumCellSize { get; private set; }
     public VerletNode[] Nodes { get; private set; } = Array.Empty<VerletNode>();
     public Stitch[] Stitches { get; private set; } = Array.Empty<Stitch>();
     public Anchors anchors = new Anchors();
@@ -53,7 +55,24 @@ public class Project
         
         HashGridWorld = SpatialHashGrid.PartitionIndex(Nodes, node => node.Position, _partitioningCellSize);
         StitchScreenPositions = Stitches.Select(stitch => GameManager.Instance.Camera.WorldToScreenPoint(stitch.Position)).ToArray();
-        HashGridScreen = SpatialHashGrid.PartitionScreen(StitchScreenPositions, pos => pos, GameManager.Instance.Hover.MouseRadius);
+
+        
+        using (new ProfileSample("minimum cellsize computation"))
+        {
+            
+            NodeScreenPositions = new Vector3[Nodes.Length];
+            foreach (var n in Nodes)
+            {
+                NodeScreenPositions[n.id] = n.Position;
+            }
+
+            MinimumCellSize = ComputeMinimumCellSize();
+        }
+        
+        var mouseRadius = GameManager.Instance.Hover.MouseRadius;
+        
+        using (new ProfileSample("create hashgrid"))
+            HashGridScreen = SpatialHashGrid.PartitionScreen(StitchScreenPositions, pos => pos, Mathf.Max(MinimumCellSize, mouseRadius));
         
         if(Collision) SelfCollision.Solve(Nodes, HashGridWorld, _partitioningCellSize);
         
@@ -135,6 +154,21 @@ public class Project
         Nodes = GetPanels().SelectMany(item => item.Nodes).ToArray();
         Stitches = GetPanels().SelectMany(item => item.Stitches).ToArray();
         Simulator = new VerletSimulator(Nodes);
+    }
+
+    private float ComputeMinimumCellSize()
+    {
+        var largestDistance = 0f;
+        foreach (var s in Stitches)
+        {
+            var distance1 = (NodeScreenPositions[s.Corners[0].id] - NodeScreenPositions[s.Corners[2].id]).sqrMagnitude;
+            var distance2 = (NodeScreenPositions[s.Corners[1].id] - NodeScreenPositions[s.Corners[3].id]).sqrMagnitude;
+            var result = distance1 > distance2 ? distance1 : distance2;
+            largestDistance = result > largestDistance ? result : largestDistance;
+        }
+
+        largestDistance = Mathf.Sqrt(largestDistance);
+        return largestDistance;
     }
 }
 

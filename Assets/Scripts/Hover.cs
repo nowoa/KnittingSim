@@ -23,7 +23,6 @@ public class Hover
         HoveredNode = null;
         HoverStitchStatus = new bool[screenPositions.Count];
         IndicesInRadius = new List<int>();
-        var smallestPossibleRadius = 20f;
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
 
@@ -37,7 +36,7 @@ public class Hover
         {
             SetHoveredState(indicesInRange);
             IEnumerable<int> indicesInRangeSmall =
-                indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= smallestPossibleRadius);
+                indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= GameManager.Instance.Project.MinimumCellSize);
             //use draggerMouseRadius when dragger is enabled
             TrySetHoveredStitch(indicesInRangeSmall, screenPositions, stitches);
         }

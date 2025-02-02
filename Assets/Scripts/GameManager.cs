@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
         MoveSelectedNode();
         Project.FixedUpdate(Iterations,Time.fixedDeltaTime);
         using (new ProfileSample("Update Hover"))
-            CheckBoundingBox();
+            Hover.UpdateHover(Project.HashGridScreen, Project.StitchScreenPositions, Project.Stitches);
     }
 
     private void MoveSelectedNode()
@@ -52,10 +52,4 @@ public class GameManager : MonoBehaviour
         Hover.SelectedNode.Position = Hover.GetMouseWorldPos();
 
     }
-    
-    private void CheckBoundingBox()
-    {
-        Hover.UpdateHover(Project.HashGridScreen, Project.StitchScreenPositions, Project.Stitches);
-    }
-    
 }

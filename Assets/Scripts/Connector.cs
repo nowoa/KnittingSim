@@ -7,7 +7,7 @@ using static Verlet.VerletNode.Neighbor;
 
 public class Connector //handles connecting the nodes and stitches to create a panel
 {
-    private static int _nodeID;
+    private static int _nodeID; //TODO: reset id value when clearing entire project
     private static int _stitchID;
     
     public static void ConnectNodes(Panel myPanel, Vector2Int myGauge)
