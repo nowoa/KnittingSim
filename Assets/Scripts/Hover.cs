@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Unity.VisualScripting;
 using UnityEngine;
 using Verlet;
 
@@ -16,6 +18,7 @@ public class Hover
     public bool[] HoverStitchStatus;
     public List<int> IndicesInRadius = new();
     public float MouseRadius = 20f; //TODO: turn this into normalized size instead of fixed
+    private float _cellSize;
 
     public void UpdateHover(Dictionary<Vector2Int,List<int>> hashGrid, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
@@ -23,27 +26,17 @@ public class Hover
         HoveredNode = null;
         HoverStitchStatus = new bool[screenPositions.Count];
         IndicesInRadius = new List<int>();
+        _cellSize = Mathf.Max(MouseRadius, GameManager.Instance.Project.MinimumCellSize);
         
-        var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, MouseRadius);
+        var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, _cellSize);
 
         int[] indicesToCheck = SpatialHashGrid.offsets2D
             .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
             .SelectMany(offset => hashGrid[offset + mouseCell]).ToArray();
         
-        IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= MouseRadius);
+        IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= _cellSize);
         
-        if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
-        {
-            SetHoveredState(indicesInRange);
-            IEnumerable<int> indicesInRangeSmall =
-                indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= GameManager.Instance.Project.MinimumCellSize);
-            //use draggerMouseRadius when dragger is enabled
-            TrySetHoveredStitch(indicesInRangeSmall, screenPositions, stitches);
-        }
-        else
-        {
-            TrySetHoveredStitch(indicesInRange, screenPositions, stitches);
-        }
+        TrySetHoveredStitches(indicesInRange,screenPositions,stitches);
         
         
     }
@@ -81,29 +74,41 @@ public class Hover
         else SelectedNode = null;
     }
 
+    private object GetClosest<T>(IList<T> items, Func<T, Vector3> PosGetter, out int index)
+    {
+        index = -1;
+        if (items.Count == 0)
+        {
+            return null;
+        }
+        float closestDistance = float.MaxValue;
+        T closest = default;
+        for (var index1 = 0; index1 < items.Count; index1++)
+        {
+            var i = items[index1];
+            var distance = DistanceToMousePixels(PosGetter(i));
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = i;
+                index = index1;
+            }
+        }
+        
+        return closest;
+    }
+
     private VerletNode CheckForAnchoredNode()
     {
         var anchoredNodes = GameManager.Instance.Project.anchors.AnchoredNodes();
         if (anchoredNodes.Length == 0) return null;
-        var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, MouseRadius);
+        var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, _cellSize);
         if (nodesInsideRadius.Count == 0) return null;
 
-        float closestDistance = float.MaxValue;
-        VerletNode closest = null;
-        foreach (var n in anchoredNodes)
-        {
-            var distance = DistanceToMousePixels(n.Position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closest = n;
-            }
-        }
-
-        return closest;
+        return (VerletNode)GetClosest(nodesInsideRadius, node => node.Position, out int index);
     }
     
-    private void TrySetHoveredStitch(IEnumerable<int> indexSelection, IList<Vector3> screenPositions, IList<Stitch> stitches)
+    private void TrySetHoveredStitches(IEnumerable<int> indexSelection, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         if (SelectedNode != null) return;
         foreach (var (key, value) in GameManager.Instance.Project.anchors.GetAnchors())
@@ -112,23 +117,28 @@ public class Hover
         }
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
         float closestDistance = float.MaxValue; // Track the closest stitch
+
+        IndicesInRadius = new List<int>(indexSelection);
+
+        Stitch[] stitchesInRadius = IndicesInRadius.Select(index => stitches[index]).ToArray();
+        HoveredStitch = (Stitch)GetClosest(stitchesInRadius, stitch => stitch.Position, out int hoveredStitchIndex);
         
-        foreach (int index in indexSelection)
+        if (HoveredStitch == null) return;
+
+        if (MouseRadius == 0)
         {
-            HoverStitchStatus[index] = true;
-            Stitch stitch = stitches[index];
-            IndicesInRadius.Add(index);
-            var screenPoint = screenPositions[index];
-            float distance = ScreenDistance(screenPoint, Input.mousePosition);
-            // If this stitch is closer to the mouse than the current closest stitch, update the hovered stitch
-            if (distance < closestDistance)
+            int hoveredStitch = IndicesInRadius[hoveredStitchIndex];
+            HoverStitchStatus[hoveredStitch] = true;
+            IndicesInRadius.Clear();
+            IndicesInRadius.Add(hoveredStitch);
+        }
+        else
+        {
+            foreach (var i in IndicesInRadius)
             {
-                closestDistance = distance;
-                HoveredStitch = stitch;
+                HoverStitchStatus[i] = true;
             }
         }
-
-        if (HoveredStitch == null) return;
         
         if (ToolManager.ActiveTool == ToolManager.DraggerInstance)
         {
@@ -144,9 +154,9 @@ public class Hover
     }
 
     private float DistanceToMousePixels(Vector3 worldPos)
-    {
-        var point = _cam.WorldToScreenPoint(worldPos);
-        return (point - Input.mousePosition).magnitude;
+    { //converts worldspace to screenspace and compares to mousepos
+        Vector2 point = _cam.WorldToScreenPoint(worldPos);
+        return (point - (Vector2)Input.mousePosition).magnitude;
     }
 
     private float ScreenDistance(Vector3 screenPos1, Vector3 screenPos2)

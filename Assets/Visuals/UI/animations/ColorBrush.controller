@@ -378,13 +378,13 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 21300000, guid: 270108d7e1fd35f43977f7109cf0fb19, type: 3}
+      value: {fileID: 21300000, guid: a899a3cc65ee4c845ba0386c9e22a858, type: 3}
     - time: 0.41666666
-      value: {fileID: 21300000, guid: 461fb44b03abaa3459a4f12e8b820576, type: 3}
+      value: {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
     - time: 0.8333333
-      value: {fileID: 21300000, guid: 270108d7e1fd35f43977f7109cf0fb19, type: 3}
+      value: {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
     attribute: m_Sprite
-    path: 
+    path: Icon
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -396,7 +396,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 0
+      path: 3316025061
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -405,9 +405,9 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 21300000, guid: 270108d7e1fd35f43977f7109cf0fb19, type: 3}
-    - {fileID: 21300000, guid: 461fb44b03abaa3459a4f12e8b820576, type: 3}
-    - {fileID: 21300000, guid: 270108d7e1fd35f43977f7109cf0fb19, type: 3}
+    - {fileID: 21300000, guid: a899a3cc65ee4c845ba0386c9e22a858, type: 3}
+    - {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
+    - {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -545,7 +545,7 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
-  m_EntryPosition: {x: 50, y: 120, z: 0}
+  m_EntryPosition: {x: 40, y: -40, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -8839184036331600219}

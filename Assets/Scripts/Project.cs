@@ -63,7 +63,7 @@ public class Project
             NodeScreenPositions = new Vector3[Nodes.Length];
             foreach (var n in Nodes)
             {
-                NodeScreenPositions[n.id] = n.Position;
+                NodeScreenPositions[n.id] = GameManager.Instance.Camera.WorldToScreenPoint(n.Position);
             }
 
             MinimumCellSize = ComputeMinimumCellSize();
