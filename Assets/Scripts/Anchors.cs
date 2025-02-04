@@ -38,6 +38,15 @@ public class Anchors
         _anchors.Remove(node);
     }
 
+    public void RemoveAllAnchors()
+    {
+        foreach (var anchor in _anchors.Values)
+        {
+            anchor.Cleanup();
+        }
+        _anchors.Clear();
+    }
+
     public void UpdateNodePositions()
     {
         foreach (var (node, anchor) in _anchors)
