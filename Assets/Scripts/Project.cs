@@ -23,6 +23,7 @@ public class Project
     public bool Collision = true;
     private float _partitioningCellSize;
     private ToolBoxUI _toolBoxUI;
+    public bool MeshUpdated;
 
     #endregion
 
@@ -31,7 +32,7 @@ public class Project
         FabricMesh = GameManager.Instance.gameObject.AddComponent<FabricMesh>();
         _toolBoxUI = ToolBoxUI.Instance;
         Simulator = new VerletSimulator(Nodes);
-        GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;
+        /*GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;*/
     }
 
     public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge)
@@ -42,11 +43,22 @@ public class Project
         GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
 
-    public void FixedUpdate(int mySimIterations, float dt)
+    public void FixedUpdate()
+    {
+        
+    }
+
+    public void FixedUpdatePreHover(int mySimIterations, float dt)
     {
         if (_panels.Count == 0)
         {
             return;
+        }
+
+        if (MeshUpdated)
+        {
+            UpdateFabricStructure();
+            MeshUpdated = false;
         }
 
         anchors.UpdateNodePositions();
@@ -79,6 +91,10 @@ public class Project
         UpdatePanelPosition();
         CalculateNormals();
         anchors.UpdatePinPositions();
+    }
+
+    public void FixedUpdatePostHover()
+    {
         UpdateMeshPosition();
     }
 
@@ -93,7 +109,6 @@ public class Project
         _partitioningCellSize = Nodes[0].CollisionRadius * 1f;
         FabricMesh.RegenerateMesh(Stitches);
         FabricMesh.SetVertexColors(Stitches);
-        UpdateMeshPosition();
     }
 
     public void UpdatePanelPosition()
@@ -143,9 +158,18 @@ public class Project
         return _panels.Values.ToList();
     }
 
+    public Panel GetPanelByName(string name)
+    {
+        return _panels[name];
+    }
+
     public void FrogAll()
     {
         _panels.Clear();
+        anchors.RemoveAllAnchors();
+        Nodes = Array.Empty<VerletNode>();
+        Stitches = Array.Empty<Stitch>();
+        Connector.ResetIDs();
         FabricMesh.DestroyMesh();
     }
 

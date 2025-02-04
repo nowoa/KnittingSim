@@ -99,13 +99,13 @@ namespace Verlet
         public void SetSize(float myWidth, float myHeight)
         {
             Dimensions = new Vector2(myWidth, myHeight);
-            SetCollisionRadius();
         }
 
-        private void SetCollisionRadius()
+        public void SetCollisionRadius()
         {
             var sizeFactor = 1f;
-            CollisionRadius = Mathf.Min(Dimensions.x, Dimensions.y) * sizeFactor;
+            var minValue = _connection.Select(item => item.Length).Min();
+            CollisionRadius = minValue * sizeFactor;
         }
         
         public void UpdateNormal()

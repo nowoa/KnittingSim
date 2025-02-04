@@ -35,9 +35,13 @@ public class GameManager : MonoBehaviour
         if (Project.GetPanels().Count == 0) return;
         
         MoveSelectedNode();
-        Project.FixedUpdate(Iterations,Time.fixedDeltaTime);
+        
+        Project.FixedUpdatePreHover(Iterations,Time.fixedDeltaTime);
+        
         using (new ProfileSample("Update Hover"))
             Hover.UpdateHover(Project.HashGridScreen, Project.StitchScreenPositions, Project.Stitches);
+        
+        Project.FixedUpdatePostHover();
     }
 
     private void MoveSelectedNode()

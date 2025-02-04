@@ -8,10 +8,11 @@ public class EventManager
 
     public void InvokeStructureUpdate()
     {
-        if (OnRegenerateMesh==null) Debug.LogWarning("no subscribers to onregeneratemesh event");
+        /*if (OnRegenerateMesh==null) Debug.LogWarning("no subscribers to onregeneratemesh event");
         else
         {
             OnRegenerateMesh.Invoke();
-        }
+        }*/
+        GameManager.Instance.Project.MeshUpdated = true;
     }
 }
