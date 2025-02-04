@@ -105,7 +105,7 @@ namespace Verlet
         {
             var sizeFactor = 1f;
             var minValue = _connection.Select(item => item.Length).Min();
-            CollisionRadius = minValue * sizeFactor;
+            CollisionRadius = minValue;
         }
         
         public void UpdateNormal()

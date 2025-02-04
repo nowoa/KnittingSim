@@ -13,7 +13,7 @@ public class Panel
     public int Height { get; private set; }
     public string Name { get; private set; }
 
-    public void CreatePanel(Vector2Int dimensions, bool myIsCircular, Vector2Int myGauge, string myName)
+    public void CreatePanel(Vector2Int dimensions, bool myIsCircular, Vector2Int myGauge, string myName, Vector3 startPos)
     {
         Width = dimensions.x +1; //size in nodes, not stitches
         Height = dimensions.y +1;
@@ -21,21 +21,21 @@ public class Panel
         Name = myName;
         AnchoredNodes = new List<VerletNode>();
         
-        Nodes = GenerateNodes(new Vector2Int(Width,Height), myGauge);
+        Nodes = GenerateNodes(new Vector2Int(Width,Height), myGauge, startPos);
         Connector.ConnectNodes(this, myGauge);
         //make array of nodes and send to connector
         Connector.ConnectStitches(Stitches);
     }
     
-    private List<VerletNode> GenerateNodes(Vector2Int myDimensions, Vector2Int myGauge)
+    private List<VerletNode> GenerateNodes(Vector2Int myDimensions, Vector2Int myGauge, Vector3 startPos)
     {
         var nodes = new List<VerletNode>();
         for (int y = 0; y < myDimensions.y; y++)
         {
             for (int x = 0; x < myDimensions.x; x++)
             {
-                var z = Random.value * 0.01f;
-                VerletNode node = new VerletNode(new Vector3(10f/myGauge.x * x,10f/myGauge.y * y, z));
+                /*var z = Random.value * 0.01f;*/
+                VerletNode node = new VerletNode(new Vector3(startPos.x + 10f/myGauge.x * x,startPos.y + 10f/myGauge.y * y, startPos.z));
                 nodes.Add(node);
                 node.SetParentPanel(this);
                 node.SetSize(10f/myGauge.x, 10f/myGauge.y);

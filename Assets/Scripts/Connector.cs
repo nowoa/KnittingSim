@@ -202,5 +202,7 @@ public class Seam // TODO: warning! quick and dirty implementation
     private static void MakeSeam(VerletNode one, VerletNode two)
     {
         VerletEdge.ConnectNodes(one, two, 0.01f, VerletEdge.EdgeType.Seam);
+        /*one.SetCollisionRadius();
+        two.SetCollisionRadius();*/
     }
 }
