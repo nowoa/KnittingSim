@@ -36,12 +36,31 @@ public class Panel
             {
                 /*var z = Random.value * 0.01f;*/
                 VerletNode node = new VerletNode(new Vector3(startPos.x + 10f/myGauge.x * x,startPos.y + 10f/myGauge.y * y, startPos.z));
+                // VerletNode node = new VerletNode(FlatPanelPosition(startPos, myGauge, new Vector2Int(x, y))); // Replace the line above with this 
                 nodes.Add(node);
                 node.SetParentPanel(this);
                 node.SetSize(10f/myGauge.x, 10f/myGauge.y);
             }
         }
         return nodes;
+    }
+
+    public static Vector3 FlatPanelPosition(Vector3 lowerLeft, Vector2Int gauge, Vector2Int coordinate)
+    {
+        float comp1 = lowerLeft.x + 10f / gauge.x * coordinate.x;
+        float comp2 = lowerLeft.y + 10f / gauge.y * coordinate.y;
+        return new Vector3(comp1, comp2, 0);
+    }
+    
+    public static Vector3 TubePanelPosition(Vector3 basePoint, Vector2Int gauge, Vector2Int coordinate, int tubeSegments)
+    {
+        float vertical = basePoint.y + 10f / gauge.y * coordinate.y;
+        float angle = (coordinate.x / (float)tubeSegments) * Mathf.PI * 2;
+        float circumference = tubeSegments * (10f / gauge.x);
+        float radius = circumference / (2 * Mathf.PI);
+        float horizontal1 = Mathf.Cos(angle) * radius;
+        float horizontal2 = Mathf.Sin(angle) * radius;
+        return new Vector3(horizontal1, vertical, horizontal2);
     }
     
     private void SelectPanel()
