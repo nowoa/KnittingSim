@@ -261,7 +261,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ColorBrush
+  m_Name: Frogger
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: Normal
@@ -378,11 +378,11 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 21300000, guid: a899a3cc65ee4c845ba0386c9e22a858, type: 3}
+      value: {fileID: 21300000, guid: 05151e0223e9a2b4180843b0dfee917c, type: 3}
     - time: 0.41666666
-      value: {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
+      value: {fileID: 21300000, guid: 1781526b6317b214eab3116f9f3217ef, type: 3}
     - time: 0.8333333
-      value: {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
+      value: {fileID: 21300000, guid: 05151e0223e9a2b4180843b0dfee917c, type: 3}
     attribute: m_Sprite
     path: Icon
     classID: 114
@@ -405,9 +405,9 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 21300000, guid: a899a3cc65ee4c845ba0386c9e22a858, type: 3}
-    - {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
-    - {fileID: 21300000, guid: 97c28712352ccc1478261c3ba7b141c7, type: 3}
+    - {fileID: 21300000, guid: 05151e0223e9a2b4180843b0dfee917c, type: 3}
+    - {fileID: 21300000, guid: 1781526b6317b214eab3116f9f3217ef, type: 3}
+    - {fileID: 21300000, guid: 05151e0223e9a2b4180843b0dfee917c, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
