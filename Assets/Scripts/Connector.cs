@@ -31,6 +31,8 @@ public class Connector //handles connecting the nodes and stitches to create a p
             {
                 CreateParentStitch(i, neighborIndices, myPanel);
             }
+            
+            myPanel.Nodes[i].SetCollisionRadius();
         }
     }
 
@@ -152,5 +154,53 @@ public class Connector //handles connecting the nodes and stitches to create a p
         if (myStitch.Corners[3].ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.right, myStitch.Corners[3].ParentStitch);
         if (myStitch.Corners[0].Traverse(down)?.ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.down, myStitch.Corners[0].Traverse(down).ParentStitch);
         if (myStitch.Corners[0].Traverse(left)?.ParentStitch!=null) myStitch.SetNeighborStitch(Stitch.Neighbor.left, myStitch.Corners[0].Traverse(left).ParentStitch);
+    }
+
+    public static void ResetIDs()
+    {
+        _nodeID = 0;
+        _stitchID = 0;
+    }
+}
+
+public class Seam // TODO: warning! quick and dirty implementation
+{
+
+    private static int[] EqualizeSeamLength(int length1, int length2)
+    {
+        var (max, min) = length1 >= length2 
+            ? (length1, length2) 
+            : (length2, length1);
+        int[] results = new int[max];
+        float lerpStep = (float)1 / max;
+
+        for (int i = 0; i < max; i++)
+        {
+            results[i] = (Mathf.FloorToInt(Mathf.Lerp(0, min, lerpStep*i)));
+        }
+        return results;
+    }
+
+    public static void ConnectSeams(IList<VerletNode> seam_1, IList<VerletNode> seam_2)
+    {
+        /*var (max, min) = seam1.Count >= seam2.Count 
+            ? (seam1, seam2) 
+            : (seam2, seam1);
+        var distribution = EqualizeSeamLength(seam1.Count, seam2.Count);
+
+        for (int i = 0; i < distribution.Length; i++)
+        {
+            MakeSeam(max[i], min[distribution[i]]);
+        }*/
+
+        for (var index = 0; index < seam_1.Count; index++)
+        {
+            MakeSeam(seam_1[index], seam_2[index]);
+        }
+    }
+
+    private static void MakeSeam(VerletNode one, VerletNode two)
+    {
+        VerletEdge.ConnectNodes(one, two, 0.01f, VerletEdge.EdgeType.Seam);
     }
 }
