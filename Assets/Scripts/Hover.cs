@@ -33,6 +33,7 @@ public class Hover
         int[] indicesToCheck = SpatialHashGrid.offsets2D
             .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
             .SelectMany(offset => hashGrid[offset + mouseCell]).ToArray();
+
         
         IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= _cellSize);
         
@@ -147,7 +148,7 @@ public class Hover
 
         IndicesInRadius = stitchIndexCandidates.ToList();
         
-        int closestStitchIndex = GetClosestScreenPositionIndexInRadius(IndicesInRadius, screenPositions, Input.mousePosition, MouseRadius);
+        int closestStitchIndex = GetClosestScreenPositionIndexInRadius(IndicesInRadius, screenPositions, Input.mousePosition, GameManager.Instance.Project.MinimumCellSize);
         HoveredStitch = closestStitchIndex == -1 ? null : stitches[closestStitchIndex];
         
         if (closestStitchIndex < 0) return;
