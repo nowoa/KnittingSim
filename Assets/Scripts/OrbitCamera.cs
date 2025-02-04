@@ -60,6 +60,8 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField] private Transform focus;
     [SerializeField] private Transform verticalAxis;
     [SerializeField] private Transform cameraParent;
+    
+    [Header("External References")]
     [SerializeField] private Camera orbitCam;
     
     // Transform Controllers
@@ -75,7 +77,6 @@ public class OrbitCamera : MonoBehaviour
     private bool _useSmoothMotion = true;
 
     private Vector3 _lastPointPanning;
-    private bool _startPanning;
     
     private void Update()
     {
@@ -102,11 +103,6 @@ public class OrbitCamera : MonoBehaviour
         float scrolling = Input.GetAxis("Mouse ScrollWheel");
 
         float focusDistance = (focus.position - cameraParent.position).magnitude;
-
-        if (Input.GetMouseButtonUp(2))
-        {
-            _startPanning = false;
-        }
 
         if (Input.GetMouseButton(0))
         {
