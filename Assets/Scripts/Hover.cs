@@ -74,24 +74,52 @@ public class Hover
         else SelectedNode = null;
     }
 
-    private object GetClosest<T>(IList<T> items, Func<T, Vector3> PosGetter, out int index)
+    private static int GetClosestScreenPositionIndexInRadius(IList<int> positionIndices, IList<Vector3> screenPositions, Vector3 targetPosition, float checkRadius)
     {
-        index = -1;
+        int closestIndex = -1;
+        float smallestDepth = float.MaxValue;
+        if (positionIndices.Count == 0)
+        {
+            return closestIndex;
+        }
+
+        for (int i = 0; i < positionIndices.Count; i++)
+        {
+            int index = positionIndices[i];
+            Vector3 screenPos = screenPositions[index];
+            var distance = ScreenDistance(screenPos, targetPosition);
+            if (distance > checkRadius)
+            {
+                continue;
+            }
+
+            if (screenPos.z < smallestDepth)
+            {
+                smallestDepth = screenPos.z;
+                closestIndex = index;
+            }
+        }
+        return closestIndex;
+    }
+
+    private T GetClosest<T>(IList<T> items, Func<T, Vector3> positionGetter, out int closestIndex)
+    {
+        closestIndex = -1;
         if (items.Count == 0)
         {
-            return null;
+            return default;
         }
         float closestDistance = float.MaxValue;
         T closest = default;
-        for (var index1 = 0; index1 < items.Count; index1++)
+        for (int i = 0; i < items.Count; i++)
         {
-            var i = items[index1];
-            var distance = DistanceToMousePixels(PosGetter(i));
+            var item = items[i];
+            var distance = DistanceToMousePixels(positionGetter(item));
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                closest = i;
-                index = index1;
+                closest = item;
+                closestIndex = i;
             }
         }
         
@@ -105,29 +133,28 @@ public class Hover
         var nodesInsideRadius = FilterByRadius(anchoredNodes, node => node.Position, _cellSize);
         if (nodesInsideRadius.Count == 0) return null;
 
-        return (VerletNode)GetClosest(nodesInsideRadius, node => node.Position, out int index);
+        return GetClosest(nodesInsideRadius, node => node.Position, out int index);
     }
     
-    private void TrySetHoveredStitches(IEnumerable<int> indexSelection, IList<Vector3> screenPositions, IList<Stitch> stitches)
+    private void TrySetHoveredStitches(IEnumerable<int> stitchIndexCandidates, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         if (SelectedNode != null) return;
-        foreach (var (key, value) in GameManager.Instance.Project.anchors.GetAnchors())
+        foreach (Anchor anchor in GameManager.Instance.Project.anchors.GetAnchors().Values)
         {
-            value.SetHighlight(0f);
+            anchor.SetHighlight(0f);
         }
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
-        float closestDistance = float.MaxValue; // Track the closest stitch
 
-        IndicesInRadius = new List<int>(indexSelection);
-
-        Stitch[] stitchesInRadius = IndicesInRadius.Select(index => stitches[index]).ToArray();
-        HoveredStitch = (Stitch)GetClosest(stitchesInRadius, stitch => stitch.Position, out int hoveredStitchIndex);
+        IndicesInRadius = stitchIndexCandidates.ToList();
         
-        if (HoveredStitch == null) return;
+        int closestStitchIndex = GetClosestScreenPositionIndexInRadius(IndicesInRadius, screenPositions, Input.mousePosition, MouseRadius);
+        HoveredStitch = closestStitchIndex == -1 ? null : stitches[closestStitchIndex];
+        
+        if (closestStitchIndex < 0) return;
 
         if (MouseRadius == 0)
         {
-            int hoveredStitch = IndicesInRadius[hoveredStitchIndex];
+            int hoveredStitch = closestStitchIndex;
             HoverStitchStatus[hoveredStitch] = true;
             IndicesInRadius.Clear();
             IndicesInRadius.Add(hoveredStitch);
@@ -159,7 +186,7 @@ public class Hover
         return (point - (Vector2)Input.mousePosition).magnitude;
     }
 
-    private float ScreenDistance(Vector3 screenPos1, Vector3 screenPos2)
+    private static float ScreenDistance(Vector3 screenPos1, Vector3 screenPos2)
     {
         Vector2 diff = new Vector2(screenPos2.x - screenPos1.x, screenPos2.y - screenPos1.y);
         return diff.magnitude;
