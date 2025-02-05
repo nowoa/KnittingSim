@@ -30,13 +30,17 @@ public class Hover
         
         var mouseCell = SpatialHashGrid.GetCellKey2D(Input.mousePosition, _cellSize);
 
-        int[] indicesToCheck = SpatialHashGrid.offsets2D
+        IEnumerable<int> indicesToCheck = SpatialHashGrid.offsets2D
             .Where(offset => hashGrid.ContainsKey(offset + mouseCell))
             .SelectMany(offset => hashGrid[offset + mouseCell]).ToArray();
 
-        
-        IEnumerable<int> indicesInRange = indicesToCheck.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= _cellSize);
-        
+        Vector3 cameraForward = _cam.transform.forward;
+        List<int> indicesInViewDir =
+            indicesToCheck.Where(index => Vector3.Dot(stitches[index].Normal, cameraForward) < 0).ToList();
+        //List<int> indicesInViewAngle = indicesToCheck.Where(index => StitchAngle(stitches[index].Normal) >-90 && StitchAngle(stitches[index].Normal) <90).ToList();
+        //Debug.Log(indicesInViewAngle.Count());
+        List<int> indicesInRange = indicesInViewDir.Where(index => ScreenDistance(screenPositions[index], Input.mousePosition) <= _cellSize).ToList();
+        if (indicesInRange.Count!=0)Debug.Log(StitchAngle(stitches[indicesInRange[0]].Normal));
         TrySetHoveredStitches(indicesInRange,screenPositions,stitches);
         
         
@@ -140,22 +144,23 @@ public class Hover
     private void TrySetHoveredStitches(IEnumerable<int> stitchIndexCandidates, IList<Vector3> screenPositions, IList<Stitch> stitches)
     {
         if (SelectedNode != null) return;
-        foreach (Anchor anchor in GameManager.Instance.Project.anchors.GetAnchors().Values)
+        foreach (var (key, value) in GameManager.Instance.Project.anchors.GetAnchors())
         {
-            anchor.SetHighlight(0f);
+            value.SetHighlight(0f);
         }
         Vector2 mousePos = NormalizePixelCoords(Input.mousePosition);
+        float closestDistance = float.MaxValue; // Track the closest stitch
 
-        IndicesInRadius = stitchIndexCandidates.ToList();
+        IndicesInRadius = new List<int>(stitchIndexCandidates);
+
+        Stitch[] stitchesInRadius = IndicesInRadius.Select(index => stitches[index]).ToArray();
+        HoveredStitch = GetClosest(stitchesInRadius, stitch => stitch.Position, out int hoveredStitchIndex);
         
-        int closestStitchIndex = GetClosestScreenPositionIndexInRadius(IndicesInRadius, screenPositions, Input.mousePosition, GameManager.Instance.Project.MinimumCellSize);
-        HoveredStitch = closestStitchIndex == -1 ? null : stitches[closestStitchIndex];
-        
-        if (closestStitchIndex < 0) return;
+        if (HoveredStitch == null) return;
 
         if (MouseRadius == 0)
         {
-            int hoveredStitch = closestStitchIndex;
+            int hoveredStitch = IndicesInRadius[hoveredStitchIndex];
             HoverStitchStatus[hoveredStitch] = true;
             IndicesInRadius.Clear();
             IndicesInRadius.Add(hoveredStitch);
@@ -227,5 +232,11 @@ public class Hover
     {
         Vector3 mousePositionWithDepth = Input.mousePosition + new Vector3(0, 0, _selectedNodeDepth);
         return _cam.ScreenToWorldPoint(mousePositionWithDepth);
+    }
+
+    public float StitchAngle(Vector3 normal)
+    {
+        var transform = _cam.transform;
+        return Vector3.SignedAngle(normal, transform.forward, transform.up);
     }
 }
