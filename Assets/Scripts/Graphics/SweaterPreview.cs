@@ -73,12 +73,22 @@ public class SweaterPreview : MonoBehaviour
         _runtimeMaterial.SetFloat("_Thickness", thickness);
     }
 
-    public static Vector2[] PointsFromSweaterParameters(int bodyWidth, int bodyHeight, int sleeveLength, int sleeveHeight, int collarWidth, int collarHeight)
+    public static Vector2[] PointsFromSweaterParameters(float bodyWidth, float bodyHeight, float sleeveLength, float sleeveHeight, float collarWidth, float collarHeight, Vector2 gauge)
     {
+
+        float sizeX = 10f / gauge.x;
+        float sizeY = 10f / gauge.y;
+        bodyWidth *= sizeX;
+        bodyHeight *= sizeY;
+        sleeveLength *= sizeY;
+        sleeveHeight *= sizeX;
+        collarWidth *= sizeX;
+        collarHeight *= sizeY;
+        
         float shoulder1 = bodyWidth / 2f - collarWidth / 2f;
         float shoulder2 = bodyWidth - collarWidth - shoulder1;
         Debug.Log($"{shoulder1}, {shoulder2}");
-        int lowerBodyHeight = bodyHeight - sleeveHeight;
+        float lowerBodyHeight = bodyHeight - sleeveHeight;
         Vector2[] offsets =
         {
             new(0,0),
@@ -116,7 +126,9 @@ public class SweaterPreview : MonoBehaviour
             gen.SleeveStitchLength, 
             gen.SleeveStitchWidth, 
             gen.CollarStitchWidth, 
-            gen.CollarStitchHeight);
+            gen.CollarStitchHeight,
+            gen.Gauge
+            );
     }
 
     public static int StitchCountFromSweaterParameters(int bodyWidth, int bodyHeight, int sleeveLength, int sleeveHeight, int collarWidth, int collarHeight)
