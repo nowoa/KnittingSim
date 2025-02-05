@@ -55,4 +55,12 @@ public static class Util
     {
         return item.In(collection: checkItems);
     }
+    
+    public static float Remap(this float value, float from1, float to1, float from2, float to2) {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }
+    
+    public static Vector2 Remap(this Vector2 value, Vector2 fromMin, Vector2 fromMax, Vector2 toMin, Vector2 toMax) {
+        return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
+    }
 }

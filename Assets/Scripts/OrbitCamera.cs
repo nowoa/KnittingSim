@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class OrbitCamera : MonoBehaviour
 {
     private class OrbitCameraProperties
     {
+        
         public Vector3 FocusPoint { get; private set; }
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
@@ -17,6 +19,7 @@ public class OrbitCamera : MonoBehaviour
         {
             Zoom = 10f;
         }
+        
 
         public void SetFocusPoint(Vector3 p)
         {
@@ -56,6 +59,10 @@ public class OrbitCamera : MonoBehaviour
         }
     }
     
+    
+    public static OrbitCamera Instance;
+    
+    
     [Header("Local References")]
     [SerializeField] private Transform focus;
     [SerializeField] private Transform verticalAxis;
@@ -77,7 +84,10 @@ public class OrbitCamera : MonoBehaviour
     private bool _useSmoothMotion = true;
 
     private Vector3 _lastPointPanning;
-    
+
+    private void OnEnable() => Instance = this;
+    private void OnDisable() => Instance = null;
+
     private void Update()
     {
         if (_controlsEnabled)
@@ -159,6 +169,17 @@ public class OrbitCamera : MonoBehaviour
     }
 
     #region PUBLIC API
+
+    public void SetTransforms(float yaw = 0.0f, float pitch = 0.0f, float zoom = 10f, Vector3? focusPosition = null)
+    {
+        _orbitProps.SetYaw(yaw);
+        _orbitProps.SetPitch(pitch);
+        _orbitProps.SetZoom(zoom);
+        if (focusPosition is not null)
+        {
+            _orbitProps.SetFocusPoint(focusPosition.Value);
+        }
+    }
 
     public void SetControlsEnabled(bool toggle)
     {
