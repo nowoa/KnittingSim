@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using UnityEngine;
 using Verlet;
+using Vector3 = UnityEngine.Vector3;
 
 public class PanelGenerator : MonoBehaviour
 {
@@ -13,12 +15,19 @@ public class PanelGenerator : MonoBehaviour
     [ContextMenu("Generate panel")]
     private void GeneratePanel()
     {
-        GameManager.Instance.Project.AddPanel(panelName,dimensions, isCircular, gauge, new Vector3(0,0,0));
+        var panelConfig = 
+            new PanelConfig(
+                panelName,
+                dimensions,
+                isCircular,
+                gauge,
+                Vector3.zero);
+        GameManager.Instance.Project.AddPanel(panelConfig);
     }
     
-    public static void GeneratePanel(string myPanelName, Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge, Vector3 startPos)
+    public static void GeneratePanel(PanelConfig panelConfig)
     {
-        GameManager.Instance.Project.AddPanel(myPanelName,myDimensions, myIsCircular, myGauge, startPos);
+        GameManager.Instance.Project.AddPanel(panelConfig);
     }
 }
 

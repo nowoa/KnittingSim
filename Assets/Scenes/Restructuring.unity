@@ -491,6 +491,7 @@ GameObject:
   - component: {fileID: 421417175}
   - component: {fileID: 421417178}
   - component: {fileID: 421417179}
+  - component: {fileID: 421417180}
   m_Layer: 0
   m_Name: Game
   m_TagString: GameController
@@ -635,6 +636,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orbitCamera: {fileID: 1551022891}
+--- !u!114 &421417180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421417169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9d0bd71973d41f2ad41ee7744479ea4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BodyStitchWidth: 20
+  BodyStitchHeight: 20
+  SleeveStitchWidth: 8
+  SleeveStitchLength: 10
+  CollarStitchWidth: 8
+  CollarStitchHeight: 2
+  Gauge: {x: 30, y: 30}
 --- !u!1 &561173124
 GameObject:
   m_ObjectHideFlags: 0

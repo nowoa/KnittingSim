@@ -25,25 +25,76 @@ public class SweaterGenerator : MonoBehaviour
         MakePanels();
         GetPanels();
         CreateSeams();
+        SetAnchors();
     }
 
     private void MakePanels()
     {
         //TODO: set instantiate positions to something close to where the panel will be
         //body front panel
-        PanelGenerator.GeneratePanel("body front", new Vector2Int(BodyStitchWidth, BodyStitchHeight), false, Gauge, new Vector3(0,0,0));
+
+        var bodyFrontConfig = 
+            new PanelConfig(
+                "body front", 
+                new Vector2Int(BodyStitchWidth, BodyStitchHeight),
+                false,
+                Gauge,
+                new Vector3(-(BodyStitchWidth*10/Gauge.x)/2f, -((BodyStitchHeight + CollarStitchHeight)*10f/Gauge.y)/2f, -0.1f)
+            );
+        PanelGenerator.GeneratePanel(bodyFrontConfig);
         
         //body back panel
-        PanelGenerator.GeneratePanel("body back", new Vector2Int(BodyStitchWidth, BodyStitchHeight), false, Gauge, new Vector3(0,0,-4));
+        var bodyBackConfig = 
+            new PanelConfig(
+                "body back", 
+                new Vector2Int(BodyStitchWidth, BodyStitchHeight),
+                false,
+                Gauge,
+                new Vector3(-(BodyStitchWidth*10/Gauge.x)/2f, -((BodyStitchHeight + CollarStitchHeight)*10f/Gauge.y)/2f, 0.1f),
+                false,
+                true
+            );
+        PanelGenerator.GeneratePanel(bodyBackConfig);
         
         //left sleeve
-        PanelGenerator.GeneratePanel("left sleeve", new Vector2Int(SleeveStitchWidth*2, SleeveStitchLength), false, Gauge, new Vector3(-5,2,0));
+        var leftSleeveConfig = 
+            new PanelConfig(
+                "left sleeve", 
+                new Vector2Int(SleeveStitchWidth*2,SleeveStitchLength),
+                false,
+                Gauge,
+                new Vector3(-((SleeveStitchLength * 10f / Gauge.y) + (BodyStitchWidth * 10f / Gauge.x/2)),(BodyStitchHeight*10f/Gauge.y)/4,0),
+                true,
+                false,
+                PanelConfig.rotationEnum.LEFT
+            );
+        PanelGenerator.GeneratePanel(leftSleeveConfig);
         
         //right sleeve
-        PanelGenerator.GeneratePanel("right sleeve", new Vector2Int(SleeveStitchWidth*2, SleeveStitchLength), false, Gauge, new Vector3(5,2,0));
+        var rightSleeveConfig = 
+            new PanelConfig(
+                "right sleeve", 
+                new Vector2Int(SleeveStitchWidth*2,SleeveStitchLength),
+                false,
+                Gauge,
+                new Vector3(((SleeveStitchLength * 10f / Gauge.y) + (BodyStitchWidth * 10f / Gauge.x/2))*1.1f,(BodyStitchHeight*10f/Gauge.y)/4,0),
+                true,
+                false,
+                PanelConfig.rotationEnum.RIGHT
+            );
+        PanelGenerator.GeneratePanel(rightSleeveConfig);
         
         //collar
-        PanelGenerator.GeneratePanel("collar", new Vector2Int(CollarStitchWidth*2, CollarStitchHeight), false, Gauge, new Vector3(0,10,0));
+        var collarConfig = 
+            new PanelConfig(
+                "collar", 
+                new Vector2Int(CollarStitchWidth*2, CollarStitchHeight),
+                false,
+                Gauge,
+                new Vector3(0,(BodyStitchHeight*10f/Gauge.y)/2f,0),
+                true
+            );
+        PanelGenerator.GeneratePanel(collarConfig);
     }
 
     private void GetPanels()
@@ -134,13 +185,15 @@ public class SweaterGenerator : MonoBehaviour
         
         
         //body to sleeve left front
-        var bodyToSleeveLeft_front = GetSeamNodes(body_14, bodyToSleeveLength, _bodyFront, false);
-        var sleeveToBodyLeft_front = GetSeamNodes(sleeve_14b, bodyToSleeveLength, _leftSleeve, true);
+        var bodyToSleeveLeft_front = GetSeamNodes(body_14, bodyToSleeveLength, _bodyFront, false, true);
+        var sleeveToBodyLeft_front = GetSeamNodes(sleeve_11, bodyToSleeveLength, _leftSleeve, true);
         Seam.ConnectSeams(bodyToSleeveLeft_front, sleeveToBodyLeft_front);
         //sleeve to body left back
         var bodyToSleeveLeft_back = GetSeamNodes(body_3, bodyToSleeveLength, _bodyBack, false, true);
-        var sleeveToBodyLeft_back = GetSeamNodes(sleeve_11, bodyToSleeveLength, _leftSleeve, true);
+        var sleeveToBodyLeft_back = GetSeamNodes(sleeve_14b, bodyToSleeveLength, _leftSleeve, true, true);
         Seam.ConnectSeams(bodyToSleeveLeft_back, sleeveToBodyLeft_back);
+        
+        
         //body to sleeve right front
         var bodyToSleeveRight_front = GetSeamNodes(body_3, bodyToSleeveLength, _bodyFront, false);
         var sleeveToBodyRight_front = GetSeamNodes(sleeve_6, bodyToSleeveLength, _rightSleeve, true);
@@ -173,13 +226,13 @@ public class SweaterGenerator : MonoBehaviour
         
         //body to collar front
         var bodyToCollarSeam_front = GetSeamNodes(body_10, bodyToCollarLength, _bodyFront, true);
-        var collarToBodySeam_front = GetSeamNodes(collar_10, bodyToCollarLength, _collar, true);
+        var collarToBodySeam_front = GetSeamNodes(collar_7, bodyToCollarLength, _collar, true);
         Seam.ConnectSeams(bodyToCollarSeam_front, collarToBodySeam_front);
         
         
         //body to collar back
         var bodyToCollarSeam_back = GetSeamNodes(body_10, bodyToCollarLength, _bodyBack, true);
-        var collarToBodySeam_back = GetSeamNodes(collar_7, bodyToCollarLength, _collar, true);
+        var collarToBodySeam_back = GetSeamNodes(collar_10, bodyToCollarLength, _collar, true);
         Seam.ConnectSeams(bodyToCollarSeam_back, collarToBodySeam_back);
         
         
@@ -211,6 +264,22 @@ public class SweaterGenerator : MonoBehaviour
         }
 
         return result;
+    }
+
+    private void SetAnchors()
+    {
+        var stretchFactor = 0.9f;
+        var horizontalGauge = 10f / Gauge.x;
+        var verticalGauge = 10f / Gauge.y;
+        var anchors = GameManager.Instance.Project.anchors;
+        anchors.ToggleAnchor(_bodyFront.Nodes[0], new Vector3(-(BodyStitchWidth * horizontalGauge) * stretchFactor, -(BodyStitchHeight+CollarStitchHeight)*verticalGauge)* stretchFactor);
+        anchors.ToggleAnchor(_bodyFront.Nodes[BodyStitchWidth], new Vector3((BodyStitchWidth * horizontalGauge)* stretchFactor,-(BodyStitchHeight+CollarStitchHeight)*verticalGauge)* stretchFactor);
+        anchors.ToggleAnchor(_collar.Nodes[^1], new Vector3((CollarStitchWidth * horizontalGauge)* stretchFactor,(BodyStitchHeight+CollarStitchHeight)*verticalGauge)* stretchFactor);
+        anchors.ToggleAnchor(_collar.Nodes[_collar.Nodes.Count - CollarStitchWidth -1], new Vector3(-(CollarStitchWidth * horizontalGauge)* stretchFactor,(BodyStitchHeight+CollarStitchHeight)*verticalGauge)* stretchFactor);
+        anchors.ToggleAnchor(_leftSleeve.Nodes[0], new Vector3((-(2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor),-(SleeveStitchWidth*horizontalGauge)*stretchFactor));
+        anchors.ToggleAnchor(_leftSleeve.Nodes[SleeveStitchWidth], new Vector3((-(2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor),0f));
+        anchors.ToggleAnchor(_rightSleeve.Nodes[0], new Vector3((2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor, 0));
+        anchors.ToggleAnchor(_rightSleeve.Nodes[SleeveStitchWidth], new Vector3((2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor, -(SleeveStitchWidth*horizontalGauge)*stretchFactor));
     }
     
     

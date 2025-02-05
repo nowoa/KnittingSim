@@ -35,10 +35,10 @@ public class Project
         /*GameManager.Instance.EventManager.OnRegenerateMesh += UpdateFabricStructure;*/
     }
 
-    public void AddPanel(string myName,Vector2Int myDimensions, bool myIsCircular, Vector2Int myGauge, Vector3 startPos)
+    public void AddPanel(PanelConfig panelConfig)
     {
-        _panels.Add(myName,new Panel());
-        _panels[myName].CreatePanel(myDimensions,myIsCircular, myGauge,myName, startPos);
+        _panels.Add(panelConfig.Name,new Panel());
+        _panels[panelConfig.Name].CreatePanel(panelConfig);
         UpdateGlobalNodesAndStitches();
         GameManager.Instance.EventManager.InvokeStructureUpdate();
     }
