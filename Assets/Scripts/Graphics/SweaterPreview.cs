@@ -27,6 +27,7 @@ public class SweaterPreview : MonoBehaviour
         {
             _pointBuffer.Release();
         }
+        _rawImage.material = material;
     }
 
     public void SetPoints(Vector2[] points, float remapMarginFactor = 0.1f, float thickness = 0.02f)
