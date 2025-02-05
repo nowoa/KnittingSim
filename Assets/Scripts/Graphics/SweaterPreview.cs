@@ -29,7 +29,8 @@ public class SweaterPreview : MonoBehaviour
         }
         _rawImage.material = material;
     }
-
+    
+    // the margin is relative to the UV space, thickness is also in UV space so small numbers should be used
     public void SetPoints(Vector2[] points, float remapMarginFactor = 0.1f, float thickness = 0.02f)
     {
         if (points.Length < 2)
