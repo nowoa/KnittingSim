@@ -58,9 +58,9 @@ Shader "Unlit/SH_SDFLines"
                     return float4(1, 1, 0, 1);
                 }
                 float dist = 99999;
-                for(int i = 0; i < _PointCount; i++)
+                for(int i = 0; i < _PointCount - 1; i++)
                 {
-                    float lineDist = sdLine(IN.uv, _Points[i], _Points[(i + 1) % _PointCount], _Thickness);
+                    float lineDist = sdLine(IN.uv, _Points[i], _Points[i + 1], _Thickness);
                     dist = min(dist, lineDist);
                 }
                 float outline = dist < 0;

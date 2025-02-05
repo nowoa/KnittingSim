@@ -63,4 +63,14 @@ public static class Util
     public static Vector2 Remap(this Vector2 value, Vector2 fromMin, Vector2 fromMax, Vector2 toMin, Vector2 toMax) {
         return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
     }
+
+    public static string Format<T>(this IEnumerable<T> items)
+    {
+        return "{" + string.Join(", ", items) + "}";
+    }
+
+    public static void Print<T>(this IEnumerable<T> items, string title = "")
+    {
+        Debug.Log(title + items.Format());
+    }
 }
