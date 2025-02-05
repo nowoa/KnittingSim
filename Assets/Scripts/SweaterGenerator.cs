@@ -1,5 +1,3 @@
-
-
 using System.Linq;
 using UnityEngine;
 using Verlet;
@@ -281,8 +279,17 @@ public class SweaterGenerator : MonoBehaviour
         anchors.ToggleAnchor(_rightSleeve.Nodes[0], new Vector3((2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor, 0));
         anchors.ToggleAnchor(_rightSleeve.Nodes[SleeveStitchWidth], new Vector3((2*SleeveStitchLength*verticalGauge + BodyStitchWidth*horizontalGauge)* stretchFactor, -(SleeveStitchWidth*horizontalGauge)*stretchFactor));
     }
-    
-    
-    
-    
+
+    public static int StitchCountFromRelativeSize(float relativeSize, int referenceSize)
+    {
+        float absoluteSizeExact = relativeSize * referenceSize;
+        int referenceMod = referenceSize % 2;
+        int absoluteRounded = Mathf.RoundToInt(absoluteSizeExact);
+        if (absoluteRounded <= 1) absoluteRounded += 2;
+        if (absoluteRounded % 2 == referenceMod)
+        {
+            return absoluteRounded;
+        }
+        return absoluteRounded - 1;
+    }
 }
