@@ -7,9 +7,11 @@ public class Movement : MonoBehaviour
 {
     public GameObject RightArm;
     public GameObject LeftArm;
+    public GameObject LeftNeedle;
     public Transform RightPivot;
     public Transform LeftPivot;
 
+    public int leftNeedleInitRot;
     public float rotationSpeed;
     public int initialRotation;
     public float speed;
@@ -34,6 +36,7 @@ public class Movement : MonoBehaviour
              (storedMousePosition.x * rotationSpeed) + initialRotation);
          
          LeftArm.transform.rotation = Quaternion.Euler(LeftArm.transform.rotation.x, 0, (storedMousePosition.x * rotationSpeed * 0.6f));
+         LeftNeedle.transform.rotation = Quaternion.Euler(0, 0, (-storedMousePosition.x * rotationSpeed) + leftNeedleInitRot);
          
          Debug.Log(storedMousePosition);
     }
