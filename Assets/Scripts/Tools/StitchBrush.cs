@@ -84,4 +84,9 @@ public class StitchBrush : Tool
                 break;
         }
     }
+
+    public override void OnDeactivate()
+    {
+        _activeBrush = ActiveBrush.NONE;
+    }
 }

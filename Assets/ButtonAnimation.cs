@@ -19,6 +19,7 @@ public class ButtonAnimation : MonoBehaviour
     public ToolEnum _toolEnum;
     public ButtonAnimation[] buttons;
     public Color color;
+    public bool active;
 
     public enum ToolEnum
     {
@@ -32,6 +33,7 @@ public class ButtonAnimation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        active = true;
         switch (_toolEnum)
         {
             case ToolEnum.Dragger:
@@ -48,11 +50,13 @@ public class ButtonAnimation : MonoBehaviour
                 tool = ToolManager.SelectorInstance;
                 return;
         }
+        
     }
 
 
     public void AnimateEnter()
     {
+        if (!active) return;
         if (ToolManager.ActiveTool == tool) return;
         LeanTween.scale(Background, new Vector3(1.3f, 1.3f, 1), 0.2f).setEase(easeType);
         LeanTween.scale(Text, new Vector3(1f, 1f, 1), 0.3f).setEase(popUp);
@@ -62,6 +66,7 @@ public class ButtonAnimation : MonoBehaviour
 
     public void AnimateExit()
     {
+        if (!active) return;
         if (ToolManager.ActiveTool == tool) return;
         BG_Img.color = Color.white;
         LeanTween.scale(Background, new Vector3(0f, 0f, 1), 0.2f).setEase(easeType);
@@ -72,6 +77,7 @@ public class ButtonAnimation : MonoBehaviour
 
     public void AnimatePressDown()
     {
+        if (!active) return;
         if (_toolEnum != default)
         {
             ToolManager.SetActiveTool(tool);
@@ -92,9 +98,20 @@ public class ButtonAnimation : MonoBehaviour
 
     public void AnimateRelease()
     {
+        if (!active) return;
         LeanTween.scale(Background, new Vector3(1.1f, 1.1f, 1), 0.1f).setEase(LeanTweenType.easeOutSine);
         LeanTween.scale(Text, new Vector3(0f, 0f, 1), 0.1f).setEase(LeanTweenType.easeInSine);
         LeanTween.scale(Icon, new Vector3(1f, 1f, 1f), 0.2f).setEase(LeanTweenType.easeOutBack);
+    }
+
+    public void TurnOffGameInputs()
+    {
+        InputHandler.ToggleGameInput(false);
+    }
+
+    public void TurnOnGameInputs()
+    {
+        InputHandler.ToggleGameInput(true);
     }
 
 }

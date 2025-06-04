@@ -8,6 +8,11 @@ public abstract class Tool
     {
         
     }
+
+    public virtual void OnDeactivate()
+    {
+        
+    }
     public virtual void DefaultBehavior()
     {
     }
@@ -92,6 +97,11 @@ public static class ToolManager
     public static void OnSpecialAction()
     {
         ActiveTool.SpecialAction();
+    }
+
+    public static void OnDeactivate()
+    {
+        ActiveTool.OnDeactivate();
     }
 }
 

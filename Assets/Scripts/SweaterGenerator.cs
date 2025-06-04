@@ -18,7 +18,19 @@ public class SweaterGenerator : MonoBehaviour
     private Panel _rightSleeve;
     private Panel _collar;
 
-    [ContextMenu("Generate sweater")] public void GenerateSweater()
+    public void InitializeSweaterValues(int bodyStitchWidth, int bodyStitchHeight, float relativeSleeveStitchWidth,
+        int sleeveStitchLength, float relativeCollarStitchWidth, int collarStitchHeight)
+    {
+        BodyStitchWidth = bodyStitchWidth;
+        BodyStitchHeight = bodyStitchHeight;
+        SleeveStitchWidth = StitchCountFromRelativeSize(relativeSleeveStitchWidth, BodyStitchHeight);
+        SleeveStitchLength = sleeveStitchLength;
+        CollarStitchWidth = StitchCountFromRelativeSize(relativeCollarStitchWidth, BodyStitchWidth);
+        CollarStitchHeight = collarStitchHeight;
+        GenerateSweater();
+    }
+
+    public void GenerateSweater()
     {
         MakePanels();
         GetPanels();

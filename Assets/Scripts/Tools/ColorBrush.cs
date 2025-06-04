@@ -44,4 +44,9 @@ public class ColorBrush : Tool
         // add this to add a little bit of randomisation to the color -- causes it to flicker if you hold the mouse in the same pos
         //  + new Color((0.5f - Random.value)/20, (0.5f - Random.value)/20, (0.5f - Random.value)/20) 
     }
+
+    public override void OnDeactivate()
+    {
+        active = false;
+    }
 }

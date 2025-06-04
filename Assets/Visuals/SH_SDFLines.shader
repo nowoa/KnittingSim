@@ -68,8 +68,8 @@ Shader "Unlit/SH_SDFLines"
                 {
                     discard;
                 }
-                float col = 1;
-                return col;
+                
+                return float4(1,0.75,0.7,1);
             }
             ENDCG
         }

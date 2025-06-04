@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6568012589370869145}
   - component: {fileID: 5008529155372358948}
   m_Layer: 5
-  m_Name: Button (2)
+  m_Name: yellow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 2525424640169699892}
   - component: {fileID: 963605102643676463}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: orange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,7 +253,7 @@ GameObject:
   - component: {fileID: 7756586898135582529}
   - component: {fileID: 8156866996696929580}
   m_Layer: 5
-  m_Name: Button (13)
+  m_Name: light purple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -373,7 +373,7 @@ GameObject:
   - component: {fileID: 3211882323747532179}
   - component: {fileID: 2765430984971056001}
   m_Layer: 5
-  m_Name: Button (12)
+  m_Name: light blue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 4352608789942970366}
   - component: {fileID: 9193943073088514348}
   m_Layer: 5
-  m_Name: Button (15)
+  m_Name: white
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -613,7 +613,7 @@ GameObject:
   - component: {fileID: 9132037971751866392}
   - component: {fileID: 1943419873672598951}
   m_Layer: 5
-  m_Name: Button (14)
+  m_Name: light magenta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -733,7 +733,7 @@ GameObject:
   - component: {fileID: 3363376564287535494}
   - component: {fileID: 2068888492028388804}
   m_Layer: 5
-  m_Name: Button (5)
+  m_Name: light orange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -853,7 +853,7 @@ GameObject:
   - component: {fileID: 6693501377070837679}
   - component: {fileID: 5614787098845186896}
   m_Layer: 5
-  m_Name: Button (4)
+  m_Name: pink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -973,7 +973,7 @@ GameObject:
   - component: {fileID: 5558138311618236423}
   - component: {fileID: 790025386594989255}
   m_Layer: 5
-  m_Name: Button (11)
+  m_Name: black
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1093,7 +1093,7 @@ GameObject:
   - component: {fileID: 1684981086685052657}
   - component: {fileID: 3423308254682621615}
   m_Layer: 5
-  m_Name: Button (7)
+  m_Name: light green
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1213,7 +1213,7 @@ GameObject:
   - component: {fileID: 8055445971496031654}
   - component: {fileID: 8455384153559251786}
   m_Layer: 5
-  m_Name: Button (8)
+  m_Name: blue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1333,7 +1333,7 @@ GameObject:
   - component: {fileID: 6120121799536416347}
   - component: {fileID: 3673145573648926073}
   m_Layer: 5
-  m_Name: Button
+  m_Name: red
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1522,7 +1522,7 @@ GameObject:
   - component: {fileID: 8985698229624382351}
   - component: {fileID: 8999958260673896839}
   m_Layer: 5
-  m_Name: Button (10)
+  m_Name: magenta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1642,7 +1642,7 @@ GameObject:
   - component: {fileID: 7526294557830465307}
   - component: {fileID: 7498476615087380657}
   m_Layer: 5
-  m_Name: Button (3)
+  m_Name: green
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1762,7 +1762,7 @@ GameObject:
   - component: {fileID: 3498941940081688514}
   - component: {fileID: 9000193566684827690}
   m_Layer: 5
-  m_Name: Button (9)
+  m_Name: purple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1903,7 +1903,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -98, y: 304}
+  m_AnchoredPosition: {x: 15, y: -391}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4660377158172172505
@@ -1954,7 +1954,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4627516156976955616}
   - component: {fileID: 7417998498753588689}
-  - component: {fileID: 1712539092754219555}
   - component: {fileID: 5270244189764354042}
   m_Layer: 5
   m_Name: Background
@@ -1976,20 +1975,20 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1835449350584985615}
-  - {fileID: 6147185807976429681}
-  - {fileID: 2326831229159445623}
-  - {fileID: 7074820216054493148}
   - {fileID: 7175879295106488864}
+  - {fileID: 6147185807976429681}
   - {fileID: 1890621704118929904}
+  - {fileID: 2326831229159445623}
   - {fileID: 6882477868649789401}
+  - {fileID: 7074820216054493148}
   - {fileID: 8959689982312507443}
   - {fileID: 8928003947157968324}
-  - {fileID: 3440388975435763421}
-  - {fileID: 7356470037210329709}
-  - {fileID: 1470783469471784342}
   - {fileID: 5385843970655172562}
+  - {fileID: 3440388975435763421}
   - {fileID: 8460296294307100016}
+  - {fileID: 7356470037210329709}
   - {fileID: 3716522678637039044}
+  - {fileID: 1470783469471784342}
   - {fileID: 953129165567070272}
   m_Father: {fileID: 8373779849714271720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2006,36 +2005,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7929175475313699705}
   m_CullTransparentMesh: 1
---- !u!114 &1712539092754219555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7929175475313699705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &5270244189764354042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2058,7 +2027,7 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 50, y: 50}
   m_Spacing: {x: 20, y: 20}
-  m_Constraint: 0
+  m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &8736116058546526892
 GameObject:
@@ -2073,7 +2042,7 @@ GameObject:
   - component: {fileID: 4416019362103121721}
   - component: {fileID: 7390635243111873291}
   m_Layer: 5
-  m_Name: Button (6)
+  m_Name: light yellow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

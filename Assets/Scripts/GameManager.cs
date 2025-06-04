@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Project = new Project();
+        OrbitCamera.Instance.SetTransforms(0.01f,0,20);
     }
 
 

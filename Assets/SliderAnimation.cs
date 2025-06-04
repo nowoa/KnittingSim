@@ -35,4 +35,18 @@ public class SliderAnimation : MonoBehaviour
         LeanTween.scale(SliderBG, new Vector3(0.4f, 1, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
         LeanTween.scale(SliderFill, new Vector3(0.4f, 1, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
     }
+    
+    public void AnimateSliderHoverHorizontal()
+    {
+        LeanTween.scale(SliderBG, new Vector3(1, 1f, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.scale(SliderFill, new Vector3(1f, 1f, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.scale(sliderHandle, new Vector3(4f, 4f, 1f), 0.1f).setEase(LeanTweenType.easeInOutSine);
+        
+    }
+    public void AnimateSliderExitHorizontal()
+    {
+        LeanTween.scale(sliderHandle, new Vector3(3f, 3f, 1f), 0.1f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.scale(SliderBG, new Vector3(1f, 1, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.scale(SliderFill, new Vector3(1f, 1, 1), 0.1f).setEase(LeanTweenType.easeInOutSine);
+    }
 }

@@ -27,4 +27,9 @@ public class Dragger : Tool
         if (nodeToAnchor is null) return;
         GameManager.Instance.Project.anchors.ToggleAnchor(nodeToAnchor, nodeToAnchor.Position);
     }
+
+    public override void OnDeactivate()
+    {
+        hover.SelectNode(false);
+    }
 }

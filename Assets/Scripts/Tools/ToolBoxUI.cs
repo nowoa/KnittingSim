@@ -9,7 +9,6 @@ public class ToolBoxUI : MonoBehaviour
 {
     public static ToolBoxUI Instance;
     
-    public Slider slider;
     public Slider Radius;
     [FormerlySerializedAs("MouseRadiusCircle")] public Image mouseRadiusCircle;
 
@@ -93,18 +92,6 @@ public class ToolBoxUI : MonoBehaviour
     {
         GameManager.Instance.Hover.IsActive = !GameManager.Instance.Hover.IsActive;
         Debug.Log(GameManager.Instance.Hover.IsActive);
-    }
-
-    public void CreatePanel()
-    {
-        var config = new PanelConfig(
-            Random.value.ToString(),
-            new Vector2Int(Mathf.FloorToInt(slider.value),Mathf.FloorToInt(slider.value)),
-            false,
-            new Vector2Int(30,30),
-            Vector3.zero
-        );
-        PanelGenerator.GeneratePanel(config);
     }
 
     public void CollisionToggle()

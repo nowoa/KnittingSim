@@ -9,7 +9,12 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private OrbitCamera orbitCamera;
 
     private bool HasProject => GameManager.Instance.Project is not null;
-    
+
+    public static void ToggleGameInput(bool active)
+    {
+        if (!active) ToolManager.OnDeactivate();
+        GameInput = active;
+    }
 
     private void Update()
     {
@@ -27,8 +32,13 @@ public class InputHandler : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.F))
         {
-            orbitCamera.Focus(GameManager.Instance.Project.FabricMesh.GetComponent<MeshRenderer>());
+            Focus();
         }
+    }
+
+    public void Focus()
+    {
+        orbitCamera.Focus(GameManager.Instance.Project.FabricMesh.GetComponent<MeshRenderer>());
     }
 
     private void HandleCamera()
