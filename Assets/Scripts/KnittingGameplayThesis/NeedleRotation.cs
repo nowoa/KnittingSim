@@ -6,6 +6,8 @@ using UnityEngine;
 public class NeedleRotation : MonoBehaviour
 {
     public Transform Target;
+
+    public bool isInStitch;
     // Start is called before the first frame update
     void Start()
     {
@@ -13,13 +15,21 @@ public class NeedleRotation : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-        var rot = Quaternion.LookRotation(
-            Vector3.back,
-            Target.position - transform.position
-        );
-        transform.rotation = rot;
+        if (Input.GetKey(KeyCode.Mouse0) || isInStitch)
+        {
+            transform.rotation = Quaternion.LookRotation(
+                Vector3.back,
+                Target.position - transform.position
+            );
+        }
+        else
+        {
+            transform.localRotation =
+                Quaternion.Euler(0, 0, -40);
+        }
+        
     }
     
 }

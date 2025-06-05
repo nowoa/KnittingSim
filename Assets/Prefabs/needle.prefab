@@ -805,14 +805,14 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1611063946810572117}
-  - {fileID: 8775694459645639469}
-  - {fileID: 7047838179350416255}
-  - {fileID: 7121434195252787077}
-  - {fileID: 6720295169125302136}
-  - {fileID: 1740646706937885542}
-  - {fileID: 424588731021921488}
   - {fileID: 2210474754701923048}
+  - {fileID: 424588731021921488}
+  - {fileID: 1740646706937885542}
+  - {fileID: 6720295169125302136}
+  - {fileID: 7121434195252787077}
+  - {fileID: 7047838179350416255}
+  - {fileID: 8775694459645639469}
+  - {fileID: 1611063946810572117}
   m_Father: {fileID: 4797896973229293547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5447329343422905659
@@ -1038,15 +1038,15 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8924238411046167}
-  - {fileID: 1807789076297305932}
-  - {fileID: 396764733730075748}
-  - {fileID: 2627760631323078826}
-  - {fileID: 4449782020893398505}
-  - {fileID: 6248399755104769766}
-  - {fileID: 3937857082216954757}
-  - {fileID: 8723453825832040163}
   - {fileID: 3056331109487573416}
+  - {fileID: 8723453825832040163}
+  - {fileID: 3937857082216954757}
+  - {fileID: 6248399755104769766}
+  - {fileID: 4449782020893398505}
+  - {fileID: 2627760631323078826}
+  - {fileID: 396764733730075748}
+  - {fileID: 1807789076297305932}
+  - {fileID: 8924238411046167}
   m_Father: {fileID: 4797896973229293547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6961374486242168368
@@ -1641,7 +1641,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4797896973229293547}
   - component: {fileID: 122711148328271601}
-  - component: {fileID: 5188812379962231826}
   m_Layer: 0
   m_Name: needle
   m_TagString: Untagged
@@ -1718,19 +1717,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &5188812379962231826
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8322793402819911981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3e9abac9fe071c4b8e2ce01a2c2ee27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Target: {fileID: 0}
 --- !u!1 &9147199777127960752
 GameObject:
   m_ObjectHideFlags: 0

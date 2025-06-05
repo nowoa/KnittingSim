@@ -19,14 +19,18 @@ public class Connector //handles connecting the nodes and stitches to create a p
         
         for (int i = 0; i < myPanel.Nodes.Count; i++)
         {
+            //give node unique id and increment value afterwards 
             myPanel.Nodes[i].id = _nodeID;
             _nodeID++;
+            
+            //get neighbor indices in specific order and loop through in this order to try and connect the edges
             int[] neighborIndices = CalculateNeighborIndices(i, myPanel.Width);
             for (var n = 0; n<neighborIndices.Length; n++)
             {
                 TryConnectNodes(i, neighborIndices[n], n, dimensions, myPanel);
             }
 
+            //create parent stitch object if the node has a connected diagonal up node
             if (neighborIndices[(int)Neighbor.UpRight].IsInRangeOf(myPanel.Nodes) && !IsLastInRow(i,myPanel.Width))
             {
                 CreateParentStitch(i, neighborIndices, myPanel);
