@@ -26,7 +26,18 @@ namespace Verlet
             this.b = b;
             _length = len;
             edgeType = type;
-
+        }
+        public VerletEdge(VerletNode a, VerletNode b)
+        {
+            this.a = a;
+            this.b = b;
+            this._length = (a.Position - b.Position).magnitude;
+        }
+        public VerletEdge(VerletNode a, VerletNode b, float length)
+        {
+            this.a = a;
+            this.b = b;
+            this._length = length;
         }
 
         public VerletNode Other(VerletNode p)
@@ -49,6 +60,19 @@ namespace Verlet
                 return;
             }
             VerletEdge edge = new VerletEdge(a, b, length, type);
+            a.AddEdge(edge);
+            b.AddEdge(edge);
+        }
+        
+        public static void ConnectNodes(VerletNode a, VerletNode b, float length)
+        {
+            VerletEdge edge = new VerletEdge(a, b, length);
+            a.AddEdge(edge);
+            b.AddEdge(edge);
+        }
+        public static void ConnectNodes(VerletNode a, VerletNode b)
+        {
+            VerletEdge edge = new VerletEdge(a, b);
             a.AddEdge(edge);
             b.AddEdge(edge);
         }

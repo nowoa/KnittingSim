@@ -40,7 +40,7 @@ namespace Verlet
 
         void Solve(VerletNode particle)
         {
-            if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(particle)) return;
+            /*if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(particle)) return;*/
             particle.Connection.ForEach(e =>
             {
                 var other = e.Other(particle);
@@ -52,7 +52,7 @@ namespace Verlet
         {
             var delta = a.Position - b.Position;
             var current = delta.magnitude;
-            var buffer = rest * 0.4f;
+            var buffer = rest * 0.5f;
             if (Mathf.Abs(current - rest) <= buffer)
             {
                 return;
@@ -84,8 +84,8 @@ namespace Verlet
                         var other = e.Other(p);
                         Gizmos.DrawLine(p.Position, other.Position);
                     });
-                    if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(p)) Gizmos.color = Color.cyan;
-                    Gizmos.DrawSphere(p.Position,0.1f);
+                    /*if (GameManager.Instance.Project.anchors.GetAnchors().ContainsKey(p)) Gizmos.color = Color.cyan;*/
+                    /*Gizmos.DrawSphere(p.Position,0.1f);*/
                 }
             }
     }
