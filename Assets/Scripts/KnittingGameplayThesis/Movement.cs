@@ -79,7 +79,7 @@ public class Movement : MonoBehaviour
 
         if (_hasWrappedYarn)
         {
-            if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f)
+            if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 0.5f)
             {
                 GrabNeedle();
             }

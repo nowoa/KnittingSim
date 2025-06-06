@@ -771,13 +771,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8322793402819911981, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8370907257038405215}
   m_SourcePrefab: {fileID: 100100000, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
 --- !u!4 &8370907257038405213 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
   m_PrefabInstance: {fileID: 7983436942035356610}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8370907257038405215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1922857281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3e9abac9fe071c4b8e2ce01a2c2ee27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 1240129998}
+  isInStitch: 0
+  rotationSpeed: 20
 --- !u!212 &9107578716248755063
 SpriteRenderer:
   m_ObjectHideFlags: 0
