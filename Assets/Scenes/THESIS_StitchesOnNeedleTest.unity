@@ -228,7 +228,10 @@ MonoBehaviour:
   leftNeedle: {fileID: 1627500787}
   rightNeedle: {fileID: 1040619505}
   activeNeedle: {fileID: 0}
-  width: 0
+  InactiveNeedle: {fileID: 0}
+  turnWork: 0
+  stitchWidth: 4
+  nodeWidth: 0
 --- !u!4 &635627191
 Transform:
   m_ObjectHideFlags: 0
@@ -383,11 +386,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.88
+      value: 5.07
       objectReference: {fileID: 0}
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.42
+      value: -0.21999967
       objectReference: {fileID: 0}
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.z
@@ -472,6 +475,7 @@ MonoBehaviour:
   positionA: {fileID: 261355626}
   positionB: {fileID: 604938274}
   isActive: 0
+  counter: 0
 --- !u!224 &1238481472 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2627760631323078826, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
@@ -556,6 +560,7 @@ MonoBehaviour:
   positionA: {fileID: 1476269845}
   positionB: {fileID: 1860186951}
   isActive: 0
+  counter: 0
 --- !u!224 &1668675555 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8924238411046167, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
@@ -576,11 +581,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.75
+      value: -5.06
       objectReference: {fileID: 0}
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.62
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalPosition.z
@@ -686,7 +691,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:

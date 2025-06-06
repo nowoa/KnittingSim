@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance => _instance;
     public Camera Camera;
     public Hover Hover;
-    public static float GravityFactor = -0.0f;
+    public static float GravityFactor = -1f;
     public static int Iterations = 2;
     public Project Project;
     public EventManager EventManager;
@@ -56,5 +56,10 @@ public class GameManager : MonoBehaviour
 
         Hover.SelectedNode.Position = Hover.GetMouseWorldPos();
 
+    }
+
+    public static void SetGravity(float value)
+    {
+        GravityFactor = value;
     }
 }
