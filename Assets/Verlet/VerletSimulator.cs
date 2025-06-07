@@ -52,7 +52,7 @@ namespace Verlet
         {
             var delta = a.Position - b.Position;
             var current = delta.magnitude;
-            var buffer = rest * 0.5f;
+            var buffer = rest * 0.4f;
             if (Mathf.Abs(current - rest) <= buffer)
             {
                 return;

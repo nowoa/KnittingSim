@@ -25,7 +25,7 @@ namespace Verlet
         public void Step()
         {
             var v = Position - Prev;
-            var next = Position + (v*0.9f);
+            var next = Position + (v*0.7f);
             Prev = Position;
             Position = next;
         }
