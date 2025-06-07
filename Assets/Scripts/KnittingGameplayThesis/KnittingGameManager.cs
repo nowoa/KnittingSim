@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Verlet;
@@ -18,6 +20,10 @@ public class KnittingGameManager : MonoBehaviour
     public readonly List<VerletNode> ActiveNodes = new List<VerletNode>();
     public List<VerletNode> NodesToSimulate = new List<VerletNode>();
     private VerletSimulator _simulator;
+    public readonly List<SimpleStitch> Stitches = new List<SimpleStitch>();
+    public readonly List<Vector3> VertexPositions = new List<Vector3>();
+    public SimpleFabricMesh SimpleFabricMesh;
+    private Color _color;//changes every x stitches based on colors player chose
 
     [FormerlySerializedAs("width")] [Range(1,8)]
     public int stitchWidth;
@@ -96,13 +102,32 @@ public class KnittingGameManager : MonoBehaviour
                 TurnWork();
             }
             _simulator = new VerletSimulator(NodesToSimulate);
+            SimpleFabricMesh.RegenerateMesh(Stitches);
             
         }
         
         InactiveNeedle.SetAnchoredNodePositions();
         activeNeedle.SetAnchoredNodePositions();
         _simulator.Simulate(100,Time.deltaTime);
+        SimpleFabricMesh.UpdatePositions(GetVertexPositions());
         
+    }
+
+    private Vector3[] GetVertexPositions()
+    {
+        List<Vector3> result = new List<Vector3>();
+
+        foreach (var s in Stitches)
+        {
+            result.AddRange(s._corners.Select(c => c.Position));
+        }
+
+        return result.ToArray();
+    }
+
+    public void AddStitch(VerletNode botLeft, VerletNode topLeft, VerletNode topRight, VerletNode botRight)
+    {
+        Stitches.Add(new SimpleStitch(new []{botLeft,topLeft,topRight,botRight}, _color));
     }
 
     private void OnDrawGizmos()
@@ -110,5 +135,18 @@ public class KnittingGameManager : MonoBehaviour
         if (!Application.isPlaying) return;
         _simulator.DrawGizmos(Color.white);
     }
+
+    public struct SimpleStitch
+    {
+        public readonly VerletNode[] _corners;
+        private Color _color;
+
+        public SimpleStitch(VerletNode[] corners, Color color)
+        {
+            _corners = corners;
+            _color = color;
+        }
+    }
+
 
 }

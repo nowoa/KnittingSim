@@ -90,12 +90,16 @@ public class NeedleManager : MonoBehaviour
     private void MakeStitch(int id)
     {
         VerletNode current = kgm.ActiveNodes.Find(node => node.id == id);
-        /*VerletNode right = kgm.ActiveNodes.Find(node => node.id == id - 1);*/
+        
         VerletNode below = kgm.ActiveNodes.Find(node => node.id == id - kgm.nodeWidth);
+
+        
         if (id - 1 - kgm.nodeWidth >= 0)
         {
             VerletNode diagonal = kgm.ActiveNodes.Find(node => node.id == id - 1 - kgm.nodeWidth);
+            VerletNode right = kgm.ActiveNodes.Find(node => node.id == id - 1);
             VerletEdge.ConnectNodes(below, diagonal, 1f);
+            kgm.AddStitch(below,current,right,diagonal);
         }
         
         /*VerletEdge.ConnectNodes(current, right, 1f);*/
