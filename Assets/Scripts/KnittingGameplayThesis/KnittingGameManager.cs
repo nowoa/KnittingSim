@@ -42,6 +42,7 @@ public class KnittingGameManager : MonoBehaviour
         activeNeedle.isActive = true;
         Initialise();
         _simulator = new VerletSimulator(NodesToSimulate);
+        SimpleFabricMesh = GetComponent<SimpleFabricMesh>();
     }
 
     private void TurnWork()
@@ -89,9 +90,9 @@ public class KnittingGameManager : MonoBehaviour
     public void AddNodeToActiveNodes(VerletNode node)
     {
         ActiveNodes.Add(node);
-        if (NodesToSimulate.Count > nodeWidth * 8)
+        if (NodesToSimulate.Count > nodeWidth * 10)
         {
-            NodesToSimulate.RemoveAt(nodeWidth * 8);
+            NodesToSimulate.RemoveAt(nodeWidth * 10);
         }
         NodesToSimulate.Insert(0,node);
     }
