@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Verlet;
 
 public class KnittingGameManager : MonoBehaviour
@@ -24,6 +25,9 @@ public class KnittingGameManager : MonoBehaviour
     public readonly List<Vector3> VertexPositions = new List<Vector3>();
     public SimpleFabricMesh SimpleFabricMesh;
     private Color _color;//changes every x stitches based on colors player chose
+
+    public Material knitMat;
+    public Material purlMat;
 
     [FormerlySerializedAs("width")] [Range(1,8)]
     public int stitchWidth;
@@ -50,11 +54,13 @@ public class KnittingGameManager : MonoBehaviour
         {
             activeNeedle = leftNeedle;
             InactiveNeedle = rightNeedle;
+            GetComponent<MeshRenderer>().material = purlMat;
         }
         else
         {
             activeNeedle = rightNeedle;
             InactiveNeedle = leftNeedle;
+            GetComponent<MeshRenderer>().material = knitMat;
         }
 
         activeNeedle.isActive = true;

@@ -93,17 +93,21 @@ public class NeedleManager : MonoBehaviour
         
         VerletNode below = kgm.ActiveNodes.Find(node => node.id == id - kgm.nodeWidth);
 
-        
+        float width = 1.3f;
+        float length = 0.6f;
+        float diagonalLength = Mathf.Sqrt(Mathf.Pow(width, 2) + Mathf.Pow(length, 2));
         if (id - 1 - kgm.nodeWidth >= 0)
         {
             VerletNode diagonal = kgm.ActiveNodes.Find(node => node.id == id - 1 - kgm.nodeWidth);
             VerletNode right = kgm.ActiveNodes.Find(node => node.id == id - 1);
-            VerletEdge.ConnectNodes(below, diagonal, 1f);
+            VerletEdge.ConnectNodes(below, diagonal, width);
+            VerletEdge.ConnectNodes(below,right, diagonalLength);
+            VerletEdge.ConnectNodes(current,diagonal,diagonalLength);
             kgm.AddStitch(below,current,right,diagonal);
         }
         
         /*VerletEdge.ConnectNodes(current, right, 1f);*/
-        VerletEdge.ConnectNodes(current, below, 1f);
+        VerletEdge.ConnectNodes(current, below, length);
         
         /*VerletEdge.ConnectNodes(right, diagonal, 1f);*/
     }
