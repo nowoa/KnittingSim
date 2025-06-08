@@ -492,6 +492,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 52.962
       objectReference: {fileID: 0}
+    - target: {fileID: 6882166003374706043, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8322793402819911981, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_Name
       value: RightNeedle
@@ -686,6 +690,10 @@ PrefabInstance:
     - target: {fileID: 4797896973229293547, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -54.363
+      objectReference: {fileID: 0}
+    - target: {fileID: 6882166003374706043, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8322793402819911981, guid: 881b538bd3e15b145acda98a9088d014, type: 3}
       propertyPath: m_Name

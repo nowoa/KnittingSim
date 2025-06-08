@@ -17,7 +17,10 @@ public class NeedleManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        foreach (var s in stitchPositions)
+        {
+            s.gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -41,7 +44,11 @@ public class NeedleManager : MonoBehaviour
 
     public void Advance()
     {
-        SetAnchoredNodePositions();
+        foreach (var s in stitchPositions)
+        {
+            s.gameObject.SetActive(false);
+        }
+        
         if (isActive)
         {
             if (_nodesOnNeedle.Count == 0)
@@ -83,7 +90,7 @@ public class NeedleManager : MonoBehaviour
                 kgm.turnWork = true;
             }
         }
-        
+        SetAnchoredNodePositions();
         
     }
 
@@ -103,6 +110,7 @@ public class NeedleManager : MonoBehaviour
             VerletEdge.ConnectNodes(below, diagonal, width);
             VerletEdge.ConnectNodes(below,right, diagonalLength);
             VerletEdge.ConnectNodes(current,diagonal,diagonalLength);
+            VerletEdge.ConnectNodes(current,right,width);
             kgm.AddStitch(below,current,right,diagonal);
         }
         
@@ -125,6 +133,14 @@ public class NeedleManager : MonoBehaviour
         for (int i = 0; i < _nodesOnNeedle.Count; i++)
         {
             _nodesOnNeedle[i].Position = anchorPositions[i].position;
+            
+            
+        }
+        for (int i = 0; i < _nodesOnNeedle.Count-1; i++)
+        {
+            stitchPositions[i].gameObject.SetActive(true);
+            
+            
         }
     }
 }
