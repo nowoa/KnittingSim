@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -35,6 +36,16 @@ public class Movement : MonoBehaviour
     private Vector3 currentNeedlePosition;
     private float needleCorrectionSpeed = 10f;
 
+    private enum State
+    {
+        ENTER_STITCH,
+        WRAP_YARN,
+        GRAB_NEEDLE,
+        ADVANCE_STITCHES
+    }
+
+    private State _currentState = State.ENTER_STITCH;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,6 +57,81 @@ public class Movement : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        MoveArms();
+        StateUpdate();
+    }
+
+    private void StateUpdate()
+    {
+        RightNeedle.GetComponent<SpriteRenderer>().color = Color.white;
+        switch (_currentState)
+        {
+            case State.ENTER_STITCH:
+                if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f && !_hasEnteredStitch)
+                {
+                    RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
+                    if (Input.GetKeyUp(KeyCode.Mouse0))
+                    {
+                        EnterStitch();
+                        _currentState = State.WRAP_YARN;
+                    }
+                }
+                break;
+            case State.WRAP_YARN:
+                if (Vector3.Distance(GrabPositionArm.position, needleTip.position) < 1f)
+                {
+                    _hasWrappedYarn = true;
+                    Debug.Log("yarn wrapped");
+                    _currentState = State.GRAB_NEEDLE;
+                }
+                break;
+            case State.GRAB_NEEDLE:
+                if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f)
+                {
+                    RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        GrabNeedle();
+                        _currentState = State.ADVANCE_STITCHES;
+                    }
+                }
+                break;
+            case State.ADVANCE_STITCHES:
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    AdvanceStitches();
+                    _currentState = State.ENTER_STITCH;
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void AdvanceStitches()
+    {
+        
+    }
+
+    private void EnterStitch()
+    {
+        // some animation & sound could go here for feedback
+        RightNeedle.transform.SetParent(LeftNeedle.transform);
+        RightNeedle.GetComponent<NeedleRotation>().isInStitch = true;
+    }
+
+    private void GrabNeedle()
+    {
+        RightNeedle.transform.SetParent(RightArm.transform);
+        RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
+        _hasWrappedYarn = false;
+        _hasEnteredStitch = false;
+        needleTargetPos = new Vector3(3.75f, 6.62f, 0);
+        /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
+    }
+
+    private void MoveArms()
     {
         currentNeedlePosition = RightNeedle.transform.localPosition;
         if (!RightNeedle.GetComponent<NeedleRotation>().isInStitch)
@@ -69,59 +155,5 @@ public class Movement : MonoBehaviour
             (storedMousePosition.x * rotationSpeed * 0.6f));
         LeftNeedle.transform.rotation =
             Quaternion.Euler(0, 0, (-storedMousePosition.x * rotationSpeed) + leftNeedleInitRot);
-        if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f && !_hasEnteredStitch)
-        {
-            RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
-            if (Input.GetKeyUp(KeyCode.Mouse0))
-            {
-                EnterStitch();
-                _hasEnteredStitch = true;
-            }
-            
-        }
-        else
-        {
-            RightNeedle.GetComponent<SpriteRenderer>().color = Color.white;
-        }
-        if (_hasEnteredStitch & !_hasWrappedYarn)
-        {
-            _wrapYarnTranslation += Input.GetAxis("Mouse Y");
-            if (_wrapYarnTranslation >= wrapYarnDelta)
-            {
-                _hasWrappedYarn = true;
-                _wrapYarnTranslation = 0;
-                Debug.Log("yarn wrapped");
-            }
-        }
-
-        if (_hasWrappedYarn)
-        {
-            if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f)
-            {
-                RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
-                if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
-                    GrabNeedle();
-                }
-                
-            }
-        }
-    }
-
-    private void EnterStitch()
-    {
-        // some animation & sound could go here for feedback
-        RightNeedle.transform.SetParent(LeftNeedle.transform);
-        RightNeedle.GetComponent<NeedleRotation>().isInStitch = true;
-    }
-
-    private void GrabNeedle()
-    {
-        RightNeedle.transform.SetParent(RightArm.transform);
-        RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
-        _hasWrappedYarn = false;
-        _hasEnteredStitch = false;
-        needleTargetPos = new Vector3(3.75f, 6.62f, 0);
-        /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
     }
 }

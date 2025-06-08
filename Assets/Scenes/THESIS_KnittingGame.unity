@@ -285,7 +285,7 @@ MonoBehaviour:
   StitchToEnterPos: {fileID: 1240129998}
   GrabPositionArm: {fileID: 405726587}
   GrabPositionNeedle: {fileID: 2128195787}
-  needleTip: {fileID: 0}
+  needleTip: {fileID: 1476723580}
   leftNeedleInitRot: -40
   rotationSpeed: 2
   initialRotation: 3
