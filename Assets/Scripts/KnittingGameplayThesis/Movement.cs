@@ -16,6 +16,7 @@ public class Movement : MonoBehaviour
     public Transform StitchToEnterPos;
     public Transform GrabPositionArm;
     public Transform GrabPositionNeedle;
+    public Transform needleTip;
 
     public int leftNeedleInitRot;
     public float rotationSpeed;
@@ -30,16 +31,32 @@ public class Movement : MonoBehaviour
 
     private bool _hasWrappedYarn;
 
+    private Vector3 needleTargetPos;
+    private Vector3 currentNeedlePosition;
+    private float needleCorrectionSpeed = 10f;
+
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        currentNeedlePosition = RightNeedle.transform.localPosition;
+        needleTargetPos = new Vector3(3.75f, 6.62f, 0);
     }
 
     // Update is called once per frame
     void Update()
     {
+        currentNeedlePosition = RightNeedle.transform.localPosition;
+        if (!RightNeedle.GetComponent<NeedleRotation>().isInStitch)
+        {
+            currentNeedlePosition = Vector3.MoveTowards(
+                currentNeedlePosition,
+                needleTargetPos,
+                Time.deltaTime * needleCorrectionSpeed
+            );
+            RightNeedle.transform.localPosition = currentNeedlePosition;
+        }
         storedMousePosition += new Vector3(Input.GetAxis("Mouse X") * speed, Input.GetAxis("Mouse Y") * speed, 0);
         storedMousePosition = Vector3.ClampMagnitude(storedMousePosition, armReach);
         RightArm.transform.position = storedMousePosition + RightPivot.position;
@@ -52,7 +69,7 @@ public class Movement : MonoBehaviour
             (storedMousePosition.x * rotationSpeed * 0.6f));
         LeftNeedle.transform.rotation =
             Quaternion.Euler(0, 0, (-storedMousePosition.x * rotationSpeed) + leftNeedleInitRot);
-        if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.1f && !_hasEnteredStitch)
+        if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f && !_hasEnteredStitch)
         {
             RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
             if (Input.GetKeyUp(KeyCode.Mouse0))
@@ -79,9 +96,14 @@ public class Movement : MonoBehaviour
 
         if (_hasWrappedYarn)
         {
-            if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 0.5f)
+            if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f)
             {
-                GrabNeedle();
+                RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
+                if (Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    GrabNeedle();
+                }
+                
             }
         }
     }
@@ -99,6 +121,7 @@ public class Movement : MonoBehaviour
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
         _hasWrappedYarn = false;
         _hasEnteredStitch = false;
+        needleTargetPos = new Vector3(3.75f, 6.62f, 0);
         /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
     }
 }
