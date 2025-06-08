@@ -12,7 +12,7 @@ public class NeedleManager : MonoBehaviour
     public Transform positionB;
     public bool isActive;
     private List<VerletNode> _nodesOnNeedle = new List<VerletNode>();
-    public int counter;
+    [HideInInspector]public int counter;
     
     // Start is called before the first frame update
     void Start()
