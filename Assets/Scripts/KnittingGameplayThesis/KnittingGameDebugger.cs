@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+
 using UnityEngine;
 
 public class KnittingGameDebugger : MonoBehaviour
@@ -26,10 +23,10 @@ public class KnittingGameDebugger : MonoBehaviour
 
     private void DrawText()
     {
-        foreach (var n in kgm.NodesToSimulate)
+        /*foreach (var n in kgm.NodesToSimulate)
         {
             Handles.Label(n.Position, n.id.ToString());
-        }
+        }*/
         
     }
 }

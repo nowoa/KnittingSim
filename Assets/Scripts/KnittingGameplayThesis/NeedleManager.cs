@@ -11,7 +11,7 @@ public class NeedleManager : MonoBehaviour
     public Transform positionA;
     public Transform positionB;
     public bool isActive;
-    private List<VerletNode> _nodesOnNeedle = new List<VerletNode>();
+    public List<VerletNode> _nodesOnNeedle = new List<VerletNode>();
     [HideInInspector]public int counter;
     
     // Start is called before the first frame update
@@ -44,10 +44,7 @@ public class NeedleManager : MonoBehaviour
 
     public void Advance()
     {
-        foreach (var s in stitchPositions)
-        {
-            s.gameObject.SetActive(false);
-        }
+        ClearStitches();
         
         if (isActive)
         {
@@ -108,8 +105,8 @@ public class NeedleManager : MonoBehaviour
             VerletNode diagonal = kgm.ActiveNodes.Find(node => node.id == id - 1 - kgm.nodeWidth);
             VerletNode right = kgm.ActiveNodes.Find(node => node.id == id - 1);
             VerletEdge.ConnectNodes(below, diagonal, width);
-            VerletEdge.ConnectNodes(below,right, diagonalLength);
-            VerletEdge.ConnectNodes(current,diagonal,diagonalLength);
+            /*VerletEdge.ConnectNodes(below,right, diagonalLength);
+            VerletEdge.ConnectNodes(current,diagonal,diagonalLength);*/
             VerletEdge.ConnectNodes(current,right,width);
             kgm.AddStitch(below,current,right,diagonal);
         }
@@ -125,6 +122,14 @@ public class NeedleManager : MonoBehaviour
         for (int i = 0; i < _nodesOnNeedle.Count; i++)
         {
             _nodesOnNeedle[i].id = i;
+        }
+    }
+
+    public void ClearStitches()
+    {
+        foreach (var s in stitchPositions)
+        {
+            s.gameObject.SetActive(false);
         }
     }
 

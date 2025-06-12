@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Movement : MonoBehaviour
 {
@@ -28,13 +26,16 @@ public class Movement : MonoBehaviour
     private float _wrapYarnTranslation;
     public float wrapYarnDelta;
 
-    private bool _hasEnteredStitch;
-
-    private bool _hasWrappedYarn;
-
     private Vector3 needleTargetPos;
     private Vector3 currentNeedlePosition;
     private float needleCorrectionSpeed = 10f;
+
+    private string _hintText;
+    public TMP_Text textField;
+    
+    private KnittingGameManager kgm => KnittingGameManager.Instance;
+
+    public UnityEvent OnSetInterval;
 
     private enum State
     {
@@ -60,6 +61,16 @@ public class Movement : MonoBehaviour
     {
         MoveArms();
         StateUpdate();
+        UpdateHintField();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            OnSetInterval.Invoke();
+        }
+    }
+
+    private void UpdateHintField()
+    {
+        textField.text = _hintText;
     }
 
     private void StateUpdate()
@@ -68,7 +79,9 @@ public class Movement : MonoBehaviour
         switch (_currentState)
         {
             case State.ENTER_STITCH:
-                if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f && !_hasEnteredStitch)
+                _hintText =
+                    "hold LMB to aim the needle and cross the needles until the right needle turns red, then let go of LMB";
+                if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f)
                 {
                     RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
                     if (Input.GetKeyUp(KeyCode.Mouse0))
@@ -79,14 +92,16 @@ public class Movement : MonoBehaviour
                 }
                 break;
             case State.WRAP_YARN:
+                _hintText = "move the hand towards the tip of the needle to wrap the yarn";
                 if (Vector3.Distance(GrabPositionArm.position, needleTip.position) < 1f)
                 {
-                    _hasWrappedYarn = true;
                     Debug.Log("yarn wrapped");
                     _currentState = State.GRAB_NEEDLE;
                 }
                 break;
             case State.GRAB_NEEDLE:
+                _hintText =
+                    "you successfully wrapped the yarn! move the hand back to the needle to grab it with LMB when it turns red";
                 if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f)
                 {
                     RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
@@ -98,6 +113,7 @@ public class Movement : MonoBehaviour
                 }
                 break;
             case State.ADVANCE_STITCHES:
+                _hintText = "now press space to advance the stitches on the left needle";
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     AdvanceStitches();
@@ -111,7 +127,7 @@ public class Movement : MonoBehaviour
 
     private void AdvanceStitches()
     {
-        
+        kgm.AdvanceStitches();
     }
 
     private void EnterStitch()
@@ -125,8 +141,6 @@ public class Movement : MonoBehaviour
     {
         RightNeedle.transform.SetParent(RightArm.transform);
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
-        _hasWrappedYarn = false;
-        _hasEnteredStitch = false;
         needleTargetPos = new Vector3(3.75f, 6.62f, 0);
         /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
     }

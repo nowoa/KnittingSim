@@ -42,11 +42,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: stitch_back
+    uniqueID: 476012529
+    locked: 0
   - name: back_needle
     uniqueID: 3059250607
     locked: 0
   - name: front_needle
     uniqueID: 403084787
+    locked: 0
+  - name: stitch_front
+    uniqueID: 719572797
     locked: 0
   - name: arms
     uniqueID: 2988776879

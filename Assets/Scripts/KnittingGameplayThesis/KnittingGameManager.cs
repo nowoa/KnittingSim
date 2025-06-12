@@ -1,11 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 using Verlet;
 
 public class KnittingGameManager : MonoBehaviour
@@ -32,9 +29,16 @@ public class KnittingGameManager : MonoBehaviour
     [FormerlySerializedAs("width")] [Range(1,8)]
     public int stitchWidth;
     [HideInInspector]public int nodeWidth;
+
+    public TMP_Text lengthField;
+
+    private int projectLengthNumber;
+
+    private int rowLength = 5;
     // Start is called before the first frame update
     void Start()
     {
+        lengthField.text = "0 CM";
         nodeWidth = stitchWidth + 1;
         _instance = this;
         activeNeedle = rightNeedle;
@@ -47,9 +51,10 @@ public class KnittingGameManager : MonoBehaviour
 
     private void TurnWork()
     {
+        UpdateLengthText();
         SubtractID();
         TurnID();
-        activeNeedle.isActive = false;
+        /*activeNeedle.isActive = false;
         _isTurned = !_isTurned;
         if (_isTurned)
         {
@@ -64,13 +69,25 @@ public class KnittingGameManager : MonoBehaviour
             GetComponent<MeshRenderer>().material = knitMat;
         }
 
-        activeNeedle.isActive = true;
+        activeNeedle.isActive = true;*/
+
+        _isTurned = !_isTurned;
+        GetComponent<MeshRenderer>().material = _isTurned ? purlMat : knitMat;
+        leftNeedle._nodesOnNeedle = new List<VerletNode>(rightNeedle._nodesOnNeedle);
+        rightNeedle._nodesOnNeedle = new List<VerletNode>();
+        rightNeedle.counter = 0;
+        rightNeedle.ClearStitches();
         turnWork = false;
+    }
+
+    private void UpdateLengthText()
+    {
+        projectLengthNumber++;
+        lengthField.text = projectLengthNumber * rowLength + " CM";
     }
 
     private void SubtractID()
     {
-        List<VerletNode> toRemove = new List<VerletNode>();
         foreach (var n in ActiveNodes)
         {
             n.id -= nodeWidth;
@@ -100,24 +117,23 @@ public class KnittingGameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            InactiveNeedle.Advance();
-            activeNeedle.Advance();
-            if (turnWork)
-            {
-                TurnWork();
-            }
-            _simulator = new VerletSimulator(NodesToSimulate);
-            SimpleFabricMesh.RegenerateMesh(Stitches);
-            
-        }
-        
         InactiveNeedle.SetAnchoredNodePositions();
         activeNeedle.SetAnchoredNodePositions();
         _simulator.Simulate(100,Time.deltaTime);
         SimpleFabricMesh.UpdatePositions(GetVertexPositions());
         
+    }
+
+    public void AdvanceStitches()
+    {
+        InactiveNeedle.Advance();
+        activeNeedle.Advance();
+        if (turnWork)
+        {
+            TurnWork();
+        }
+        _simulator = new VerletSimulator(NodesToSimulate);
+        SimpleFabricMesh.RegenerateMesh(Stitches);
     }
 
     private Vector3[] GetVertexPositions()
