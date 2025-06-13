@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RhythmManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class RhythmManager : MonoBehaviour
     private Queue<float> _intervals = new Queue<float>(4);
 
     private float timeSinceLastInput;
+    public Image rhythmIndicator;
 
     [Range(0,1)]public float rhythmBuffer;
     // Start is called before the first frame update
@@ -39,12 +41,14 @@ public class RhythmManager : MonoBehaviour
             }
             _intervals.Enqueue(timeSinceLastInput);
             Debug.Log("correct");
+            rhythmIndicator.color = Color.green;
         }
         else
         {
             _intervals = new Queue<float>();
             //empty queue to start over interval calcs
             Debug.Log("incorrect");
+            rhythmIndicator.color = Color.red;
         }
         timeSinceLastInput = 0f;
         

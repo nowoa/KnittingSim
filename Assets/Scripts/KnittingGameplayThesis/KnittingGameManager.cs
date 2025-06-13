@@ -54,22 +54,6 @@ public class KnittingGameManager : MonoBehaviour
         UpdateLengthText();
         SubtractID();
         TurnID();
-        /*activeNeedle.isActive = false;
-        _isTurned = !_isTurned;
-        if (_isTurned)
-        {
-            activeNeedle = leftNeedle;
-            InactiveNeedle = rightNeedle;
-            GetComponent<MeshRenderer>().material = purlMat;
-        }
-        else
-        {
-            activeNeedle = rightNeedle;
-            InactiveNeedle = leftNeedle;
-            GetComponent<MeshRenderer>().material = knitMat;
-        }
-
-        activeNeedle.isActive = true;*/
 
         _isTurned = !_isTurned;
         GetComponent<MeshRenderer>().material = _isTurned ? purlMat : knitMat;
@@ -78,6 +62,8 @@ public class KnittingGameManager : MonoBehaviour
         rightNeedle.counter = 0;
         rightNeedle.ClearStitches();
         turnWork = false;
+        leftNeedle.SetStitchesVisible();
+        rightNeedle.SetStitchesVisible();
     }
 
     private void UpdateLengthText()

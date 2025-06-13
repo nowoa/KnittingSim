@@ -24,6 +24,7 @@ public class Movement : MonoBehaviour
     public float armReach;
     private Vector3 storedMousePosition;
     private float _wrapYarnTranslation;
+    public Animator leftArmAnimator;
     public float wrapYarnDelta;
 
     private Vector3 needleTargetPos;
@@ -36,6 +37,7 @@ public class Movement : MonoBehaviour
     private KnittingGameManager kgm => KnittingGameManager.Instance;
 
     public UnityEvent OnSetInterval;
+    public KnittingGameSound sound;
 
     private enum State
     {
@@ -62,10 +64,6 @@ public class Movement : MonoBehaviour
         MoveArms();
         StateUpdate();
         UpdateHintField();
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            OnSetInterval.Invoke();
-        }
     }
 
     private void UpdateHintField()
@@ -95,8 +93,8 @@ public class Movement : MonoBehaviour
                 _hintText = "move the hand towards the tip of the needle to wrap the yarn";
                 if (Vector3.Distance(GrabPositionArm.position, needleTip.position) < 1f)
                 {
-                    Debug.Log("yarn wrapped");
-                    _currentState = State.GRAB_NEEDLE;
+                    
+                    WrapYarn();
                 }
                 break;
             case State.GRAB_NEEDLE:
@@ -127,22 +125,36 @@ public class Movement : MonoBehaviour
 
     private void AdvanceStitches()
     {
+        OnSetInterval.Invoke();
+        leftArmAnimator.SetTrigger("advanceStitch");
         kgm.AdvanceStitches();
+        sound.CreateStitch();
     }
 
     private void EnterStitch()
     {
+        OnSetInterval.Invoke();
         // some animation & sound could go here for feedback
         RightNeedle.transform.SetParent(LeftNeedle.transform);
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = true;
+        sound.EnterStitch();
     }
 
     private void GrabNeedle()
     {
+        OnSetInterval.Invoke();
         RightNeedle.transform.SetParent(RightArm.transform);
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
         needleTargetPos = new Vector3(3.75f, 6.62f, 0);
+        sound.GrabNeedle();
         /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
+    }
+
+    private void WrapYarn()
+    {
+        OnSetInterval.Invoke();
+        _currentState = State.GRAB_NEEDLE;
+        sound.WrapYarn();
     }
 
     private void MoveArms()

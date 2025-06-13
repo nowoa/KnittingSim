@@ -8,8 +8,6 @@ public class NeedleManager : MonoBehaviour
     private KnittingGameManager kgm => KnittingGameManager.Instance;
     public Transform[] anchorPositions;
     public Transform[] stitchPositions;
-    public Transform positionA;
-    public Transform positionB;
     public bool isActive;
     public List<VerletNode> _nodesOnNeedle = new List<VerletNode>();
     [HideInInspector]public int counter;
@@ -40,12 +38,13 @@ public class NeedleManager : MonoBehaviour
             _nodesOnNeedle.Add(node);
             kgm.AddNodeToActiveNodes(node);
         }
+        SetStitchesVisible();
     }
 
     public void Advance()
     {
         ClearStitches();
-        
+        if (!isActive) PlayStitchAnimations();
         if (isActive)
         {
             if (_nodesOnNeedle.Count == 0)
@@ -87,8 +86,9 @@ public class NeedleManager : MonoBehaviour
                 kgm.turnWork = true;
             }
         }
-        SetAnchoredNodePositions();
         
+        SetAnchoredNodePositions();
+        if (isActive) PlayStitchAnimations();
     }
 
     private void MakeStitch(int id)
@@ -138,14 +138,38 @@ public class NeedleManager : MonoBehaviour
         for (int i = 0; i < _nodesOnNeedle.Count; i++)
         {
             _nodesOnNeedle[i].Position = anchorPositions[i].position;
-            
-            
         }
+    }
+
+    private void PlayStitchAnimations()
+    {
         for (int i = 0; i < _nodesOnNeedle.Count-1; i++)
         {
             stitchPositions[i].gameObject.SetActive(true);
-            
-            
+            if (i != 0)
+            {
+                if (isActive)
+                {
+                    stitchPositions[i].gameObject.GetComponent<Animator>().SetTrigger("stitchOnNeedle");
+                }
+                else
+                {
+                    stitchPositions[i].gameObject.GetComponent<Animator>().SetTrigger("stitchOffNeedle");
+                }
+            }
+        }
+        if (isActive) stitchPositions[0].gameObject.GetComponent<Animator>().SetTrigger("stitchAppear");
+        else
+        {
+            stitchPositions[0].gameObject.GetComponent<Animator>().SetTrigger("stitchDisappear");
+        }
+    }
+
+    public void SetStitchesVisible()
+    {
+        for (int i = 0; i < _nodesOnNeedle.Count-1; i++)
+        {
+            stitchPositions[i].gameObject.SetActive(true);
         }
     }
 }
