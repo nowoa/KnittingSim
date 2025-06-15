@@ -12,11 +12,27 @@ public AudioClip enterStitch;
 public AudioClip wrapYarn;
 public AudioClip grabNeedle;
 public AudioClip[] createStitch;
- private AudioSource source;
+public AudioClip BGM;
+ public AudioSource source;
+ private float targetVolume;
+ public AudioSource _BGM_source;
+ private bool _atTargetVolume;
+ public float volumeChangeSpeed;
 
-    private void Start()
+    private void Update()
     {
-        source = GetComponent<AudioSource>();
+        if (!_atTargetVolume)
+        {
+            _BGM_source.volume = _BGM_source.volume > targetVolume
+                ? _BGM_source.volume - (volumeChangeSpeed * Time.deltaTime)
+                : _BGM_source.volume + (volumeChangeSpeed * Time.deltaTime);
+
+            _BGM_source.volume = Mathf.Clamp01(_BGM_source.volume);
+            if (_BGM_source.volume == targetVolume)
+            {
+                _atTargetVolume = true;
+            }
+        }
     }
 
     public void EnterStitch()
@@ -39,6 +55,18 @@ public AudioClip[] createStitch;
         int random = Random.Range(0, createStitch.Length - 1);
         AudioClip clip = createStitch[random];
         source.PlayOneShot(clip);
+    }
+
+    public void FadeInBGM()
+    {
+        _atTargetVolume = false;
+        targetVolume = 1;
+    }
+    
+    public void FadeOutBGM()
+    {
+        _atTargetVolume = false;
+        targetVolume = 0;
     }
 
 }

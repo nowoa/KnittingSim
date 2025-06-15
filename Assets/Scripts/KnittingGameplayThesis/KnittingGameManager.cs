@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -35,9 +37,14 @@ public class KnittingGameManager : MonoBehaviour
     private int projectLengthNumber;
 
     private int rowLength = 5;
+
+    private RhythmManager _rhythmManager;
+
+    public KnittingGameSound kgs;
     // Start is called before the first frame update
     void Start()
     {
+        _rhythmManager = GetComponent<RhythmManager>();
         lengthField.text = "0 CM";
         nodeWidth = stitchWidth + 1;
         _instance = this;
@@ -112,14 +119,27 @@ public class KnittingGameManager : MonoBehaviour
 
     public void AdvanceStitches()
     {
-        InactiveNeedle.Advance();
-        activeNeedle.Advance();
-        if (turnWork)
+        StartCoroutine(AdvanceCoroutine());
+    }
+
+    public IEnumerator AdvanceCoroutine()
+    {
+        for (int i = 0; i < _rhythmManager.multValue; i++)
         {
-            TurnWork();
+            InactiveNeedle.Advance();
+            activeNeedle.Advance();
+
+            if (turnWork)
+            {
+                TurnWork();
+            }
+
+            _simulator = new VerletSimulator(NodesToSimulate);
+            SimpleFabricMesh.RegenerateMesh(Stitches);
+            kgs.CreateStitch();
+
+            yield return new WaitForSeconds(0.1f); // Delay for 0.2 seconds
         }
-        _simulator = new VerletSimulator(NodesToSimulate);
-        SimpleFabricMesh.RegenerateMesh(Stitches);
     }
 
     private Vector3[] GetVertexPositions()
