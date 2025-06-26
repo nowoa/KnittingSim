@@ -8,6 +8,7 @@ public class NeedleManager : MonoBehaviour
     private KnittingGameManager kgm => KnittingGameManager.Instance;
     public Transform[] anchorPositions;
     public Transform[] stitchPositions;
+    public GameObject[] stitches;
     public bool isActive;
     public List<VerletNode> _nodesOnNeedle = new List<VerletNode>();
     [HideInInspector]public int counter;
@@ -167,9 +168,23 @@ public class NeedleManager : MonoBehaviour
 
     public void SetStitchesVisible()
     {
+        
         for (int i = 0; i < _nodesOnNeedle.Count-1; i++)
         {
             stitchPositions[i].gameObject.SetActive(true);
+        }
+    }
+
+    public void WiggleStitches()
+    {
+        foreach (var stitch in stitches)
+        {
+            if (stitch.activeInHierarchy)
+            {
+                LeanTween.rotateLocal(stitch, new Vector3(0, 0, 20), 0.1f);
+                LeanTween.rotateLocal(stitch, new Vector3(0, 0, -20), 0.1f).setDelay(0.1f);
+                LeanTween.rotateLocal(stitch, new Vector3(0, 0, 0), 0.1f).setDelay(0.2f);
+            }
         }
     }
 }

@@ -37,7 +37,10 @@ public class Movement : MonoBehaviour
     private KnittingGameManager kgm => KnittingGameManager.Instance;
 
     public UnityEvent OnSetInterval;
+    public UnityEvent OnMistake;
     public KnittingGameSound sound;
+    private bool _isHoldingNeedle;
+    private bool _hasWrappedYarn;
 
     private enum State
     {
@@ -56,14 +59,16 @@ public class Movement : MonoBehaviour
         Cursor.visible = false;
         currentNeedlePosition = RightNeedle.transform.localPosition;
         needleTargetPos = new Vector3(3.75f, 6.62f, 0);
+        _isHoldingNeedle = true;
     }
 
     // Update is called once per frame
     void Update()
     {
         MoveArms();
-        StateUpdate();
-        UpdateHintField();
+        CheckActions();
+        /*StateUpdate();*/
+        /*UpdateHintField();*/
     }
 
     private void UpdateHintField()
@@ -71,7 +76,79 @@ public class Movement : MonoBehaviour
         textField.text = _hintText;
     }
 
-    private void StateUpdate()
+    private void CheckActions()
+    {
+        RightNeedle.GetComponent<SpriteRenderer>().color = Color.white;
+        if (Vector3.Distance(EnterStitchThreshold.position, StitchToEnterPos.position) < 0.4f && _isHoldingNeedle)
+        {
+            RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
+            if (Input.GetKeyUp(KeyCode.Mouse0))
+            {
+                ValidateAction(State.ENTER_STITCH);
+            }
+        }
+        if (Vector3.Distance(GrabPositionArm.position, needleTip.position) < 1f && !_hasWrappedYarn)
+        {
+            ValidateAction(State.WRAP_YARN);
+        }
+        if (Vector3.Distance(GrabPositionArm.position, needleTip.position) > 1f && _hasWrappedYarn)
+        {
+            _hasWrappedYarn = false;
+        }
+        if (Vector3.Distance(GrabPositionArm.position, GrabPositionNeedle.position) < 1f && !_isHoldingNeedle)
+        {
+            RightNeedle.GetComponent<SpriteRenderer>().color = Color.red;
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                ValidateAction(State.GRAB_NEEDLE);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ValidateAction(State.ADVANCE_STITCHES);
+        }
+        
+    }
+
+    private void ValidateAction(State stateToCheck)
+    {
+        if (_currentState == stateToCheck)
+        {
+            PerformAction();
+        }
+        else
+        {
+            Mistake();
+        }
+    }
+
+    private void PerformAction()
+    {
+        switch (_currentState)
+        {
+            case State.ENTER_STITCH:
+                EnterStitch();
+                break;
+            case State.WRAP_YARN:
+                WrapYarn();
+                break;
+            case State.GRAB_NEEDLE:
+                GrabNeedle();
+                break;
+            case State.ADVANCE_STITCHES:
+                AdvanceStitches();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void Mistake()
+    {
+     OnMistake.Invoke();   
+    }
+
+    /*private void StateUpdate()
     {
         RightNeedle.GetComponent<SpriteRenderer>().color = Color.white;
         switch (_currentState)
@@ -121,7 +198,7 @@ public class Movement : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
-    }
+    }*/
 
     private void AdvanceStitches()
     {
@@ -129,6 +206,7 @@ public class Movement : MonoBehaviour
         leftArmAnimator.SetTrigger("advanceStitch");
         kgm.AdvanceStitches();
         sound.CreateStitch();
+        _currentState = State.ENTER_STITCH;
     }
 
     private void EnterStitch()
@@ -138,6 +216,8 @@ public class Movement : MonoBehaviour
         RightNeedle.transform.SetParent(LeftNeedle.transform);
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = true;
         sound.EnterStitch();
+        _currentState = State.WRAP_YARN;
+        _isHoldingNeedle = false;
     }
 
     private void GrabNeedle()
@@ -147,6 +227,8 @@ public class Movement : MonoBehaviour
         RightNeedle.GetComponent<NeedleRotation>().isInStitch = false;
         needleTargetPos = new Vector3(3.75f, 6.62f, 0);
         sound.GrabNeedle();
+        _currentState = State.ADVANCE_STITCHES;
+        _isHoldingNeedle = true;
         /*RightNeedle.transform.localPosition = new Vector3(3.75f, 6.62f, 0);*/
     }
 
@@ -155,6 +237,7 @@ public class Movement : MonoBehaviour
         OnSetInterval.Invoke();
         _currentState = State.GRAB_NEEDLE;
         sound.WrapYarn();
+        _hasWrappedYarn = true;
     }
 
     private void MoveArms()

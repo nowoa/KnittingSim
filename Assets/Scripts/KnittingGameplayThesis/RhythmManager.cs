@@ -25,6 +25,8 @@ public class RhythmManager : MonoBehaviour
     [HideInInspector]public int multValue;
     private bool enterMult;
     public TMP_Text multText;
+    public Color green;
+    public Color red;
         
 
     [Range(0,1)]public float rhythmBuffer;
@@ -51,11 +53,19 @@ public class RhythmManager : MonoBehaviour
         multSlider.value = multiplierProgress;
         _inactivityTimer += Time.deltaTime;
 
-        if (_inactivityTimer>=inactivityThreshold)
+        if (timeSinceLastInput > GetAverageInterval() + (GetAverageInterval() * rhythmBuffer))
         {
+            combo = 0;
+            UpdateCombo();
             isAcquiringMult = false;
             kgs.FadeOutBGM();
         }
+
+        /*if (_inactivityTimer>=inactivityThreshold)
+        {
+            isAcquiringMult = false;
+            kgs.FadeOutBGM();
+        }*/
 
         if (multiplierProgress >= 0.1f && !enterMult)
         {
@@ -106,7 +116,7 @@ public class RhythmManager : MonoBehaviour
             }
             _intervals.Enqueue(timeSinceLastInput);
             Debug.Log("correct");
-            rhythmIndicator.color = Color.green;
+            rhythmIndicator.color = green;
             combo++;
             UpdateCombo();
             isAcquiringMult = true;
@@ -116,7 +126,7 @@ public class RhythmManager : MonoBehaviour
             _intervals = new Queue<float>();
             //empty queue to start over interval calcs
             Debug.Log("incorrect");
-            rhythmIndicator.color = Color.red;
+            rhythmIndicator.color = red;
             combo = 0;
             UpdateCombo();
             isAcquiringMult = false;
@@ -133,7 +143,19 @@ public class RhythmManager : MonoBehaviour
     private void UpdateCombo()
     {
         
-        comboText.text = combo.ToString();
+        if (combo == 0)
+        {
+            LeanTween.scale(comboText.gameObject, new Vector3(0, 0, 0), 0.1f);
+            
+        }
+        else
+        {
+            comboText.text = combo.ToString();
+            LeanTween.scale(comboText.gameObject, new Vector3(1.3f,1.3f,1.3f), 0.1f).setEase(LeanTweenType.easeOutSine);
+            LeanTween.scale(comboText.gameObject, new Vector3(1, 1, 1), 0.1f).setEase(LeanTweenType.easeInSine)
+                .setDelay(0.1f);
+        }
+        
     }
 
     private void UpdateMultText()
@@ -143,20 +165,24 @@ public class RhythmManager : MonoBehaviour
 
     private bool CheckRhythmBuffer()
     {
-        float averageInterval = 0f;
-        foreach (var f in _intervals)
-        {
-            averageInterval += f;
-        }
-
-        averageInterval /= _intervals.Count;
-        Debug.Log(averageInterval);
+        float averageInterval = GetAverageInterval();
         if (timeSinceLastInput >= averageInterval - (rhythmBuffer * averageInterval) && timeSinceLastInput <= averageInterval + (rhythmBuffer* averageInterval))
         {
             return true;
         }
         return false;
 
+    }
+
+    private float GetAverageInterval()
+    {
+        float averageInterval = 0f;
+        foreach (var f in _intervals)
+        {
+            averageInterval += f;
+        }
+
+        return averageInterval / _intervals.Count;
     }
 
 }
